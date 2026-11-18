@@ -1,0 +1,41 @@
+---
+title: 接入项目
+description: 从源码启动官网，把本地构建的主题包接入 React 19 项目。
+---
+
+## 本地运行
+
+准备 Node.js 22.12 或更高版本和 pnpm 10，然后在终端执行：
+
+```sh
+git clone https://github.com/codexiaoke/nibferry.git
+cd nibferry
+pnpm install
+pnpm dev
+```
+
+打开 [本地官网](http://127.0.0.1:3317/)。开发服务会同步更新包的 JavaScript、类型声明和 CSS 变量。
+
+## 安装到其他项目
+
+在仓库根目录运行打包命令。切换到目标项目，把输出的压缩包路径交给 pnpm。
+
+```sh
+pnpm --filter @nibferry/react pack
+```
+
+```sh
+pnpm add /path/to/nibferry-react-0.1.0.tgz
+```
+
+## 导入样式
+
+在 Web 应用入口导入默认变量，就可以在任意样式表中使用 `--nf-canvas` 和 `--nf-ink`。需要直接读取颜色或时长时，使用[主题接口](/docs/theme)。
+
+```tsx
+import '@nibferry/react/styles.css';
+
+export function App() {
+  return <main style={{ background: 'var(--nf-canvas)', color: 'var(--nf-ink)' }}>Hello</main>;
+}
+```

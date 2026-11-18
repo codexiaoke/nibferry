@@ -1,10 +1,11 @@
-import Guide from '../../content/guide.mdx';
+import { basePath } from '../site-links';
 
-export const metadata = { title: '设计 Token · Nibferry' };
 export default function GuidePage() {
+  const href = basePath + '/docs/theme/';
   return (
-    <main className="guide">
-      <Guide />
+    <main id="content">
+      <meta httpEquiv="refresh" content={'0;url=' + href} />
+      <a href={href}>打开设计 Token 指南</a>
     </main>
   );
 }

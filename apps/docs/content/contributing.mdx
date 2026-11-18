@@ -1,0 +1,24 @@
+---
+title: 贡献指南
+description: 在本地验证改动，通过简短的英文提交和 Pull Request 参与开发。
+---
+
+## 文档与组件
+
+官网文章位于 `apps/docs/content`。修改正文或标题后，页内目录和全文搜索会随文章一起更新。在 `meta.json` 中安排页面所属分组和顺序。
+
+库组件按界面能力放在 `packages/react/src/components/<模块>/<组件名>/`。每个组件有自己的 README，说明导入方式、参数、回调和键盘行为。
+
+## 本地验证
+
+先运行与改动相关的测试。修改公共入口或构建流程时，在仓库根目录完成以下检查：
+
+```sh
+pnpm typecheck
+pnpm build
+pnpm test
+```
+
+## 提交改动
+
+从最新的 `main` 建立工作分支。每个提交聚焦一个改动，标题用英文动词开头，例如 `Fix keyboard focus in menus`。在 Pull Request 里说明改动目的和验证方式。详见[仓库贡献指南](https://github.com/codexiaoke/nibferry/blob/main/CONTRIBUTING.md)。

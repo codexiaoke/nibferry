@@ -1,0 +1,36 @@
+---
+title: 动效与过渡
+description: 为操作反馈、内容展开和浮层分别设置时长，并尊重系统的减少动态效果偏好。
+---
+
+## 时长与缓动
+
+`theme.motion.feedback` 用于短反馈，`reveal` 用于展开内容，`surface` 用于浮层。时长单位为毫秒。`theme.easing` 提供三次贝塞尔曲线的四个参数，CSS 中对应 `--nf-ease`。
+
+```css
+.trigger {
+  transition: background-color var(--nf-motion-feedback) var(--nf-ease);
+}
+```
+
+## 调整展开速度
+
+在容器上覆盖 `--nf-motion-reveal`，即可统一调整该范围内读取此变量的展开动画。打开[动效预览](/#playground)，可以比较三个时长的实际节奏。
+
+```css
+.panel {
+  --nf-motion-reveal: 180ms;
+}
+```
+
+## 减少动态效果
+
+在 `prefers-reduced-motion: reduce` 下关闭位移和过渡。控件仍应即时呈现展开、关闭或选中后的状态。
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .trigger {
+    transition: none;
+  }
+}
+```

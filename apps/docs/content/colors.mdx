@@ -1,0 +1,24 @@
+---
+title: 颜色与文字
+description: 用中性色组织页面、文字和主操作，在需要强调的位置使用蓝色。
+---
+
+## 配色预设
+
+当前包提供 `palettes.neutral` 和 `palettes.graphite`。两组预设使用相同的角色名，切换配色时可以逐项对应。预设只包含颜色，动效可单独设置。
+
+```ts
+import { palettes } from '@nibferry/react/theme';
+
+const { canvas, ink, primary, onPrimary } = palettes.graphite;
+```
+
+## 表面与前景
+
+页面底色使用 `canvas`，正文使用 `ink`。次级说明使用 `secondary`，辅助信息使用 `muted`。在代码区、导航项或分组中，优先用 `subtle` 区分背景。
+
+## 主操作与强调
+
+主按钮组合使用 `primary` 和 `onPrimary`，以保证两者在浅色与石墨配色中一起切换。默认浅色包的 `accent` 是 `#1677FF`，正文链接可使用 `accentText` 并保留下划线。
+
+官网采用设计规范中的暖灰表面与局部品牌蓝。可在[默认配色表](https://github.com/codexiaoke/nibferry/blob/main/docs/design-tokens.md#默认配色)中对照官网目标色与当前包的预设。
