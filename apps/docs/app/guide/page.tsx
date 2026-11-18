@@ -1,10 +1,5 @@
-import Guide from '../../content/guide.mdx';
+import { redirect } from 'next/navigation';
 
-export const metadata = { title: '设计 Token · Nibferry' };
 export default function GuidePage() {
-  return (
-    <main className="guide">
-      <Guide />
-    </main>
-  );
+  redirect('/docs/theme');
 }

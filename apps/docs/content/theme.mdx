@@ -1,0 +1,32 @@
+---
+title: 设计 Token
+description: 通过 TypeScript 读取主题默认值，使用 CSS 变量覆盖局部界面。
+---
+
+## 读取主题
+
+从 `@nibferry/react/theme` 导入 `theme` 和 `palettes`。颜色使用 CSS 色值，动效时长使用毫秒。
+
+```ts
+import { palettes, theme } from '@nibferry/react/theme';
+
+const background = palettes.graphite.canvas;
+const duration = theme.motion.feedback;
+```
+
+## 局部覆盖
+
+在应用入口导入 `@nibferry/react/styles.css`，在需要换肤的容器上定义同名变量。子元素继承这一组值，容器外的界面继续使用自己的主题。
+
+```css
+.panel {
+  --nf-canvas: #202020;
+  --nf-ink: #f5f5f5;
+  color: var(--nf-ink);
+  background: var(--nf-canvas);
+}
+```
+
+## Token 的层次
+
+设计规范将 Token 分为基础值、梯度、全局语义和组件部件。例如，选择器触发区的边框可以引用全局的 `border.input`。[完整规范](https://github.com/codexiaoke/nibferry/blob/main/docs/design-tokens.md)列出规划中的语义角色；包当前导出的名称和值可在 [Token 预览](/#tokens) 中查询。

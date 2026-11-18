@@ -8,6 +8,8 @@
     "dev:site": "next dev --hostname 127.0.0.1 --port 3317"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "4.4.0",
+    "@hugeicons/react": "1.1.10",
     "@nibferry/react": "workspace:*",
     "fumadocs-core": "16.19.4",
     "fumadocs-mdx": "15.6.3",

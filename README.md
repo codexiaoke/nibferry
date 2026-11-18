@@ -13,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-打开 [本地 Token 接入指南](http://127.0.0.1:3317/guide)。包的 JS、CSS 和类型声明会随源码变化重新生成。
+打开 [本地官网](http://127.0.0.1:3317/) 查看交互预览，或阅读 [文档中心](http://127.0.0.1:3317/docs)。包的 JS、CSS 和类型声明会随源码变化重新生成。
 
 ## 项目结构
 
@@ -21,10 +21,10 @@ pnpm dev
 | --- | --- |
 | `packages/react/src/theme` | 当前运行时默认值、配色预设、配置类型和 CSS 变量映射 |
 | `docs/design-tokens.md` | 新组件采用的 UI Token 设计规范 |
-| `apps/docs` | Next.js 官网和 Token 接入指南 |
+| `apps/docs` | Next.js 官网、MDX 文档与全文搜索 |
 | `tests` | 主题配置和官网加载 CSS 变量的验证 |
 
-通过 `@nibferry/react/theme` 读取主题数据和配色预设。Web 样式入口提供默认 CSS 变量，可按作用域覆盖。示例见[接入指南](apps/docs/content/guide.mdx)。
+通过 `@nibferry/react/theme` 读取主题数据和配色预设。Web 样式入口提供默认 CSS 变量，可按作用域覆盖。示例见[接入指南](apps/docs/content/theme.mdx)。
 
 ## 验证与分发
 
