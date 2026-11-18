@@ -8,7 +8,7 @@ import Menu from '@hugeicons/core-free-icons/Menu01Icon';
 import Close from '@hugeicons/core-free-icons/Cancel01Icon';
 import Down from '@hugeicons/core-free-icons/ArrowDown01Icon';
 import type { SearchEntry } from '../../../lib/docs';
-import { repository } from '../../site-links';
+import { basePath, repository } from '../../site-links';
 import DocSearch from '../DocSearch/DocSearch';
 
 const menus = [
@@ -82,7 +82,7 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
           <Link href="/docs" onClick={close}>
             文档
           </Link>
-          <a href="/#playground" onClick={close}>
+          <a href={basePath + '/#playground'} onClick={close}>
             交互预览
           </a>
           {menus.map(({ title, links }, i) => (

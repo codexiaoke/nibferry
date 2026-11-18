@@ -4,6 +4,8 @@ Nibferry 是通用 React UI 组件库，可供多个产品及 Agent 界面复用
 
 默认色系、边框、阴影、交互状态及组件覆盖约定见 [UI Token 规范](docs/design-tokens.md)。
 
+在线访问 [Nibferry 官网](https://codexiaoke.github.io/nibferry/) 和[文档中心](https://codexiaoke.github.io/nibferry/docs/)。GitHub Actions 会在 PR 中构建并测试静态站点，合入 `main` 后自动部署到 GitHub Pages。
+
 ## 本地开发
 
 需要 Node.js 22.12 或更高版本和 pnpm 10。

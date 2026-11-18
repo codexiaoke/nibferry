@@ -1,4 +1,5 @@
 import { loader } from 'fumadocs-core/source';
+import { basePath } from '../app/site-links';
 import { docs } from '../.source/server';
 
 export const source = loader({ baseUrl: '/docs', source: docs.toFumadocsSource() });
@@ -55,6 +56,10 @@ export function getSearchIndex(): SearchEntry[] {
   });
 }
 
+export function markdownFile(slugs: string[]) {
+  return (slugs.join('/') || 'index') + '.txt';
+}
+
 export async function getMarkdown(page: NonNullable<ReturnType<typeof source.getPage>>) {
   return (
     '# ' +
@@ -62,6 +67,6 @@ export async function getMarkdown(page: NonNullable<ReturnType<typeof source.get
     '\n\n' +
     page.data.description +
     '\n\n' +
-    (await page.data.getText('processed'))
+    (await page.data.getText('processed')).replace(/\]\(\/(?!\/)/g, '](' + basePath + '/')
   );
 }

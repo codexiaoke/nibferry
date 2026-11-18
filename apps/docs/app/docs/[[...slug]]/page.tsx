@@ -4,9 +4,10 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import Right from '@hugeicons/core-free-icons/ArrowRight01Icon';
 import Next from '@hugeicons/core-free-icons/ArrowRight02Icon';
 import Previous from '@hugeicons/core-free-icons/ArrowLeft02Icon';
-import { getGroups, getMarkdown, source } from '../../../lib/docs';
+import { getGroups, getMarkdown, markdownFile, source } from '../../../lib/docs';
 import CopyContent from '../../_components/CopyContent/CopyContent';
 import PageOutline from '../../_components/PageOutline/PageOutline';
+import { basePath } from '../../site-links';
 
 type Route = { params: Promise<{ slug?: string[] }> };
 export function generateStaticParams() {
@@ -88,7 +89,7 @@ export default async function DocsPage({ params }: Route) {
         key={'outline-' + page.url}
         headings={headings}
         markdown={await getMarkdown(page)}
-        markdownUrl={page.url.replace(/^\/docs/, '/markdown')}
+        markdownUrl={basePath + '/markdown/' + markdownFile(page.slugs)}
       />
     </>
   );

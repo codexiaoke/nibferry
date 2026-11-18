@@ -9,7 +9,7 @@ import Menu from '@hugeicons/core-free-icons/Menu02Icon';
 import type { DocGroup } from '../../../lib/docs';
 
 export default function DocsSidebar({ groups }: { groups: DocGroup[] }) {
-  const current = usePathname();
+  const current = usePathname().replace(/\/$/, '');
   const navigation = useRef<HTMLElement>(null);
   useEffect(() => {
     const group = navigation.current?.querySelector('[aria-current="page"]')?.closest('details');

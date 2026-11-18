@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { themeVariables } from '../packages/react/src/theme/config';
 
 test('官网首页展示工作区，可切换代码示例并进入指南', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('界面组件库');
   await page.getByRole('button', { name: 'CSS', exact: true }).click();
   await expect(page.getByLabel('CSS 示例')).toContainText('--nf-canvas');
@@ -10,12 +10,12 @@ test('官网首页展示工作区，可切换代码示例并进入指南', async
     .getByRole('navigation', { name: '主导航' })
     .getByRole('link', { name: '文档' })
     .click();
-  await expect(page).toHaveURL(/\/docs$/);
+  await expect(page).toHaveURL(/\/docs\/?$/);
   await expect(page.getByRole('heading', { name: '文档概览', level: 1 })).toBeVisible();
 });
 
 test('搜索、分类和切换配色使用主题实际导出的值', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   const preview = page.getByRole('region', { name: '设计 Token 交互预览' });
   await preview.getByRole('button', { name: '搜索变量', exact: true }).click();
   await preview.getByRole('button', { name: '主操作', exact: true }).click();
@@ -34,7 +34,7 @@ test('搜索、分类和切换配色使用主题实际导出的值', async ({ pa
 
 test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('/');
+  await page.goto('./');
   const menu = page.getByRole('button', { name: '打开导航' });
   await menu.click();
   await expect(page.getByRole('navigation', { name: '主导航' })).toBeVisible();
@@ -48,7 +48,7 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
 
 test('切换仓库命令后复制对应内容', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/');
+  await page.goto('./');
   const hero = page.locator('.hero');
   await hero.getByLabel('选择仓库命令').click();
   await hero.getByRole('button', { name: '启动官网' }).click();
@@ -58,8 +58,8 @@ test('切换仓库命令后复制对应内容', async ({ page, context }) => {
 });
 
 test('从旧指南打开全局搜索，可以用键盘跳到另一篇文档的章节', async ({ page }) => {
-  await page.goto('/guide');
-  await expect(page).toHaveURL(/\/docs\/theme$/);
+  await page.goto('./guide');
+  await expect(page).toHaveURL(/\/docs\/theme\/?$/);
   const trigger = page.getByRole('button', { name: '搜索文档' });
   await trigger.focus();
   await page.keyboard.press('Control+k');
@@ -75,13 +75,13 @@ test('从旧指南打开全局搜索，可以用键盘跳到另一篇文档的�
   await expect(search).toHaveAttribute('aria-activedescendant', 'search-result-1');
   await page.keyboard.press('ArrowUp');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/docs\/surfaces#/);
+  await expect(page).toHaveURL(/\/docs\/surfaces\/?#/);
   expect(decodeURIComponent(new URL(page.url()).hash)).toBe('#分隔线与控件轮廓');
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
 test('在 Token 预览中打开文档搜索会保留筛选和阅读位置', async ({ page }) => {
-  await page.goto('/#tokens');
+  await page.goto('./#tokens');
   const filter = page.getByRole('textbox', { name: '按名称、用途或值搜索' });
   await filter.fill('color.ink');
   const position = await page.evaluate(() => window.scrollY);
@@ -96,7 +96,7 @@ test('在 Token 预览中打开文档搜索会保留筛选和阅读位置', asyn
 });
 
 test('设计规范菜单、分组目录和相邻文档链接可导航', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   const menu = page.getByRole('button', { name: '设计规范' });
   await menu.click();
   await page.keyboard.press('Escape');
@@ -123,13 +123,13 @@ test('设计规范菜单、分组目录和相邻文档链接可导航', async ({
   await anchor.click();
   await expect(anchor).toHaveAttribute('aria-current', 'location');
   await page.getByRole('link', { name: '上一篇 颜色与文字' }).click();
-  await expect(page).toHaveURL(/\/docs\/colors$/);
+  await expect(page).toHaveURL(/\/docs\/colors\/?$/);
 });
 
 test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.setViewportSize({ width: 375, height: 700 });
-  await page.goto('/docs');
+  await page.goto('./docs');
   await page.getByRole('button', { name: '文档目录' }).click();
   await page
     .getByRole('navigation', { name: '文档目录' })
@@ -146,17 +146,18 @@ test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({
   await outline.click();
   await page.getByRole('button', { name: '复制本页' }).click();
   await expect(page.getByRole('button', { name: '已复制 Markdown' })).toBeVisible();
-  const raw = await page.request.get('/markdown/motion');
+  const raw = await page.request.get('./markdown/motion.txt');
+  expect(raw.ok()).toBe(true);
   expect(await raw.text()).toBe(await page.evaluate(() => navigator.clipboard.readText()));
   await expect(page.getByRole('link', { name: '查看 Markdown' })).toHaveAttribute(
     'href',
-    '/markdown/motion',
+    /\/markdown\/motion\.txt$/,
   );
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 
 test('交互预览默认可以播放，侧栏可收起，支持全屏', async ({ page }) => {
-  await page.goto('/#playground');
+  await page.goto('./#playground');
   const preview = page.getByRole('region', { name: '设计 Token 交互预览' });
   await expect(preview.getByRole('button', { name: '播放动效' })).toBeVisible();
   await preview.getByRole('button', { name: '搜索变量' }).click();
@@ -175,7 +176,7 @@ test('交互预览默认可以播放，侧栏可收起，支持全屏', async ({
 });
 
 test('动效预览使用选择的时长并尊重系统减少动效偏好', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   const section = page.getByRole('region', { name: '动效预览' });
   await section.getByRole('button', { name: /内容展开/ }).click();
   await section.getByRole('button', { name: '播放动效' }).click();
@@ -204,7 +205,7 @@ test('动效配置拒绝无效时长和贝塞尔横坐标', () => {
 
 test('代码块复制保留命令和换行', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/docs/installation');
+  await page.goto('./docs/installation');
   const block = page.locator('.doc-code').first();
   await block.getByRole('button', { name: '复制代码' }).click();
   await expect(block.getByRole('button', { name: '已复制代码' })).toBeVisible();
