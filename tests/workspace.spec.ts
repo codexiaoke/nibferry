@@ -61,6 +61,7 @@ test('从旧指南打开全局搜索，可以用键盘跳到另一篇文档的�
   await page.goto('./guide');
   await expect(page).toHaveURL(/\/docs\/theme\/?$/);
   const trigger = page.getByRole('button', { name: '搜索文档' });
+  await expect(trigger.locator('kbd')).toHaveText(/K$/);
   await trigger.focus();
   await page.keyboard.press('Control+k');
   const search = page.getByRole('combobox', { name: '搜索文档' });
