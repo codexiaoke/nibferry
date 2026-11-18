@@ -211,7 +211,7 @@ h1 {
   font-size: 13px;
 }
 .steps-toggle svg {
-  transition: transform var(--nf-motion-feedback) var(--nf-ease);
+  transition: transform calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
 }
 .steps-toggle[aria-expanded='true'] svg {
   transform: rotate(90deg);
@@ -221,8 +221,8 @@ h1 {
   grid-template-rows: 0fr;
   opacity: 0;
   transition:
-    grid-template-rows var(--nf-motion-reveal) var(--nf-ease),
-    opacity var(--nf-motion-feedback) var(--nf-ease);
+    grid-template-rows calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1)) var(--nf-ease),
+    opacity calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
 }
 .steps-list > div {
   overflow: hidden;
@@ -274,6 +274,7 @@ h1 {
   margin: 8px 0;
 }
 .note-form textarea {
+  background: var(--nf-canvas);
   width: 100%;
   padding: 8px;
   border: 1px solid var(--nf-line);
@@ -330,33 +331,91 @@ h1 {
   gap: 8px;
   font-size: 12px;
 }
-.swatch i {
-  width: 24px;
-  height: 24px;
+.swatch input[type='color'] {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  overflow: hidden;
+  background: none;
+  border: 1px solid var(--nf-line);
   border-radius: 6px;
-  border: 1px solid rgb(0 0 0 /0.06);
+  cursor: pointer;
+}
+.swatch input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.swatch input::-webkit-color-swatch,
+.swatch input::-moz-color-swatch {
+  border: 0;
 }
 .swatch code {
   display: block;
   color: var(--nf-secondary);
   font-size: 11px;
 }
-.timings {
-  margin: 0;
-  display: grid;
-  gap: 4px;
-}
-.timings > div {
+.config-heading,
+.palette-select,
+.motion-toggle {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+.config-heading {
+  min-height: 36px;
   justify-content: space-between;
-  gap: 12px;
+  margin-bottom: 12px;
+}
+.config-heading h3 {
+  margin: 0;
+}
+.palette-select,
+.motion-toggle {
+  color: var(--nf-secondary);
   font-size: 13px;
 }
-.timings dd {
+.palette-select select {
+  font: inherit;
+  color: var(--nf-ink);
+  background: var(--nf-canvas);
+  border: 1px solid var(--nf-line);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.timings {
+  display: grid;
+  gap: 8px;
+}
+.timings label {
+  display: grid;
+  grid-template-columns: 5em minmax(32px, 1fr) 5em;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.timings input {
+  width: 100%;
   margin: 0;
+}
+.timings input,
+.motion-toggle input {
+  accent-color: var(--nf-primary);
+}
+.timings output {
+  text-align: right;
   color: var(--nf-secondary);
   font-variant-numeric: tabular-nums;
+}
+.system-motion {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .system-motion {
+    display: block;
+    color: var(--nf-secondary);
+    font-size: 13px;
+    margin-top: 8px;
+  }
 }
 .guide {
   max-width: 828px;

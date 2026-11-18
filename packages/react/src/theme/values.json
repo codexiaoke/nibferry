@@ -9,12 +9,18 @@
     "primary": "#000000",
     "onPrimary": "#FFFFFF",
     "accent": "#1677FF",
-    "accentText": "#185DB7"
+    "accentText": "#185DB7",
+    "shadow": "rgb(0 0 0 / 6%)"
   },
   "motion": {
     "feedback": 120,
     "reveal": 250,
     "surface": 240
   },
-  "easing": [0.2, 0.8, 0.2, 1]
+  "easing": [
+    0.2,
+    0.8,
+    0.2,
+    1
+  ]
 }

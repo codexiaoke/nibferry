@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import type { theme } from './src/theme/tokens';
+import { themeVariables } from './src/theme/config.ts';
 
 const themePath = fileURLToPath(new URL('./src/theme/values.json', import.meta.url));
-const kebab = (name: string) => name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
 
 export default defineConfig({
   plugins: [
@@ -15,15 +15,14 @@ export default defineConfig({
         if (!id.endsWith('/components/controls.module.css')) return;
         this.addWatchFile(themePath);
         const values: typeof theme = JSON.parse(readFileSync(themePath, 'utf8'));
-        const variables = [
-          ...Object.entries(values.color).map(
-            ([name, value]) => '--nf-' + kebab(name) + ':' + value,
-          ),
-          ...Object.entries(values.motion).map(
-            ([name, ms]) => '--nf-motion-' + name + ':' + ms + 'ms',
-          ),
-          '--nf-ease:cubic-bezier(' + values.easing.join(',') + ')',
-        ].join(';');
+        const variables = Object.entries(
+          themeVariables({
+            colors: values.color,
+            motion: { ...values.motion, easing: values.easing },
+          }),
+        )
+          .map(([name, value]) => name + ':' + value)
+          .join(';');
         return source.replace('@nibferry-theme;', ':global(:where(:root)){' + variables + '}');
       },
       generateBundle() {

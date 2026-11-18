@@ -18,10 +18,12 @@ pnpm dev
 | 路径 | 职责 |
 | --- | --- |
 | `packages/react/src/task` | 任务附件和待决定事项的 TypeScript 类型 |
-| `packages/react/src/theme` | 颜色、时长和缓动的唯一来源；构建时生成 CSS 变量，纯数据入口可独立导入 |
+| `packages/react/src/theme` | 默认参数、配色预设与配置类型；构建和运行时采用相同的 CSS 变量映射 |
 | `packages/react/src/components` | 输入框、决策区和原地切换容器；Web 键盘、焦点与动画 |
 | `apps/docs` | Next.js 官网、Fumadocs MDX 接入指南和资料整理示例，均通过组件包的公开入口接入 |
 | `tests` | 桌面与手机宽度下的浏览器交互验收 |
+
+使用 `ThemeProvider` 可以在整个应用或单个工作区配置配色和动效。预设仅包含颜色；时长、缓动与关闭动效独立配置。示例见[接入指南](apps/docs/content/guide.mdx)。
 
 应用持有任务、保存结果和错误状态，通过数据与回调使用组件。示例中的笔记合并、另存、阅读与编辑属于官网应用。RN 接入时可以复用任务类型和主题数据，并在原生组件中实现键盘、导航与动效。
 

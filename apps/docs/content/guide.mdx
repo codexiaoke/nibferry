@@ -51,8 +51,26 @@ export function NoteDecision({ save, pending }: {
 
 `TaskComposer` 接受草稿、附件和发送回调。Enter 发送，Shift + Enter 换行。用 `TaskInputSurface` 包住输入框和决策区，把 `scene` 从 `compose` 切到 `decide` 即可原地过渡。系统启用减少动态效果后直接切换。
 
-## 主题与平台
+<h2 id="theme">配置颜色与动效</h2>
 
-在应用容器上覆盖 `--nf-primary`、`--nf-on-primary`、`--nf-accent` 等变量可以局部换色。默认主操作使用黑底白字，蓝色用于局部强调。纯数据入口 `@nibferry/react/theme` 提供颜色和以毫秒计的动效参数。
+在需要换肤的区域外包一层 `ThemeProvider`。默认黑白配色使用纯黑主操作、白字和局部亮蓝。组件包预置 `palettes.neutral` 和 `palettes.graphite` 两套颜色；两套配色都可以和任意动效配置组合。
 
-Web 和 Electron 共用 React 组件。后续 RN 可复用任务数据和设计参数，触摸、软键盘、原生导航和动画由移动端实现。
+```tsx
+import { ThemeProvider } from '@nibferry/react';
+import { palettes } from '@nibferry/react/theme';
+
+<ThemeProvider
+  colors={{ ...palettes.graphite, accent: '#89B7FF' }}
+  motion={{ feedback: 100, reveal: 180, surface: 220, easing: [0.2, 0.8, 0.2, 1] }}
+>
+  <NoteWorkspace />
+</ThemeProvider>
+```
+
+`colors` 按用途覆盖颜色。修改主按钮时可以一起设置 `primary` 和 `onPrimary`，焦点环与强调文字分别用 `accent` 和 `accentText`。内层仅设置一个颜色时，其他颜色和动效继续继承外层；传入完整预设会替换当前区域的全部颜色。
+
+`motion` 的三个时长按毫秒指定，分别控制按下反馈、步骤展开和输入区高度切换；`easing` 接受四个三次贝塞尔参数。传入 `motion={false}` 即可关闭整个区域的动效，包括按钮按压缩放。系统开启减少动态效果时始终优先。切换配置会保留草稿和进行中的决策。
+
+宿主自定义的视图也可以消费同一套变量。例如步骤展开的 CSS 时长使用 `calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1))`，同时在 `prefers-reduced-motion: reduce` 下关闭过渡。
+
+Web 和 Electron 共用组件。纯数据入口 `@nibferry/react/theme` 导出 `theme` 和 `palettes`，RN 可复用颜色、毫秒值和缓动曲线。

@@ -1,5 +1,10 @@
 @nibferry-theme;
 
+.themeScope {
+  color: var(--nf-ink);
+  background: var(--nf-canvas);
+}
+
 .surface,
 .composer,
 .decision {
@@ -18,8 +23,9 @@
   border: 1px solid var(--nf-line);
   border-radius: 28px;
   background: var(--nf-canvas);
-  box-shadow: 0 4px 18px rgb(0 0 0 / 6%);
-  transition: border-color var(--nf-motion-feedback) var(--nf-ease);
+  box-shadow: 0 4px 18px var(--nf-shadow);
+  transition: border-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1))
+    var(--nf-ease);
 }
 .surface:focus-within {
   border-color: color-mix(in srgb, var(--nf-ink) 24%, var(--nf-canvas));
@@ -90,10 +96,10 @@
   place-items: center;
   flex: none;
   cursor: pointer;
-  transition: transform var(--nf-motion-feedback) var(--nf-ease);
+  transition: transform calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
 }
 .send:active:enabled {
-  transform: scale(0.94);
+  transform: scale(calc(1 - 0.06 * var(--nf-motion-scale, 1)));
 }
 .send:disabled {
   background: var(--nf-line);
@@ -181,7 +187,8 @@
   }
 }
 .surfaceFrame[data-switching] {
-  animation: resize-surface var(--nf-motion-surface) var(--nf-ease);
+  animation: resize-surface calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1))
+    var(--nf-ease);
 }
 @keyframes resize-surface {
   from {
