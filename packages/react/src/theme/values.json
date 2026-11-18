@@ -1,0 +1,20 @@
+{
+  "color": {
+    "canvas": "#FFFFFF",
+    "subtle": "#F7F7F7",
+    "ink": "#0D0D0D",
+    "secondary": "#5D5D5D",
+    "muted": "#737373",
+    "line": "#E5E5E5",
+    "primary": "#000000",
+    "onPrimary": "#FFFFFF",
+    "accent": "#1677FF",
+    "accentText": "#185DB7"
+  },
+  "motion": {
+    "feedback": 120,
+    "reveal": 250,
+    "surface": 240
+  },
+  "easing": [0.2, 0.8, 0.2, 1]
+}

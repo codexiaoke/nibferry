@@ -1,0 +1,58 @@
+---
+title: 接入指南
+---
+
+# 接入指南
+
+Nibferry 为 React 19 应用提供任务输入与用户决策组件。官网里的资料整理示例使用相同的公开入口。
+
+## 安装与样式
+
+当前版本在本地分发。在仓库根目录运行打包命令，将生成的安装包交给另一个项目安装。
+
+```sh
+pnpm --filter @nibferry/react pack
+```
+
+在接入项目中运行 `pnpm add <安装包路径>`，然后在应用入口引入样式。
+
+```tsx
+import '@nibferry/react/styles.css';
+```
+
+## 从单个决策区开始
+
+产品提供待决定的事项和选项。组件回传所选 ID，产品负责执行操作并更新状态。
+
+```tsx
+import { DecisionPanel } from '@nibferry/react';
+import type { TaskDecision } from '@nibferry/react';
+
+const decision: TaskDecision = {
+  id: 'duplicate-note',
+  question: '已有一篇同名笔记，怎么保存？',
+  options: [
+    { id: 'merge', label: '合并到原笔记' },
+    { id: 'copy', label: '另存为新笔记' },
+  ],
+};
+
+export function NoteDecision({ save, pending }: {
+  save: (id: string) => void;
+  pending: boolean;
+}) {
+  return <DecisionPanel decision={decision} onChoose={save} pending={pending} />;
+}
+```
+
+焦点在选项上时可按数字键选择，也能用 Tab 和回车操作。宿主在保存期间传入 `pending`，保留焦点并防止重复选择。
+
+## 在输入区接手
+
+`TaskComposer` 接受草稿、附件和发送回调。Enter 发送，Shift + Enter 换行。用 `TaskInputSurface` 包住输入框和决策区，把 `scene` 从 `compose` 切到 `decide` 即可原地过渡。系统启用减少动态效果后直接切换。
+
+## 主题与平台
+
+在应用容器上覆盖 `--nf-primary`、`--nf-on-primary`、`--nf-accent` 等变量可以局部换色。默认主操作使用黑底白字，蓝色用于局部强调。纯数据入口 `@nibferry/react/theme` 提供颜色和以毫秒计的动效参数。
+
+Web 和 Electron 共用 React 组件。后续 RN 可复用任务数据和设计参数，触摸、软键盘、原生导航和动画由移动端实现。

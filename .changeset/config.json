@@ -1,0 +1,8 @@
+{
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "baseBranch": "main",
+  "access": "restricted",
+  "updateInternalDependencies": "patch",
+  "ignore": ["@nibferry/docs"]
+}
