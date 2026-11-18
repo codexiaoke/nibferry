@@ -1,7 +1,7 @@
 {
   "name": "@nibferry/react",
   "version": "0.1.0",
-  "description": "React components for agent task workspaces",
+  "description": "Nibferry React UI library and design tokens",
   "type": "module",
   "files": [
     "dist"

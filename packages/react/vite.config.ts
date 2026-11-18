@@ -10,10 +10,10 @@ export default defineConfig({
   plugins: [
     {
       name: 'nibferry-theme',
-      enforce: 'pre',
-      transform(source, id) {
-        if (!id.endsWith('/components/controls.module.css')) return;
+      buildStart() {
         this.addWatchFile(themePath);
+      },
+      generateBundle() {
         const values: typeof theme = JSON.parse(readFileSync(themePath, 'utf8'));
         const variables = Object.entries(
           themeVariables({
@@ -23,9 +23,11 @@ export default defineConfig({
         )
           .map(([name, value]) => name + ':' + value)
           .join(';');
-        return source.replace('@nibferry-theme;', ':global(:where(:root)){' + variables + '}');
-      },
-      generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'styles.css',
+          source: ':where(:root){' + variables + '}\n',
+        });
         this.emitFile({ type: 'asset', fileName: 'styles.css.d.ts', source: 'export {};\n' });
       },
     },
@@ -35,11 +37,6 @@ export default defineConfig({
       entry: { index: 'src/index.ts', theme: 'src/theme/tokens.ts' },
       formats: ['es'],
       fileName: (_, name) => name + '.js',
-      cssFileName: 'styles',
-    },
-    rolldownOptions: {
-      external: /^react(?:-dom)?(?:\/|$)/,
-      output: { banner: (chunk) => (chunk.name === 'index' ? '"use client";' : '') },
     },
   },
 });

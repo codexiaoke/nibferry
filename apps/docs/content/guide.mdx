@@ -1,76 +1,29 @@
 ---
-title: 接入指南
+title: 设计 Token
 ---
 
-# 接入指南
+# 设计 Token
 
-Nibferry 为 React 19 应用提供任务输入与用户决策组件。官网里的资料整理示例使用相同的公开入口。
+从 `@nibferry/react/theme` 读取默认颜色、配色预设和动效参数。时长以毫秒表示，缓动曲线由四个三次贝塞尔参数组成。
 
-## 安装与样式
+```ts
+import { palettes, theme } from '@nibferry/react/theme';
 
-当前版本在本地分发。在仓库根目录运行打包命令，将生成的安装包交给另一个项目安装。
-
-```sh
-pnpm --filter @nibferry/react pack
+const primary = palettes.neutral.primary;
+const feedbackMs = theme.motion.feedback;
 ```
 
-在接入项目中运行 `pnpm add <安装包路径>`，然后在应用入口引入样式。
+## Web 样式
 
-```tsx
+在应用入口导入默认 CSS 变量。组件或页面可以在自己的作用域内覆盖所需变量。
+
+```ts
 import '@nibferry/react/styles.css';
 ```
 
-## 从单个决策区开始
-
-产品提供待决定的事项和选项。组件回传所选 ID，产品负责执行操作并更新状态。
-
-```tsx
-import { DecisionPanel } from '@nibferry/react';
-import type { TaskDecision } from '@nibferry/react';
-
-const decision: TaskDecision = {
-  id: 'duplicate-note',
-  question: '已有一篇同名笔记，怎么保存？',
-  options: [
-    { id: 'merge', label: '合并到原笔记' },
-    { id: 'copy', label: '另存为新笔记' },
-  ],
-};
-
-export function NoteDecision({ save, pending }: {
-  save: (id: string) => void;
-  pending: boolean;
-}) {
-  return <DecisionPanel decision={decision} onChoose={save} pending={pending} />;
+```css
+body {
+  color: var(--nf-ink);
+  background: var(--nf-canvas);
 }
 ```
-
-焦点在选项上时可按数字键选择，也能用 Tab 和回车操作。宿主在保存期间传入 `pending`，保留焦点并防止重复选择。
-
-## 在输入区接手
-
-`TaskComposer` 接受草稿、附件和发送回调。Enter 发送，Shift + Enter 换行。用 `TaskInputSurface` 包住输入框和决策区，把 `scene` 从 `compose` 切到 `decide` 即可原地过渡。系统启用减少动态效果后直接切换。
-
-<h2 id="theme">配置颜色与动效</h2>
-
-在需要换肤的区域外包一层 `ThemeProvider`。默认黑白配色使用纯黑主操作、白字和局部亮蓝。组件包预置 `palettes.neutral` 和 `palettes.graphite` 两套颜色；两套配色都可以和任意动效配置组合。
-
-```tsx
-import { ThemeProvider } from '@nibferry/react';
-import { palettes } from '@nibferry/react/theme';
-
-<ThemeProvider
-  colors={{ ...palettes.graphite, accent: '#89B7FF' }}
-  motion={{ feedback: 100, reveal: 180, surface: 220, easing: [0.2, 0.8, 0.2, 1] }}
->
-  <NoteWorkspace />
-</ThemeProvider>
-```
-
-`colors` 按用途覆盖颜色。修改主按钮时可以一起设置 `primary` 和 `onPrimary`，焦点环与强调文字分别用 `accent` 和 `accentText`。内层仅设置一个颜色时，其他颜色和动效继续继承外层；传入完整预设会替换当前区域的全部颜色。
-
-`motion` 的三个时长按毫秒指定，分别控制按下反馈、步骤展开和输入区高度切换；`easing` 接受四个三次贝塞尔参数。传入 `motion={false}` 即可关闭整个区域的动效，包括按钮按压缩放。系统开启减少动态效果时始终优先。切换配置会保留草稿和进行中的决策。
-
-宿主自定义的视图也可以消费同一套变量。例如步骤展开的 CSS 时长使用 `calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1))`，同时在 `prefers-reduced-motion: reduce` 下关闭过渡。
-
-Web 和 Electron 共用组件。纯数据入口 `@nibferry/react/theme` 导出 `theme` 和 `palettes`，RN 可复用颜色、毫秒值和缓动曲线。
