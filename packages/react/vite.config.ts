@@ -6,9 +6,10 @@ import { themeVariables } from './src/theme/config.ts';
 
 const themePath = fileURLToPath(new URL('./src/theme/values.json', import.meta.url));
 
-const layoutPath = fileURLToPath(
+const stylePaths = [
   new URL('./src/components/layout/WorkspaceLayout/WorkspaceLayout.css', import.meta.url),
-);
+  new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
+].map((url) => fileURLToPath(url));
 
 export default defineConfig({
   plugins: [
@@ -16,7 +17,7 @@ export default defineConfig({
       name: 'nibferry-theme',
       buildStart() {
         this.addWatchFile(themePath);
-        this.addWatchFile(layoutPath);
+        for (const path of stylePaths) this.addWatchFile(path);
       },
       generateBundle() {
         const values: typeof theme = JSON.parse(readFileSync(themePath, 'utf8'));
@@ -33,7 +34,10 @@ export default defineConfig({
         this.emitFile({
           type: 'asset',
           fileName: 'styles.css',
-          source: ':where(:root){' + variables + '}\n' + readFileSync(layoutPath, 'utf8'),
+          source: [
+            ':where(:root){' + variables + '}',
+            ...stylePaths.map((path) => readFileSync(path, 'utf8')),
+          ].join('\n'),
         });
         this.emitFile({ type: 'asset', fileName: 'styles.css.d.ts', source: 'export {};\n' });
       },
@@ -41,7 +45,7 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime'],
+      external: ['react', 'react/jsx-runtime', '@hugeicons/react', '@radix-ui/react-dropdown-menu'],
     },
     lib: {
       entry: { index: 'src/index.ts', theme: 'src/theme/tokens.ts' },

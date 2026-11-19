@@ -1,0 +1,46 @@
+---
+title: 弹出菜单
+description: 组合触发器、操作项、分组与子菜单，为工作区里的按钮提供操作列表。
+---
+
+## 打开菜单
+
+`DropdownMenu` 默认管理开合，也可以传入 `open` 和 `onOpenChange` 从外部控制。`MenuTrigger asChild` 可直接使用自己的按钮，`MenuItem` 通过 `onSelect` 报告选择。
+
+```tsx
+import {
+  DropdownMenu, MenuContent, MenuGroup, MenuItem, MenuSeparator,
+  MenuSub, MenuSubContent, MenuSubTrigger, MenuTrigger,
+} from '@nibferry/react';
+import Copy from '@hugeicons/core-free-icons/Copy01Icon';
+import Trash from '@hugeicons/core-free-icons/Delete02Icon';
+import '@nibferry/react/styles.css';
+
+<DropdownMenu>
+  <MenuTrigger>会话操作</MenuTrigger>
+  <MenuContent>
+    <MenuGroup label="当前会话">
+      <MenuItem shortcut="⌥⌘R" onSelect={rename}>重命名</MenuItem>
+      <MenuSub>
+        <MenuSubTrigger icon={Copy}>复制</MenuSubTrigger>
+        <MenuSubContent>
+          <MenuItem onSelect={copyLink}>复制链接</MenuItem>
+          <MenuItem onSelect={copyTitle}>复制标题</MenuItem>
+        </MenuSubContent>
+      </MenuSub>
+    </MenuGroup>
+    <MenuSeparator />
+    <MenuItem icon={Trash} danger onSelect={remove}>删除</MenuItem>
+  </MenuContent>
+</DropdownMenu>
+```
+
+## 操作与焦点
+
+上下键在可用条目间移动，Home 和 End 跳到首尾。指针悬停、点击或向右键可进入子菜单，向左键返回上一级。Escape 收起菜单，焦点回到触发器。条目的 `disabled` 阻止选择，`danger` 只设置危险色。快捷键文字由 `shortcut` 提供，实际按键绑定由接入方管理。
+
+## 位置与外观
+
+主菜单靠触发器下方起始侧展开，子菜单向侧边展开。空间不足时面板调整位置并限制高度，长菜单可滚动。`MenuContent` 与 `MenuSubContent` 支持 `container` 指定浮层的挂载节点，局部主题可以在该节点或面板覆盖颜色、`--nf-menu-shadow` 与 `--nf-menu-danger`。系统开启减少动效时，菜单即时展开。
+
+打开桌面预览的会话标题，可体验完整的菜单层级。[交互预览](/playground/)
