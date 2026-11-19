@@ -1,0 +1,52 @@
+:where([data-nf-workspace]:not([hidden])) {
+  display: flex;
+  container: nf-workspace / inline-size;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+:where([data-nf-workspace] > [data-nf-pane]) {
+  box-sizing: border-box;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+}
+
+:where([data-nf-workspace] > [data-nf-pane='left']) {
+  width: var(--nf-layout-left-pane-width);
+}
+
+:where([data-nf-workspace] > [data-nf-pane='main']) {
+  order: 1;
+  flex: 1 1 0px;
+}
+
+:where([data-nf-workspace] > [data-nf-pane='right']) {
+  order: 2;
+  margin-inline-start: auto;
+  width: var(--nf-layout-right-pane-width);
+}
+
+/* Keep the other panes mounted so their local state and scroll positions survive. */
+:where([data-nf-expanded] > [data-nf-pane]) {
+  flex: 1 1 0px;
+}
+
+:where([data-nf-workspace] > [data-nf-pane][hidden]:not([hidden='until-found'])),
+:where([data-nf-expanded='left'] > [data-nf-pane]:not([data-nf-pane='left'])),
+:where([data-nf-expanded='main'] > [data-nf-pane]:not([data-nf-pane='main'])),
+:where([data-nf-expanded='right'] > [data-nf-pane]:not([data-nf-pane='right'])) {
+  display: none !important;
+}
+
+@container nf-workspace (width < 768px) {
+  :where([data-nf-workspace] > [data-nf-pane]) {
+    flex: 1 1 0px;
+  }
+
+  :where([data-nf-workspace='left']:not([data-nf-expanded]) > [data-nf-pane]:not([data-nf-pane='left'])),
+  :where([data-nf-workspace='main']:not([data-nf-expanded]) > [data-nf-pane]:not([data-nf-pane='main'])),
+  :where([data-nf-workspace='right']:not([data-nf-expanded]) > [data-nf-pane]:not([data-nf-pane='right'])) {
+    display: none !important;
+  }
+}

@@ -15,14 +15,13 @@ test('官网首页展示工作区，可切换代码示例并进入指南', async
 });
 
 test('搜索、分类和切换配色使用主题实际导出的值', async ({ page }) => {
-  await page.goto('./');
-  const preview = page.getByRole('region', { name: '设计 Token 交互预览' });
-  await preview.getByRole('button', { name: '搜索变量', exact: true }).click();
+  await page.goto('./docs/theme/#variables');
+  const preview = page.getByRole('region', { name: '主题变量' });
   await preview.getByRole('button', { name: '主操作', exact: true }).click();
   await expect(preview.getByRole('listitem').filter({ hasText: 'color.primary' })).toContainText(
     '#000000',
   );
-  await preview.getByRole('button', { name: '切换为深色预览' }).click();
+  await preview.getByRole('button', { name: '石墨配色' }).click();
   await expect(preview.getByRole('listitem').filter({ hasText: 'color.primary' })).toContainText(
     '#F2F2F2',
   );
@@ -41,9 +40,12 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(menu).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
-  await page.getByLabel('选择变量分类').click();
-  await page.getByRole('button', { name: '缓动曲线', exact: true }).first().click();
-  await expect(page.getByRole('listitem')).toContainText('cubic-bezier(');
+  await menu.click();
+  await page.getByRole('link', { name: '交互预览', exact: true }).click();
+  await expect(page.getByRole('main')).toHaveText('主体');
+  await expect(page.getByText('左侧', { exact: true })).toBeHidden();
+  await expect(page.getByText('右侧', { exact: true })).toBeHidden();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 
 test('切换仓库命令后复制对应内容', async ({ page, context }) => {
@@ -92,7 +94,7 @@ test('在 Token 预览中打开文档搜索会保留筛选和阅读位置', asyn
   await page.keyboard.press('Escape');
   await expect(filter).toBeFocused();
   await expect(filter).toHaveValue('color.ink');
-  await expect(page).toHaveURL(/#tokens$/);
+  await expect(page).toHaveURL(/\/docs\/theme\/#variables$/);
   expect(await page.evaluate(() => window.scrollY)).toBe(position);
 });
 
@@ -157,29 +159,144 @@ test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 
-test('交互预览默认可以播放，侧栏可收起，支持全屏', async ({ page }) => {
+test('预览用左侧、主体和右侧填满桌面，主体接收剩余宽度', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./#playground');
-  const preview = page.getByRole('region', { name: '设计 Token 交互预览' });
-  await expect(preview.getByRole('button', { name: '播放动效' })).toBeVisible();
-  await preview.getByRole('button', { name: '搜索变量' }).click();
-  await page
-    .getByRole('navigation', { name: '主导航' })
-    .getByRole('link', { name: '交互预览' })
-    .click();
-  await expect(preview.getByRole('button', { name: '播放动效' })).toBeVisible();
-  await preview.getByRole('button', { name: '收起预览侧栏' }).click();
-  await expect(preview.getByRole('button', { name: '搜索变量' })).toBeHidden();
-  await preview.getByRole('button', { name: '展开预览侧栏' }).click();
-  await preview.getByRole('button', { name: '全屏预览' }).click();
-  await expect.poll(() => page.evaluate(() => document.fullscreenElement?.id)).toBe('playground');
-  await preview.getByRole('button', { name: '退出全屏' }).click();
-  await expect.poll(() => page.evaluate(() => document.fullscreenElement?.id)).toBeUndefined();
+  await expect(page).toHaveURL(/\/playground\/$/);
+  const left = page.getByRole('complementary', { name: '左侧' });
+  const right = page.getByRole('complementary', { name: '右侧' });
+  const main = page.getByRole('main');
+  await expect(main).toHaveText('主体');
+  await expect(page.locator('.site-header')).toHaveCount(0);
+  expect(await left.boundingBox()).toEqual({ x: 0, y: 0, width: 240, height: 900 });
+  expect(await main.boundingBox()).toEqual({ x: 240, y: 0, width: 880, height: 900 });
+  expect(await right.boundingBox()).toEqual({ x: 1120, y: 0, width: 320, height: 900 });
+
+  const center = page.locator('[data-nf-pane="main"]');
+  await center.evaluate((el) => {
+    el.style.display = 'flex';
+    el.hidden = true;
+  });
+  await expect(center).toBeHidden();
+  expect((await right.boundingBox())?.x).toBe(1120);
+  await center.evaluate((el) => {
+    el.hidden = false;
+  });
+
+  await right.evaluate((el) => {
+    el.style.width = '360px';
+  });
+  await expect(main).toHaveCSS('width', '840px');
+  await left.evaluate((el) => {
+    el.remove();
+  });
+  await expect(main).toHaveCSS('width', '1080px');
+  await right.evaluate((el) => {
+    el.remove();
+  });
+  await expect(main).toHaveCSS('width', '1440px');
+});
+
+test('按工作区自身宽度切换三栏和单栏', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('./playground/');
+  const layout = page.locator('[data-nf-workspace]');
+  const left = page.getByText('左侧', { exact: true });
+  const main = page.getByText('主体', { exact: true });
+  const right = page.getByText('右侧', { exact: true });
+  await layout.evaluate((el) => {
+    el.style.width = '600px';
+  });
+  await expect(left).toBeHidden();
+  await expect(right).toBeHidden();
+  await expect(main).toHaveCSS('width', '600px');
+  for (const [name, pane] of [
+    ['left', left],
+    ['right', right],
+  ] as const) {
+    await layout.evaluate((el, active) => {
+      el.dataset.nfWorkspace = active;
+    }, name);
+    await expect(pane).toHaveCSS('width', '600px');
+    await expect(main).toBeHidden();
+  }
+  await layout.evaluate((el) => {
+    el.style.width = '768px';
+  });
+  await expect(left).toBeVisible();
+  await expect(main).toHaveCSS('width', '208px');
+  await expect(right).toBeVisible();
+});
+
+test('区域展开优先于窄屏选择，收起后恢复内容、宽度和滚动', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await page.goto('./playground/');
+  const workspace = page.locator('[data-nf-workspace]');
+  const main = page.locator('[data-nf-pane="main"]');
+  const right = page.locator('[data-nf-pane="right"]');
+  await workspace.evaluate((el) => {
+    el.style.setProperty('--nf-layout-right-pane-width', '25%');
+  });
+  await main.evaluate((el) => {
+    el.style.display = 'flex';
+    const field = document.createElement('textarea');
+    field.style.height = '1400px';
+    el.append(field);
+  });
+  const draft = main.locator('textarea');
+  await draft.fill('草稿');
+  const scroll = await main.evaluate((el) => {
+    el.scrollTop = 160;
+    return el.scrollTop;
+  });
+  expect(scroll).toBeGreaterThan(0);
+  await expect(right).toHaveCSS('width', '300px');
+  await workspace.evaluate((el) => {
+    el.dataset.nfExpanded = 'right';
+  });
+  await expect(main).toBeHidden();
+  await expect(right).toHaveCSS('width', '1200px');
+
+  await workspace.evaluate((el) => {
+    el.style.width = '600px';
+  });
+  await expect(right).toHaveCSS('width', '600px');
+  await expect(main).toBeHidden();
+  await workspace.evaluate((el) => {
+    delete el.dataset.nfExpanded;
+  });
+  await expect(right).toBeHidden();
+  await expect(draft).toHaveValue('草稿');
+  await expect.poll(() => main.evaluate((el) => el.scrollTop)).toBe(scroll);
+  await workspace.evaluate((el) => {
+    el.style.removeProperty('width');
+  });
+  await expect(right).toHaveCSS('width', '300px');
+});
+
+test('主题导出的栏宽可以单独覆盖并在变量文档中查到', async ({ page }) => {
+  expect(themeVariables({ layout: { leftPaneWidth: 224 } })).toEqual({
+    '--nf-layout-left-pane-width': '224px',
+  });
+  expect(() => themeVariables({ layout: { rightPaneWidth: -1 } })).toThrow(RangeError);
+  await page.goto('./docs/theme/#variables');
+  const explorer = page.getByRole('region', { name: '主题变量' });
+  await explorer.getByRole('button', { name: '布局', exact: true }).click();
+  await expect(
+    explorer.getByRole('listitem').filter({ hasText: 'layout.leftPaneWidth' }),
+  ).toContainText('240px');
+  await expect(
+    explorer.getByRole('listitem').filter({ hasText: 'layout.rightPaneWidth' }),
+  ).toContainText('320px');
 });
 
 test('动效预览使用选择的时长并尊重系统减少动效偏好', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./docs/motion/');
   const section = page.getByRole('region', { name: '动效预览' });
-  await section.getByRole('button', { name: /内容展开/ }).click();
+  await page
+    .getByRole('group', { name: '选择动效' })
+    .getByRole('button', { name: '内容展开' })
+    .click();
   await section.getByRole('button', { name: '播放动效' }).click();
   await expect(section.locator('.motion-track i')).toHaveCSS('animation-duration', '0.25s');
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -197,6 +314,22 @@ test('局部配置保留未指定项的继承，使用自定义缓动', () => {
     '--nf-motion-surface': '180ms',
     '--nf-ease': 'cubic-bezier(0,0,1,1)',
   });
+});
+
+test('布局间距可以单独覆盖，并拒绝无效长度', () => {
+  expect(themeVariables({ space: { md: 12 } })).toEqual({ '--nf-space-md': '12px' });
+  expect(() => themeVariables({ space: { sm: -1 } })).toThrow(RangeError);
+});
+
+test('设计文档保留色板，布局文档连接桌面实例', async ({ page }) => {
+  await page.goto('./docs/colors/');
+  const color = page.locator('.pg-swatch').filter({ hasText: '强调色' });
+  await expect(color).toContainText('#1677FF');
+  await page.getByRole('button', { name: '石墨配色' }).click();
+  await expect(color).toContainText('#74AAFF');
+  await page.goto('./docs/layout/');
+  await page.locator('.docs-prose').getByRole('link', { name: '交互预览' }).click();
+  await expect(page.getByRole('main')).toHaveText('主体');
 });
 
 test('动效配置拒绝无效时长和贝塞尔横坐标', () => {

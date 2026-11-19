@@ -15,12 +15,13 @@ pnpm install
 pnpm dev
 ```
 
-打开 [本地官网](http://127.0.0.1:3317/) 查看交互预览，或阅读 [文档中心](http://127.0.0.1:3317/docs)。包的 JS、CSS 和类型声明会随源码变化重新生成。
+打开[本地交互预览](http://127.0.0.1:3317/playground/) 查看桌面的左侧、主体和右侧布局，或阅读 [文档中心](http://127.0.0.1:3317/docs)。包的 JS、CSS 和类型声明会随源码变化重新生成。
 
 ## 项目结构
 
 | 路径 | 职责 |
 | --- | --- |
+| `packages/react/src/components/layout` | 工作区容器、左中右区域、Stack 与 Inline 及各自的用法说明 |
 | `packages/react/src/theme` | 当前运行时默认值、配色预设、配置类型和 CSS 变量映射 |
 | `docs/design-tokens.md` | 新组件采用的 UI Token 设计规范 |
 | `apps/docs` | Next.js 官网、MDX 文档与全文搜索 |

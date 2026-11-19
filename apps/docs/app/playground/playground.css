@@ -1,0 +1,25 @@
+html:has(.layout-preview) {
+  scrollbar-gutter: auto;
+}
+
+.layout-preview {
+  height: 100dvh;
+  background: var(--site-bg);
+  color: var(--site-muted);
+}
+
+.layout-preview > * {
+  padding: var(--nf-space-lg);
+}
+
+.layout-preview > aside {
+  background: var(--site-soft);
+}
+
+.layout-preview > aside:first-child {
+  border-inline-end: 1px solid var(--site-line);
+}
+
+.layout-preview > aside:last-child {
+  border-inline-start: 1px solid var(--site-line);
+}

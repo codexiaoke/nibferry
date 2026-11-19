@@ -1,0 +1,99 @@
+---
+title: 基础布局组件
+description: 组合左侧、主体和右侧区域，使用 Stack 和 Inline 排列区域内的内容。
+---
+
+## 工作区三栏
+
+将 LeftPane、MainPane、RightPane 直接放入 WorkspaceLayout。左侧默认占 240px，右侧默认占 320px，中间的主体使用剩余宽度。省略任意一侧，主体会接收空出的空间。
+
+```tsx
+import { LeftPane, MainPane, RightPane, WorkspaceLayout } from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+<WorkspaceLayout style={{ height: '100dvh' }}>
+  <LeftPane aria-label="左侧">左侧</LeftPane>
+  <MainPane role="main">主体</MainPane>
+  <RightPane aria-label="右侧">右侧</RightPane>
+</WorkspaceLayout>
+```
+
+[交互预览](/playground/)
+
+## 栏宽与内容
+
+直接把产品自己的导航、页面或面板作为对应栏的子元素传入。侧栏的 `width` 接受像素数值或 CSS 宽度，例如 `<LeftPane width={224} />` 和 `<RightPane width="30%" />`。百分比相对于工作区宽度。省略 `width` 时，组件读取最近作用域的栏宽变量。
+
+```css
+.product-workspace {
+  --nf-layout-left-pane-width: 224px;
+  --nf-layout-right-pane-width: 360px;
+}
+```
+
+## 展开与还原
+
+容器小于 768px 时，`compactPane` 决定显示哪个区域，默认显示主体。任意宽度下都可以用 `expandedPane` 让某一栏铺满当前工作区。接入方持有这个值，清空它即可恢复分栏或窄屏视图。其余栏保留挂载，输入草稿和组件状态可以跨布局切换保留。
+
+```tsx
+import { LeftPane, MainPane, RightPane, WorkspaceLayout, type WorkspacePane } from '@nibferry/react';
+
+export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
+  return (
+    <WorkspaceLayout expandedPane={expandedPane}>
+      <LeftPane aria-label="左侧">左侧</LeftPane>
+      <MainPane role="main">主体</MainPane>
+      <RightPane aria-label="右侧">右侧</RightPane>
+    </WorkspaceLayout>
+  );
+}
+```
+
+## 纵向排列
+
+从包根入口导入 Stack，并在应用入口加载一次样式。默认间距是 16px，子项沿横向拉伸。
+
+```tsx
+import { Stack } from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+export function Messages() {
+  return (
+    <Stack gap="md">
+      <p style={{ margin: 0 }}>帮我看看这次更新。</p>
+      <p style={{ margin: 0 }}>调整了侧栏的宽度。</p>
+    </Stack>
+  );
+}
+```
+
+## 横向排列
+
+Inline 默认居中对齐，间距为 8px。传入 `wrap`，容器变窄时，放不下的子项移到下一行。
+
+```tsx
+import { Inline } from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+export function Sources() {
+  return (
+    <Inline gap="sm" wrap>
+      <span>消息</span>
+      <span>文件</span>
+      <span>链接</span>
+    </Inline>
+  );
+}
+```
+
+两个组件都支持 `align` 设置交叉轴对齐，并接受标准 div 属性和 ref。
+
+## 局部间距
+
+`gap` 支持 `sm`、`md`、`lg`，默认对应 8、16、24px。父级可覆盖对应 CSS 变量，嵌套的布局组件会继承最近的取值。
+
+```css
+.compact-panel {
+  --nf-space-md: 12px;
+}
+```

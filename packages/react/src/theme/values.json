@@ -12,6 +12,15 @@
     "accentText": "#185DB7",
     "shadow": "rgb(0 0 0 / 6%)"
   },
+  "layout": {
+    "leftPaneWidth": 240,
+    "rightPaneWidth": 320
+  },
+  "space": {
+    "sm": 8,
+    "md": 16,
+    "lg": 24
+  },
   "motion": {
     "feedback": 120,
     "reveal": 250,

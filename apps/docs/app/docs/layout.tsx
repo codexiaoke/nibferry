@@ -1,11 +1,15 @@
 import DocsSidebar from '../_components/DocsSidebar/DocsSidebar';
-import { getGroups } from '../../lib/docs';
+import SiteHeader from '../_components/SiteHeader/SiteHeader';
+import { getSearchIndex, getGroups } from '../../lib/docs';
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="docs-layout">
-      <DocsSidebar groups={getGroups()} />
-      {children}
-    </div>
+    <>
+      <SiteHeader entries={getSearchIndex()} />
+      <div className="docs-layout">
+        <DocsSidebar groups={getGroups()} />
+        {children}
+      </div>
+    </>
   );
 }

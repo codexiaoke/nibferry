@@ -536,3 +536,233 @@ body:has(.docs-layout) .header-inner {
   white-space: nowrap;
   border: 0;
 }
+
+.lookup {
+  width: 100%;
+  max-width: 672px;
+  margin-inline: auto;
+}
+.lookup-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  min-height: 56px;
+  color: var(--pg-muted);
+  background: var(--pg-soft);
+  border: 1px solid var(--pg-line);
+  border-radius: 16px;
+}
+.lookup-box:focus-within {
+  outline: 2px solid var(--pg-focus);
+  outline-offset: 2px;
+}
+.lookup-box input {
+  min-width: 0;
+  width: 100%;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  appearance: none;
+  color: var(--pg-ink);
+}
+.lookup-box input:focus {
+  outline: none;
+}
+.lookup-box input::placeholder {
+  color: var(--pg-muted);
+}
+.lookup-hints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.lookup-hints button {
+  padding: 4px 12px;
+  border: 1px solid var(--pg-line);
+  border-radius: 8px;
+  color: var(--pg-muted);
+  font-size: 13px;
+}
+.lookup-hints button:hover {
+  color: var(--pg-ink);
+  background: var(--pg-soft);
+}
+.result-region {
+  max-height: 244px;
+  overflow-y: auto;
+  margin-top: 12px;
+}
+.result-region p {
+  color: var(--pg-muted);
+  padding: 16px 4px;
+}
+.token-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.token-results li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--pg-line);
+}
+.color-sample {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--pg-line);
+}
+.token-results li > span {
+  display: grid;
+  min-width: 0;
+}
+.token-results strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.token-results code {
+  font-size: 12px;
+  color: var(--pg-muted);
+  overflow-wrap: anywhere;
+}
+.token-value {
+  margin-left: auto;
+  text-align: right;
+}
+
+.doc-theme-example {
+  --pg-surface: #fff;
+  --pg-soft: #f5f5f2;
+  --pg-ink: #171714;
+  --pg-muted: #64645e;
+  --pg-line: #deded8;
+  --pg-focus: var(--site-focus);
+  color: var(--pg-ink);
+  color-scheme: light;
+}
+.doc-theme-example[data-dark='true'] {
+  --pg-surface: #1a1918;
+  --pg-soft: #282826;
+  --pg-ink: #fafaf9;
+  --pg-muted: #a1a19e;
+  --pg-line: #454541;
+  color-scheme: dark;
+}
+.pg-options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  background: var(--pg-soft);
+  padding: 4px;
+  border-radius: 8px;
+}
+.pg-options button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 30px;
+  padding-inline: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.pg-options button:hover {
+  background: var(--pg-line);
+}
+.doc-theme-example button[aria-pressed='true'],
+.pg-motion-info button {
+  background: var(--pg-ink);
+  color: var(--pg-surface);
+}
+.pg-motion-info button,
+.pg-token-groups button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--pg-line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.pg-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(116px, 100%), 1fr));
+  gap: 12px;
+}
+.pg-swatch {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+.pg-swatch i {
+  height: 44px;
+  border: 1px solid var(--pg-line);
+  border-radius: 6px;
+}
+.pg-swatch code,
+.pg-motion-info code {
+  font: 12px var(--mono);
+  color: var(--pg-muted);
+}
+.motion-track {
+  position: relative;
+  height: 2px;
+  margin: 26px 6px 24px;
+  background: var(--pg-line);
+}
+.motion-track i {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pg-ink);
+  animation: pg-slide calc(var(--timing) * var(--nf-motion-scale, 1)) var(--curve);
+}
+@keyframes pg-slide {
+  from {
+    left: 0;
+  }
+  to {
+    left: 100%;
+  }
+}
+.pg-motion-info {
+  justify-content: space-between;
+}
+.doc-theme-example.lookup {
+  max-width: none;
+  padding: 24px;
+}
+.pg-token-groups {
+  margin-bottom: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-track i {
+    animation: none;
+  }
+}
+
+.doc-theme-example {
+  padding: 20px;
+  margin-block: 24px;
+  background: var(--pg-surface);
+  border: 1px solid var(--pg-line);
+  border-radius: 12px;
+}
+.doc-example-switch {
+  display: block;
+  padding: 4px 12px;
+  margin: 0 0 12px auto;
+  border: 1px solid var(--pg-line);
+  border-radius: 6px;
+}
