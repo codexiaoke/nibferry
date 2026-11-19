@@ -1,6 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
 import { themeVariables } from '../packages/react/src/theme/config';
 
+async function expectNoHorizontalOverflow(page: Page) {
+  const { scrollWidth, clientWidth } = await page.locator('html').evaluate((el) => ({
+    scrollWidth: el.scrollWidth,
+    clientWidth: el.clientWidth,
+  }));
+  expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+}
+
 function previewContentWidth(page: Page) {
   return page.locator('.mac-window-content').evaluate((el) => el.clientWidth);
 }
@@ -50,13 +58,13 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: '主导航' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(menu).toBeFocused();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+  await expectNoHorizontalOverflow(page);
   await menu.click();
   await page.getByRole('link', { name: '交互预览', exact: true }).click();
   await expect(page.getByRole('main')).toHaveText('主体', { useInnerText: true });
   await expect(page.getByText('左侧', { exact: true })).toBeHidden();
   await expect(page.getByText('右侧', { exact: true })).toBeHidden();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+  await expectNoHorizontalOverflow(page);
 });
 
 test('切换仓库命令后复制对应内容', async ({ page, context }) => {
@@ -167,7 +175,7 @@ test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({
     'href',
     /\/markdown\/motion\.txt$/,
   );
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+  await expectNoHorizontalOverflow(page);
 });
 
 test('左侧、主体和右侧填满窗口内容区，主体接收剩余宽度', async ({ page }) => {
