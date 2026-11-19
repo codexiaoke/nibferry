@@ -1,5 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { themeVariables } from '../packages/react/src/theme/config';
+
+function previewContentWidth(page: Page) {
+  return page.locator('.mac-window-content').evaluate((el) => el.clientWidth);
+}
+
+async function openPreviewRightPane(page: Page) {
+  await page.getByRole('button', { name: '展开右侧栏' }).click();
+  const pane = page.getByRole('complementary', { name: '右侧' });
+  await expect(pane).toBeVisible();
+  await pane.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
+}
 
 test('官网首页展示工作区，可切换代码示例并进入指南', async ({ page }) => {
   await page.goto('./');
@@ -42,7 +53,7 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
   await menu.click();
   await page.getByRole('link', { name: '交互预览', exact: true }).click();
-  await expect(page.getByRole('main')).toHaveText('主体');
+  await expect(page.getByRole('main')).toHaveText('主体', { useInnerText: true });
   await expect(page.getByText('左侧', { exact: true })).toBeHidden();
   await expect(page.getByText('右侧', { exact: true })).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
@@ -159,18 +170,20 @@ test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 
-test('预览用左侧、主体和右侧填满桌面，主体接收剩余宽度', async ({ page }) => {
+test('左侧、主体和右侧填满窗口内容区，主体接收剩余宽度', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./#playground');
   await expect(page).toHaveURL(/\/playground\/$/);
+  await openPreviewRightPane(page);
   const left = page.getByRole('complementary', { name: '左侧' });
   const right = page.getByRole('complementary', { name: '右侧' });
   const main = page.getByRole('main');
-  await expect(main).toHaveText('主体');
+  await expect(main).toHaveText('主体', { useInnerText: true });
   await expect(page.locator('.site-header')).toHaveCount(0);
-  expect(await left.boundingBox()).toEqual({ x: 0, y: 0, width: 240, height: 900 });
-  expect(await main.boundingBox()).toEqual({ x: 240, y: 0, width: 880, height: 900 });
-  expect(await right.boundingBox()).toEqual({ x: 1120, y: 0, width: 320, height: 900 });
+  const { x, y, width, height } = (await page.locator('[data-nf-workspace]').boundingBox())!;
+  expect(await left.boundingBox()).toEqual({ x, y, width: 240, height });
+  expect(await main.boundingBox()).toEqual({ x: x + 240, y, width: width - 560, height });
+  expect(await right.boundingBox()).toEqual({ x: x + width - 320, y, width: 320, height });
 
   const center = page.locator('[data-nf-pane="main"]');
   await center.evaluate((el) => {
@@ -178,7 +191,7 @@ test('预览用左侧、主体和右侧填满桌面，主体接收剩余宽度',
     el.hidden = true;
   });
   await expect(center).toBeHidden();
-  expect((await right.boundingBox())?.x).toBe(1120);
+  expect((await right.boundingBox())?.x).toBe(x + width - 320);
   await center.evaluate((el) => {
     el.hidden = false;
   });
@@ -186,23 +199,242 @@ test('预览用左侧、主体和右侧填满桌面，主体接收剩余宽度',
   await right.evaluate((el) => {
     el.style.width = '360px';
   });
-  await expect(main).toHaveCSS('width', '840px');
+  await expect(main).toHaveCSS('width', width - 240 - 360 + 'px');
   await left.evaluate((el) => {
     el.remove();
   });
-  await expect(main).toHaveCSS('width', '1080px');
+  await expect(main).toHaveCSS('width', width - 360 + 'px');
   await right.evaluate((el) => {
     el.remove();
   });
-  await expect(main).toHaveCSS('width', '1440px');
+  await expect(main).toHaveCSS('width', width + 'px');
+});
+
+test('窗口圆点、左栏开关和标题在同一行，分栏紧接工具栏', async ({ page }) => {
+  await page.goto('./playground/');
+  const toolbar = page.locator('.workspace-preview-titlebar');
+  const lights = toolbar.locator('.mac-window-lights');
+  const toggle = toolbar.getByRole('button', { name: /左侧栏/ });
+  const title = toolbar.getByRole('button', { name: '梳理 Nibferry 项目交接' });
+  await expect(toggle.locator('svg')).toHaveCSS('width', '16px');
+  await expect(toggle).toHaveCSS('width', '28px');
+  await expect(toolbar).toHaveCSS('height', '36px');
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    const bar = (await toolbar.boundingBox())!;
+    const dots = (await lights.boundingBox())!;
+    const button = (await toggle.boundingBox())!;
+    const label = (await title.boundingBox())!;
+    const content = (await page.locator('.mac-window-content').boundingBox())!;
+    const panes = (await page.locator('[data-nf-workspace]').boundingBox())!;
+    expect(dots.x + dots.width).toBeLessThanOrEqual(button.x);
+    expect(button.x + button.width).toBeLessThanOrEqual(label.x);
+    expect(Math.abs(dots.y + dots.height / 2 - button.y - button.height / 2)).toBeLessThan(1);
+    expect(Math.abs(label.y + label.height / 2 - button.y - button.height / 2)).toBeLessThan(1);
+    expect(bar.y).toBe(content.y);
+    expect(panes.y).toBe(bar.y + bar.height);
+    expect(panes.y + panes.height).toBe(content.y + content.height);
+  }
+});
+
+test('右栏标签与主标题共用一行，调宽、全屏和还原时跟随内容分界', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('./playground/');
+  const titlebar = page.locator('.workspace-preview-titlebar');
+  const tab = titlebar.getByText('新标签页', { exact: true });
+  const right = page.locator('#preview-right');
+  const fullscreen = titlebar.getByRole('button', { name: /全屏/ });
+  await expect(tab).toBeHidden();
+  await openPreviewRightPane(page);
+  await expect(tab).toBeVisible();
+
+  async function expectAligned() {
+    await expect.poll(() => titlebar.evaluate((bar) => {
+      const title = bar.querySelector('header')!.getBoundingClientRect();
+      const tools = bar.querySelector('[role="group"]')!.getBoundingClientRect();
+      const pane = document.querySelector('#preview-right')!.getBoundingClientRect();
+      return Math.max(
+        Math.abs(title.right - pane.left), Math.abs(tools.left - pane.left),
+        Math.abs(tools.right - pane.right), Math.abs(title.top - tools.top),
+        Math.abs(bar.getBoundingClientRect().bottom - pane.top),
+      );
+    })).toBeLessThan(1);
+  }
+
+  await expectAligned();
+  await page.getByRole('separator', { name: '调整右栏宽度' }).press('Shift+ArrowLeft');
+  await expect(right).toHaveCSS('width', '352px');
+  await expectAligned();
+  await fullscreen.click();
+  await expect(page.getByRole('main')).toBeHidden();
+  await expectAligned();
+  await fullscreen.click();
+  await expect(right).toHaveCSS('width', '352px');
+  await expectAligned();
+  await titlebar.getByRole('button', { name: '收起右侧栏' }).click();
+  await expect(tab).toBeHidden();
+  await expect(right).toBeHidden();
+});
+
+test('会话标题跟随左栏，操作始终在主体与右栏的交界处', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const header = page.getByRole('banner', { name: '主区域标题栏' });
+  async function expectMainBounds() {
+    await expect.poll(() => header.evaluate(el => {
+      const bar = el.getBoundingClientRect();
+      const main = document.querySelector('#content')!.getBoundingClientRect();
+      return Math.max(Math.abs(bar.left - main.left), Math.abs(bar.right - main.right));
+    })).toBeLessThan(1);
+  }
+  await expectMainBounds();
+  await page.getByRole('separator', { name: '调整左栏宽度' }).press('Shift+ArrowRight');
+  await page.getByRole('separator', { name: '调整右栏宽度' }).press('Shift+ArrowLeft');
+  await expectMainBounds();
+  await page.getByRole('button', { name: '收起左侧栏' }).click();
+  await expect(page.locator('#preview-left')).toBeHidden();
+  const chrome = (await page.locator('.workspace-preview-window-controls').boundingBox())!;
+  expect((await header.boundingBox())!.x).toBe(chrome.x + chrome.width);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  await expect(header).toHaveCount(0);
+  await page.getByRole('button', { name: '退出全屏' }).click();
+  await expect(header.getByRole('button', { name: '查看会话摘要' })).toBeVisible();
+});
+
+test('会话标题菜单支持键盘收展，窄标题栏仍可分享和切换主体摘要', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('./playground/');
+  const title = page.getByRole('button', { name: '梳理 Nibferry 项目交接' });
+  const summary = page.getByRole('main').getByRole('complementary', { name: '会话摘要' });
+  await page.getByRole('button', { name: '查看会话摘要' }).click();
+  await expect(summary).toBeVisible();
+  await expect(page.locator('#preview-right')).toBeHidden();
+  await page.setViewportSize({ width: 375, height: 700 });
+  await title.press('Enter');
+  await expect(page.getByRole('menuitem', { name: '收起会话摘要' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(title).toBeFocused();
+  await title.press('Space');
+  await page.getByRole('menuitem', { name: '收起会话摘要' }).press('Enter');
+  await expect(summary).toBeHidden();
+  await title.press('Enter');
+  await page.getByRole('menuitem', { name: '复制', exact: true }).press('ArrowRight');
+  await page.getByRole('menuitem', { name: '复制预览链接' }).press('Enter');
+  await expect(page.getByRole('status').filter({ hasText: '已复制预览链接' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(page.url());
+});
+
+test('会话操作菜单按组排列，键盘可进入子菜单并回到原位', async ({ page }) => {
+  await page.goto('./playground/');
+  const title = page.getByRole('button', { name: '梳理 Nibferry 项目交接' });
+  await title.press('ArrowDown');
+  const menu = page.getByRole('menu', { name: '梳理 Nibferry 项目交接' });
+  const rename = menu.getByRole('menuitem', { name: '重命名' });
+  await expect(rename).toBeFocused();
+  await expect(rename.locator('kbd')).toHaveText('⌥⌘R');
+  await expect(menu.getByRole('separator')).toHaveCount(4);
+  await expect(menu.getByRole('group', { name: 'Nibferry' })).toBeVisible();
+  expect(await menu.getByRole('menuitem', { name: '删除' }).evaluate(
+    el => getComputedStyle(el).color,
+  )).not.toBe(await rename.evaluate(el => getComputedStyle(el).color));
+  await page.keyboard.press('ArrowDown');
+  await expect(menu.getByRole('menuitem', { name: '置顶聊天' })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  const copy = menu.getByRole('menuitem', { name: '复制', exact: true });
+  await expect(copy).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('menuitem', { name: '复制预览链接' })).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(copy).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(title).toBeFocused();
+  await expect(menu).toBeHidden();
+});
+
+test('主菜单和子菜单之间留出 8px，鼠标可穿过空隙进入分叉选项', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await page.getByRole('button', { name: '梳理 Nibferry 项目交接' }).click();
+  const parent = page.getByRole('menu', { name: '梳理 Nibferry 项目交接' });
+  const trigger = parent.getByRole('menuitem', { name: '分叉', exact: true });
+  await trigger.hover();
+  const submenu = page.getByRole('menu', { name: '分叉', exact: true });
+  const option = submenu.getByRole('menuitem', { name: '在新聊天中分叉' });
+  await expect(option).toBeVisible();
+
+  const panel = (await parent.boundingBox())!;
+  const child = (await submenu.boundingBox())!;
+  const row = (await option.boundingBox())!;
+  expect(row.y).toBeCloseTo((await trigger.boundingBox())!.y, 1);
+  const outerRadius = await submenu.evaluate(el => parseFloat(getComputedStyle(el).borderTopLeftRadius));
+  const innerRadius = await option.evaluate(el => parseFloat(getComputedStyle(el).borderTopLeftRadius));
+  expect(row.x + innerRadius).toBeCloseTo(child.x + outerRadius, 1);
+  expect(row.y + innerRadius).toBeCloseTo(child.y + outerRadius, 1);
+  const edge = panel.x + panel.width;
+  expect(child.x - edge).toBeCloseTo(8, 0);
+  const y = row.y + row.height / 2;
+  await page.mouse.move((edge + child.x) / 2, y, { steps: 8 });
+  await page.mouse.move(row.x + row.width / 2, y, { steps: 8 });
+  await expect(option).toBeFocused();
+});
+
+test('小窗口菜单限制高度，可悬停打开子菜单并点击外部关闭', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 400 });
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+  await page.goto('./playground/');
+  await page.getByRole('button', { name: '梳理 Nibferry 项目交接' }).click();
+  const menu = page.getByRole('menu', { name: '梳理 Nibferry 项目交接' });
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveCSS('animation-name', 'none');
+  expect(await menu.evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+  await menu.getByRole('menuitem', { name: '移至项目' }).hover();
+  const current = page.getByRole('menuitem', { name: 'Nibferry（当前项目）' });
+  await expect(current).toBeDisabled();
+  const bounds = (await current.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+  await page.mouse.click(8, 8);
+  await expect(page.getByRole('menu')).toHaveCount(0);
+});
+
+test('macOS 窗口为普通百分比内容提供完整的可用宽高', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('./playground/');
+  const stage = page.locator('.playground-desktop');
+  const content = page.locator('.mac-window-content');
+  const app = page.locator('.workspace-preview');
+  const original = (await content.boundingBox())!;
+  const frame = page.locator('.mac-window');
+  expect(await frame.boundingBox()).toEqual({ x: 30, y: 30, width: 1220, height: 840 });
+  expect(original.height).toBe(await frame.evaluate((el) => el.clientHeight));
+  expect(original.width).toBe(await frame.evaluate((el) => el.clientWidth));
+  expect(await app.boundingBox()).toEqual(original);
+  await stage.evaluate((el) => {
+    el.style.width = '680px';
+    el.style.height = '400px';
+  });
+  const resized = (await content.boundingBox())!;
+  expect(resized.width).toBeLessThan(original.width);
+  expect(resized.height).toBeLessThan(original.height);
+  expect(await app.boundingBox()).toEqual(resized);
+  await expect(page.getByRole('main')).toHaveCSS('width', resized.width + 'px');
+  await content.evaluate((el) => {
+    const child = document.createElement('div');
+    child.style.cssText = 'width: 100%; height: 100%';
+    el.replaceChildren(child);
+  });
+  expect(await content.locator(':scope > div').boundingBox()).toEqual(resized);
 });
 
 test('按工作区自身宽度切换三栏和单栏', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 800 });
   await page.goto('./playground/');
+  await openPreviewRightPane(page);
   const layout = page.locator('[data-nf-workspace]');
   const left = page.getByText('左侧', { exact: true });
-  const main = page.getByText('主体', { exact: true });
+  const main = page.getByRole('main', { includeHidden: true });
   const right = page.getByText('右侧', { exact: true });
   await layout.evaluate((el) => {
     el.style.width = '600px';
@@ -231,7 +463,9 @@ test('按工作区自身宽度切换三栏和单栏', async ({ page }) => {
 test('区域展开优先于窄屏选择，收起后恢复内容、宽度和滚动', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 800 });
   await page.goto('./playground/');
+  await openPreviewRightPane(page);
   const workspace = page.locator('[data-nf-workspace]');
+  const width = await previewContentWidth(page);
   const main = page.locator('[data-nf-pane="main"]');
   const right = page.locator('[data-nf-pane="right"]');
   await workspace.evaluate((el) => {
@@ -250,12 +484,12 @@ test('区域展开优先于窄屏选择，收起后恢复内容、宽度和滚�
     return el.scrollTop;
   });
   expect(scroll).toBeGreaterThan(0);
-  await expect(right).toHaveCSS('width', '300px');
+  await expect(right).toHaveCSS('width', width / 4 + 'px');
   await workspace.evaluate((el) => {
     el.dataset.nfExpanded = 'right';
   });
   await expect(main).toBeHidden();
-  await expect(right).toHaveCSS('width', '1200px');
+  await expect(right).toHaveCSS('width', width + 'px');
 
   await workspace.evaluate((el) => {
     el.style.width = '600px';
@@ -271,7 +505,347 @@ test('区域展开优先于窄屏选择，收起后恢复内容、宽度和滚�
   await workspace.evaluate((el) => {
     el.style.removeProperty('width');
   });
-  await expect(right).toHaveCSS('width', '300px');
+  await expect(right).toHaveCSS('width', width / 4 + 'px');
+});
+
+test('分隔线悬停时以细线突出边界，移开后恢复', async ({ page }) => {
+  await page.goto('./playground/');
+  const handle = page.getByRole('separator', { name: '调整左栏宽度' });
+  await expect(handle).not.toHaveAttribute('title');
+  await expect(handle).toHaveCSS('width', '1px', { pseudo: 'before' });
+  await expect(handle).toHaveCSS('content', 'none', { pseudo: 'after' });
+  const idle = await handle.screenshot();
+  await handle.hover();
+  await expect(handle).toHaveCSS('cursor', 'col-resize');
+  await expect(handle).toHaveCSS('width', '1px', { pseudo: 'before' });
+  const hovered = await handle.screenshot();
+  expect(hovered).not.toEqual(idle);
+  await page.mouse.down();
+  expect(await handle.screenshot()).toEqual(hovered);
+  await page.mouse.up();
+  await page.mouse.move(0, 0);
+  expect(await handle.screenshot()).toEqual(idle);
+});
+
+test('收起左栏释放空间，键盘展开恢复原栏宽和内容', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const toggle = page.getByRole('button', { name: /左侧栏/ });
+  const width = await previewContentWidth(page);
+  const left = page.locator('#preview-left');
+  const handle = page.getByRole('separator', { name: '调整左栏宽度' });
+  await handle.press('Shift+ArrowRight');
+  await expect(left).toHaveCSS('width', '272px');
+  await left.evaluate((el) => el.append(document.createElement('input')));
+  const input = left.locator('input');
+  await input.fill('保留草稿');
+  const icon = toggle.locator('svg');
+  const expandedGlyph = await icon.innerHTML();
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName('展开左侧栏');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(await icon.innerHTML()).not.toBe(expandedGlyph);
+  await expect(toggle).toHaveAttribute('aria-controls', 'preview-left');
+  await expect(handle).toBeHidden();
+  await expect(left).toBeHidden();
+  await expect(page.getByRole('main')).toHaveCSS('width', width - 320 + 'px');
+  await expect(page.getByRole('complementary', { name: '右侧' })).toHaveCSS('width', '320px');
+  await toggle.press('Space');
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAccessibleName('收起左侧栏');
+  expect(await icon.innerHTML()).toBe(expandedGlyph);
+  await expect(handle).toBeVisible();
+  await expect(page.getByRole('main')).toHaveCSS('width', width - 272 - 320 + 'px');
+  await expect(input).toHaveValue('保留草稿');
+  await expect(left).toHaveCSS('width', '272px');
+});
+
+test('窄屏可从主体进入左栏并返回，桌面展开状态独立保留', async ({ page }) => {
+  await page.setViewportSize({ width: 1100, height: 700 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const toggle = page.getByRole('button', { name: /左侧栏/ });
+  const desktopWidth = await previewContentWidth(page);
+  await toggle.click();
+  await expect(page.locator('#preview-left')).toBeHidden();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const compactWidth = await previewContentWidth(page);
+  await expect(page.getByRole('main')).toHaveCSS('width', compactWidth + 'px');
+  await toggle.click();
+  await expect(page.getByRole('complementary', { name: '左侧' })).toHaveCSS(
+    'width',
+    compactWidth + 'px',
+  );
+  await expect(page.getByRole('main')).toBeHidden();
+  await expect(page.getByRole('separator')).toHaveCount(0);
+  await toggle.press('Enter');
+  await expect(page.getByRole('main')).toBeVisible();
+  await page.setViewportSize({ width: 1100, height: 700 });
+  await expect(page.getByRole('main')).toHaveCSS('width', desktopWidth - 320 + 'px');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('右栏全屏保留左侧导航，还原和重新展开均保留栏宽与内容', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./playground/');
+  const main = page.getByRole('main');
+  const right = page.locator('#preview-right');
+  const left = page.locator('#preview-left');
+  const rightToggle = page.getByRole('button', { name: /^(展开|收起)右侧栏$/ });
+  const fullToggle = page.getByRole('button', { name: /全屏/ });
+  const available = await previewContentWidth(page);
+  await expect(right).toBeHidden();
+  await expect(rightToggle).toHaveAttribute('aria-controls', 'preview-right');
+  await expect(rightToggle).toHaveAttribute('aria-expanded', 'false');
+  const closedIcon = await rightToggle.locator('svg').innerHTML();
+  await openPreviewRightPane(page);
+  expect(await rightToggle.locator('svg').innerHTML()).not.toEqual(closedIcon);
+  await page.getByRole('separator', { name: '调整右栏宽度' }).press('Shift+ArrowLeft');
+  await expect(right).toHaveCSS('width', '352px');
+  await right.evaluate((el) => {
+    const field = document.createElement('textarea');
+    field.style.height = '1800px';
+    el.append(field);
+  });
+  const draft = right.locator('textarea');
+  await draft.fill('当前内容');
+  const position = await right.evaluate((el) => (el.scrollTop = 140));
+  const splitIcon = await fullToggle.locator('svg').innerHTML();
+  await fullToggle.press('Enter');
+  await expect(fullToggle).toHaveAccessibleName('退出全屏');
+  await expect(fullToggle).toBeFocused();
+  expect(await fullToggle.locator('svg').innerHTML()).not.toEqual(splitIcon);
+  await expect(main).toBeHidden();
+  await expect(page.getByRole('separator')).toHaveCount(0);
+  await expect(left).toHaveCSS('width', '240px');
+  await expect(right).toHaveCSS('width', available - 240 + 'px');
+  await fullToggle.press('Space');
+  await expect(fullToggle).toBeFocused();
+  await expect(right).toHaveCSS('width', '352px');
+  await expect(main).toHaveCSS('width', available - 240 - 352 + 'px');
+  await rightToggle.press('Enter');
+  await expect(right).toBeHidden();
+  await expect(rightToggle).toBeFocused();
+  await rightToggle.press('Space');
+  await expect(draft).toHaveValue('当前内容');
+  await expect(right).toHaveCSS('width', '352px');
+  await expect.poll(() => right.evaluate((el) => el.scrollTop)).toBe(position);
+  await page.getByRole('button', { name: '收起左侧栏' }).click();
+  await expect(left).toBeHidden();
+  await fullToggle.click();
+  await expect(right).toHaveCSS('width', available + 'px');
+  await fullToggle.click();
+  await expect(left).toBeHidden();
+  await expect(right).toHaveCSS('width', '352px');
+});
+
+test('窄屏独立打开右栏并返回主体，恢复桌面时回到之前的模式', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const right = page.locator('#preview-right');
+  await expect(page.getByRole('main')).toBeVisible();
+  await page.getByRole('button', { name: '展开右侧栏' }).press('Enter');
+  await expect(right).toHaveCSS('width', (await previewContentWidth(page)) + 'px');
+  await expect(page.getByRole('main')).toBeHidden();
+  await expect(page.getByRole('button', { name: /全屏/ })).toHaveCount(0);
+  await page.getByRole('button', { name: '收起右侧栏' }).press('Space');
+  await expect(page.getByRole('main')).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
+  await expect(right).toHaveCSS('width', (await previewContentWidth(page)) - 240 + 'px');
+});
+
+test('全屏过渡用主题时长移动分栏边界，中途可反向还原', async ({ page }) => {
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const layout = page.locator('[data-nf-workspace]');
+  const toggle = page.getByRole('button', { name: /全屏/ });
+  const right = page.locator('#preview-right');
+  const left = page.locator('#preview-left');
+  await page.getByRole('separator', { name: '调整右栏宽度' }).press('Shift+ArrowLeft');
+  const split = (await right.boundingBox())!;
+  const nav = (await left.boundingBox())!;
+  const fullWidth = split.x + split.width - nav.x - nav.width;
+  await layout.evaluate((el) => {
+    el.style.setProperty('--nf-motion-reveal', '800ms');
+    el.style.setProperty('--nf-ease', 'linear');
+  });
+
+  async function checkMidpoint() {
+    const frame = await layout.evaluate(async (el) => {
+      const pane = el.querySelector<HTMLElement>('#preview-right')!;
+      const main = el.querySelector<HTMLElement>('#content')!;
+      const animations = el.getAnimations({ subtree: true });
+      const growth = pane.getAnimations().find(
+        (a) => a instanceof CSSTransition && a.transitionProperty === 'flex-grow',
+      )!;
+      const duration = Number(growth.effect!.getTiming().duration);
+      await Promise.all(animations.map((a) => a.ready));
+      for (const animation of animations) animation.currentTime = duration / 2;
+      return {
+        width: pane.getBoundingClientRect().width,
+        opacity: Number(getComputedStyle(main).opacity),
+        duration,
+      };
+    });
+    expect(frame.duration).toBe(800);
+    expect(frame.width).toBeGreaterThan(split.width);
+    expect(frame.width).toBeLessThan(fullWidth);
+    expect(frame.opacity).toBeCloseTo(0.5, 1);
+    expect(await left.boundingBox()).toEqual(nav);
+  }
+
+  await toggle.press('Enter');
+  await checkMidpoint();
+  await toggle.press('Space');
+  await expect(right).toHaveCSS('width', split.width + 'px');
+  await toggle.press('Enter');
+  await expect(right).toHaveCSS('width', fullWidth + 'px');
+  await toggle.press('Enter');
+  await checkMidpoint();
+  await expect(right).toHaveCSS('width', split.width + 'px');
+  await expect(toggle).toBeFocused();
+});
+
+test('系统减少动效或主题关闭动效时右栏即时全屏和还原', async ({ page }) => {
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const layout = page.locator('[data-nf-workspace]');
+  const toggle = page.getByRole('button', { name: /全屏/ });
+  const right = page.locator('#preview-right');
+  const split = (await right.boundingBox())!;
+  const leftWidth = (await page.locator('#preview-left').boundingBox())!.width;
+  const fullWidth = (await previewContentWidth(page)) - leftWidth;
+  for (const preference of ['reduce', 'no-preference'] as const) {
+    await page.emulateMedia({ reducedMotion: preference });
+    if (preference === 'no-preference') {
+      await layout.evaluate((el, variables) => {
+        for (const [key, value] of Object.entries(variables)) el.style.setProperty(key, value);
+      }, themeVariables({ motion: false }));
+    }
+    for (const width of [fullWidth, split.width]) {
+      await toggle.press('Enter');
+      expect((await right.boundingBox())!.width).toBe(width);
+      expect(await layout.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
+    }
+  }
+});
+
+test('工具栏按下时图标缩小，点击区域保持原尺寸', async ({ page }) => {
+  await page.goto('./playground/');
+  const button = page.getByRole('button', { name: '展开右侧栏' });
+  const icon = button.locator('svg');
+  const bounds = await button.boundingBox();
+  await button.hover();
+  await page.mouse.down();
+  await expect(icon).toHaveCSS('scale', '0.92');
+  expect(await button.boundingBox()).toEqual(bounds);
+  await page.mouse.up();
+  await expect(page.getByRole('button', { name: '收起右侧栏' }).locator('svg')).toHaveCSS('scale', 'none');
+});
+
+test('拖动左右分隔线时，另一侧保持原宽，主体接收差额', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const left = page.getByRole('complementary', { name: '左侧' });
+  const right = page.getByRole('complementary', { name: '右侧' });
+  for (const [label, movement] of [
+    ['调整左栏宽度', 54],
+    ['调整右栏宽度', -62],
+  ] as const) {
+    const handle = page.getByRole('separator', { name: label });
+    const rect = (await handle.boundingBox())!;
+    const x = rect.x + rect.width / 2,
+      y = rect.y + rect.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + movement, y, { steps: 6 });
+    await page.mouse.up();
+    if (movement > 0) {
+      await expect(left).toHaveCSS('width', '294px');
+      await expect(right).toHaveCSS('width', '320px');
+    }
+  }
+  await expect(left).toHaveCSS('width', '294px');
+  await expect(right).toHaveCSS('width', '382px');
+  const width = await previewContentWidth(page);
+  await expect(page.getByRole('main')).toHaveCSS('width', width - 294 - 382 + 'px');
+});
+
+test('键盘调宽遵循两端边界，窄屏和单栏展开时让出焦点', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const left = page.getByRole('separator', { name: '调整左栏宽度' });
+  const right = page.getByRole('separator', { name: '调整右栏宽度' });
+  await expect(left).toHaveAttribute('aria-valuenow', '240');
+  await page.getByRole('button', { name: '收起左侧栏' }).focus();
+  for (const name of ['梳理 Nibferry 项目交接', '复制预览链接', '查看会话摘要']) {
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name, exact: true })).toBeFocused();
+  }
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '全屏显示右侧栏' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '收起右侧栏' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(left).toBeFocused();
+  await expect(left).toHaveCSS('width', '2px', { pseudo: 'before' });
+  await left.press('ArrowRight');
+  await expect(left).toHaveAttribute('aria-valuenow', '248');
+  await left.press('Tab');
+  await expect(right).toBeFocused();
+  await right.press('Shift+ArrowLeft');
+  await expect(right).toHaveAttribute('aria-valuenow', '352');
+  await right.press('Home');
+  await expect(right).toHaveAttribute('aria-valuenow', '128');
+  await right.press('End');
+  const maxRight = String((await previewContentWidth(page)) - 248 - 192);
+  await expect(right).toHaveAttribute('aria-valuenow', maxRight);
+  await expect(page.getByRole('main')).toHaveCSS('width', '192px');
+  const workspace = page.locator('[data-nf-workspace]');
+  await workspace.evaluate((el) => {
+    el.dataset.nfExpanded = 'right';
+  });
+  await expect(page.getByRole('separator')).toHaveCount(0);
+  await workspace.evaluate((el) => {
+    delete el.dataset.nfExpanded;
+  });
+  await expect(right).toHaveAttribute('aria-valuenow', maxRight);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('separator')).toHaveCount(0);
+  await expect(page.getByRole('main')).toHaveCSS('width', (await previewContentWidth(page)) + 'px');
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await expect(right).toHaveAttribute('aria-valuenow', maxRight);
+});
+
+test('窗口缩窄压缩两侧后，继续调宽从可见边界开始', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const left = page.getByRole('separator', { name: '调整左栏宽度' });
+  const right = page.getByRole('separator', { name: '调整右栏宽度' });
+  await left.press('End');
+  await expect(left).toHaveAttribute(
+    'aria-valuenow',
+    String((await previewContentWidth(page)) - 320 - 192),
+  );
+  await page.setViewportSize({ width: 850, height: 800 });
+  const available = (await previewContentWidth(page)) - 192;
+  await expect
+    .poll(async () => Number(await left.getAttribute('aria-valuenow')))
+    .toBeLessThan(available);
+  const start = Number(await left.getAttribute('aria-valuenow'));
+  const otherWidth = await right.getAttribute('aria-valuenow');
+  await left.press('ArrowLeft');
+  await expect(left).toHaveAttribute('aria-valuenow', String(start - 8));
+  await expect(right).toHaveAttribute('aria-valuenow', otherWidth!);
 });
 
 test('主题导出的栏宽可以单独覆盖并在变量文档中查到', async ({ page }) => {
@@ -329,7 +903,7 @@ test('设计文档保留色板，布局文档连接桌面实例', async ({ page 
   await expect(color).toContainText('#74AAFF');
   await page.goto('./docs/layout/');
   await page.locator('.docs-prose').getByRole('link', { name: '交互预览' }).click();
-  await expect(page.getByRole('main')).toHaveText('主体');
+  await expect(page.getByRole('main')).toHaveText('主体', { useInnerText: true });
 });
 
 test('动效配置拒绝无效时长和贝塞尔横坐标', () => {
