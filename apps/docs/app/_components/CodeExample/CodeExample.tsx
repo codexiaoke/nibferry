@@ -47,7 +47,7 @@ export default function CodeExample() {
           ))}
         </div>
       </div>
-      <pre aria-label={language + ' 示例'}>
+      <pre key={language} aria-label={language + ' 示例'}>
         <code>{examples[language]}</code>
       </pre>
     </div>

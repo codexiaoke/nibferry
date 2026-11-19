@@ -1,7 +1,8 @@
 {
   "pages": [
     "---开始使用---", "index", "installation",
-    "---设计体系---", "theme", "colors", "surfaces", "motion",
+    "---设计体系---", "component-design", "layout", "theme", "colors", "surfaces", "motion",
+    "---组件---", "dropdown-menu",
     "---参与开发---", "contributing"
   ]
 }

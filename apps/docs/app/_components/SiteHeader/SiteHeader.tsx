@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Layers from '@hugeicons/core-free-icons/Layers01Icon';
@@ -35,6 +36,24 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
   const [menu, setMenu] = useState('');
   const menuButton = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
+
+  const path = usePathname();
+
+  // Previously published links opened the explorer using a fragment on the home page.
+  useEffect(() => {
+    if (path !== '/') return;
+    function followPreviewLink() {
+      const hash = window.location.hash;
+      if (hash === '#playground' || hash === '#tokens') {
+        window.location.replace(
+          basePath + (hash === '#tokens' ? '/docs/theme/#variables' : '/playground/'),
+        );
+      }
+    }
+    followPreviewLink();
+    window.addEventListener('hashchange', followPreviewLink);
+    return () => window.removeEventListener('hashchange', followPreviewLink);
+  }, [path]);
 
   function close() {
     setOpen(false);
@@ -82,9 +101,9 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
           <Link href="/docs" onClick={close}>
             文档
           </Link>
-          <a href={basePath + '/#playground'} onClick={close}>
+          <Link href="/playground/" onClick={close}>
             交互预览
-          </a>
+          </Link>
           {menus.map(({ title, links }, i) => (
             <div className="nav-dropdown" key={title}>
               <button

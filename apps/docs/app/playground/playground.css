@@ -1,0 +1,10 @@
+html:has(.playground-desktop) {
+  scrollbar-gutter: auto;
+}
+
+.playground-desktop {
+  width: 100%;
+  height: 100dvh;
+  padding: 30px;
+  background: var(--site-line);
+}

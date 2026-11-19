@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import SiteHeader from './_components/SiteHeader/SiteHeader';
+import { getSearchIndex } from '../lib/docs';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Layers from '@hugeicons/core-free-icons/Layers01Icon';
 import Arrow from '@hugeicons/core-free-icons/ArrowRight02Icon';
 import { palettes, theme } from '@nibferry/react/theme';
 import BuildCommand from './_components/BuildCommand/BuildCommand';
-import TokenExplorer from './_components/TokenExplorer/TokenExplorer';
 import CodeExample from './_components/CodeExample/CodeExample';
-import { designSpec, repository } from './site-links';
+import { repository } from './site-links';
 
 const resources = [
   {
@@ -29,6 +30,7 @@ const resources = [
 export default function Home() {
   return (
     <>
+      <SiteHeader entries={getSearchIndex()} />
       <main className="frame" id="content">
         <section className="hero">
           <div className="hero-copy">
@@ -44,8 +46,8 @@ export default function Home() {
             </p>
             <div className="hero-actions">
               <BuildCommand />
-              <Link className="text-link" href="/docs/installation">
-                接入指南
+              <Link className="text-link" href="/playground/">
+                打开交互预览
                 <HugeiconsIcon icon={Arrow} size={17} aria-hidden="true" />
               </Link>
             </div>
@@ -59,13 +61,6 @@ export default function Home() {
             <HugeiconsIcon icon={Layers} size={336} strokeWidth={2.4} />
           </div>
         </section>
-        <TokenExplorer />
-        <div className="preview-caption">
-          <a className="text-link" href={designSpec}>
-            查看完整 Token 规范
-            <HugeiconsIcon icon={Arrow} size={14} aria-hidden="true" />
-          </a>
-        </div>
         <section className="package-section" id="package">
           <h2>@nibferry/react</h2>
           <p>读取主题数据，或在 CSS 中覆盖默认值。</p>
@@ -152,7 +147,7 @@ export default function Home() {
           </div>
           <div>
             <h2>资源</h2>
-            <a href="#tokens">Token 浏览器</a>
+            <Link href="/docs/theme/#variables">Token 浏览器</Link>
             <a href={repository}>GitHub</a>
           </div>
           <div>

@@ -1,0 +1,17 @@
+:where([data-nf-pane-header]:not([hidden])) {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+:where([data-nf-pane-header-content]) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+:where([data-nf-pane-header-actions]) {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: calc(var(--nf-space-sm) / 2);
+}

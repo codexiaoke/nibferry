@@ -1,0 +1,139 @@
+@keyframes content-appear {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+.nav-dropdown > button[aria-expanded='true'] svg,
+.command-choice[open] summary svg:last-child {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Resolve the library tokens in each surface's own theme scope. */
+  :where(.site-header, .doc-search-dialog, .docs-layout, .frame, .site-footer) {
+    --feedback: calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1));
+    --reveal: calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1));
+    --surface: calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1));
+  }
+
+  .doc-search-dialog {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+    transform-origin: center top;
+    pointer-events: none;
+    transition:
+      opacity var(--feedback) ease-in,
+      transform var(--feedback) ease-in,
+      display var(--feedback) allow-discrete,
+      overlay var(--feedback) allow-discrete;
+  }
+  .doc-search-dialog[open] {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    transition-duration: var(--surface);
+    transition-timing-function: var(--nf-ease);
+  }
+  .doc-search-dialog::backdrop {
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--feedback) ease-out,
+      display var(--feedback) allow-discrete,
+      overlay var(--feedback) allow-discrete;
+  }
+  .doc-search-dialog[open]::backdrop {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--surface);
+  }
+  @starting-style {
+    .doc-search-dialog[open] {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.985);
+    }
+    .doc-search-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .search-scroll {
+    height: min(50dvh, 376px, var(--results-height, 376px));
+    transition: height var(--reveal) var(--nf-ease);
+  }
+  #search-results::before {
+    transition: transform var(--feedback) var(--nf-ease);
+  }
+  .search-result {
+    animation: content-appear var(--feedback) var(--nf-ease);
+  }
+
+  .nav-options,
+  .choice-list,
+  .hero-copy,
+  .docs-main article,
+  .code-example pre {
+    animation: content-appear var(--reveal) var(--nf-ease);
+  }
+
+  :is(
+      .nav-dropdown > button,
+      .docs-disclosure,
+      .docs-sidebar summary,
+      .command-choice summary
+    )
+    svg:last-child {
+    transition: transform var(--feedback) var(--nf-ease);
+  }
+  @supports (interpolate-size: allow-keywords) {
+    .docs-sidebar details::details-content {
+      interpolate-size: allow-keywords;
+      height: 0;
+      overflow: clip;
+      transition:
+        height var(--reveal) var(--nf-ease),
+        content-visibility var(--reveal) allow-discrete;
+    }
+    .docs-sidebar details[open]::details-content {
+      height: auto;
+    }
+  }
+
+  :where(
+    .header-search,
+    .icon-button,
+    .repo-link,
+    .command-copy,
+    .docs-sidebar a,
+    .nav-options a,
+    .doc-neighbors a,
+    .docs-overview li a,
+    .resource-links a,
+    .choice-list button,
+    .lookup-hints button,
+    .code-choices button
+  ) {
+    transition:
+      background-color var(--feedback) var(--nf-ease),
+      color var(--feedback) var(--nf-ease),
+      border-color var(--feedback) var(--nf-ease),
+      scale var(--feedback) var(--nf-ease);
+  }
+  :is(.header-search, .icon-button, .repo-link, .command-copy):active {
+    scale: 0.97;
+  }
+
+  @media (max-width: 960px) {
+    #docs-navigation[data-open='true'],
+    #outline-panel[data-open='true'] {
+      animation: content-appear var(--reveal) var(--nf-ease);
+    }
+  }
+  @media (max-width: 800px) {
+    .main-nav[data-open='true'] {
+      animation: content-appear var(--reveal) var(--nf-ease);
+    }
+  }
+}

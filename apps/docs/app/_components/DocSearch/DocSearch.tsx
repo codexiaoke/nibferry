@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
@@ -32,6 +32,13 @@ function findEntries(entries: SearchEntry[], query: string) {
     .map(({ entry }) => entry);
 }
 
+function measureSelection(content: HTMLElement) {
+  const selected = content.querySelector<HTMLElement>('[aria-selected="true"]');
+  if (!selected) return;
+  content.style.setProperty('--selection-y', selected.offsetTop + 'px');
+  content.style.setProperty('--selection-height', selected.offsetHeight + 'px');
+}
+
 export default function DocSearch({
   entries,
   onOpen,
@@ -43,10 +50,27 @@ export default function DocSearch({
   const [active, setActive] = useState(0);
   const [shortcut, setShortcut] = useState('');
   const dialog = useRef<HTMLDialogElement>(null);
+  const content = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const results = findEntries(entries, query);
+  const results = useMemo(() => findEntries(entries, query), [entries, query]);
+
+  useLayoutEffect(() => {
+    if (dialog.current?.open && content.current) measureSelection(content.current);
+  }, [active, query]);
+
+  useEffect(() => {
+    const element = content.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() => {
+      if (!dialog.current?.open) return;
+      dialog.current.style.setProperty('--results-height', element.offsetHeight + 'px');
+      measureSelection(element);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     setShortcut(/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘ K' : 'Ctrl K');
@@ -66,6 +90,8 @@ export default function DocSearch({
     setQuery('');
     setActive(0);
     dialog.current?.showModal();
+    content.current?.parentElement?.scrollTo(0, 0);
+    if (content.current) measureSelection(content.current);
     input.current?.focus();
   }
 
@@ -113,6 +139,7 @@ export default function DocSearch({
               placeholder="搜索文档…"
               value={query}
               onChange={(event) => {
+                content.current?.parentElement?.scrollTo(0, 0);
                 setQuery(event.target.value);
                 setActive(0);
               }}
@@ -144,34 +171,40 @@ export default function DocSearch({
             </button>
           </div>
           <div className="search-scroll">
-            <p className="search-caption" role="status">
-              {query.trim()
-                ? results.length
-                  ? results.length + ' 个结果'
-                  : '没有找到匹配的文档'
-                : '浏览文档'}
-            </p>
-            <div id="search-results" role="listbox" aria-label="文档结果">
-              {results.map((entry, i) => (
-                <div
-                  key={entry.url}
-                  id={'search-result-' + i}
-                  role="option"
-                  aria-selected={active === i}
-                  className="search-result"
-                  onPointerMove={() => setActive(i)}
-                  onClick={() => select(entry)}
-                >
-                  <HugeiconsIcon icon={entry.section ? Hash : File} size={17} aria-hidden="true" />
-                  <div>
-                    <strong>{entry.title}</strong>
-                    <small>
-                      {entry.section ? entry.location + ' · ' : ''}
-                      {excerpt(entry.text, query)}
-                    </small>
+            <div className="search-content" ref={content}>
+              <p className="search-caption" role="status">
+                {query.trim()
+                  ? results.length
+                    ? results.length + ' 个结果'
+                    : '没有找到匹配的文档'
+                  : '浏览文档'}
+              </p>
+              <div id="search-results" role="listbox" aria-label="文档结果">
+                {results.map((entry, i) => (
+                  <div
+                    key={entry.url}
+                    id={'search-result-' + i}
+                    role="option"
+                    aria-selected={active === i}
+                    className="search-result"
+                    onPointerMove={() => setActive(i)}
+                    onClick={() => select(entry)}
+                  >
+                    <HugeiconsIcon
+                      icon={entry.section ? Hash : File}
+                      size={17}
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <strong>{entry.title}</strong>
+                      <small>
+                        {entry.section ? entry.location + ' · ' : ''}
+                        {excerpt(entry.text, query)}
+                      </small>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
           <div className="search-help">

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import TokenExplorer from '../../_components/TokenExplorer/TokenExplorer';
+import MotionPreview from '../../_components/MotionPreview/MotionPreview';
 import { notFound } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Right from '@hugeicons/core-free-icons/ArrowRight01Icon';
@@ -63,6 +65,17 @@ export default async function DocsPage({ params }: Route) {
               }}
             />
           </div>
+          {page.url === '/docs/theme' && (
+            <section id="variables" aria-label="主题变量">
+              <TokenExplorer view="tokens" />
+            </section>
+          )}
+          {page.url === '/docs/colors' && (
+            <section aria-label="配色预设示例">
+              <TokenExplorer view="colors" />
+            </section>
+          )}
+          {page.url === '/docs/motion' && <MotionPreview />}
         </article>
         <nav className="doc-neighbors" aria-label="相邻文档">
           {index > 0 && (

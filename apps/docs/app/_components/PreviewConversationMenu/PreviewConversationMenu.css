@@ -1,0 +1,10 @@
+.preview-conversation-menu {
+  --nf-canvas: var(--site-bg);
+  --nf-ink: var(--site-ink);
+  --nf-line: var(--site-line);
+  --nf-muted: var(--site-muted);
+  --nf-menu-shadow: 0 6px 20px rgb(0 0 0 / 8%);
+}
+@media (prefers-color-scheme: dark) {
+  .preview-conversation-menu { --nf-menu-danger: #ff9a90; }
+}
