@@ -25,3 +25,5 @@ import '@nibferry/react/styles.css';
 接入方管理展开状态，并决定用哪个入口切换。`expandedPane` 和 `compactPane` 都应指向当前组合中可见的区域。展开期间其他栏仍保持挂载，返回后可以继续编辑原有内容。键盘焦点由接入方的切换入口管理。
 
 可在祖先容器设置 `--nf-layout-left-pane-width` 和 `--nf-layout-right-pane-width`。单个侧栏的 `width` 覆盖继承的默认宽度，`style.width` 优先于 `width`。
+
+在任一侧栏传入 `resizable` 可以独立启用调宽。左右手柄按容器实际可用空间限制宽度。侧栏和主体同时显示时手柄可聚焦，单栏视图会隐藏手柄。需要接管宽度时在对应侧栏使用 `width` 与 `onWidthChange`。

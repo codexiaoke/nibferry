@@ -27,6 +27,10 @@
   width: var(--nf-layout-right-pane-width);
 }
 
+:where([data-nf-workspace] > [data-nf-pane='right'][data-nf-fullscreen='true']) {
+  flex-grow: 1;
+}
+
 /* Keep the other panes mounted so their local state and scroll positions survive. */
 :where([data-nf-expanded] > [data-nf-pane]) {
   flex: 1 1 0px;
@@ -48,5 +52,107 @@
   :where([data-nf-workspace='main']:not([data-nf-expanded]) > [data-nf-pane]:not([data-nf-pane='main'])),
   :where([data-nf-workspace='right']:not([data-nf-expanded]) > [data-nf-pane]:not([data-nf-pane='right'])) {
     display: none !important;
+  }
+}
+
+:where([data-nf-resize]) {
+  display: none;
+}
+
+:where([data-nf-workspace]:has(> [data-nf-collapsed])) {
+  overflow-x: clip;
+}
+:where([data-nf-pane][data-nf-collapsed='true']) {
+  display: none !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @container nf-workspace (min-width: 768px) {
+    :where([data-nf-workspace]:not([data-nf-expanded]) > [data-nf-collapsed]),
+    :where([data-nf-workspace]:not([data-nf-expanded]) > [data-nf-fullscreen]),
+    :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-fullscreen]) > [data-nf-pane='main']) {
+      transition-property: margin-inline-start, margin-inline-end, display;
+      transition-duration: calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1));
+      transition-timing-function: var(--nf-ease);
+      transition-behavior: allow-discrete;
+    }
+    :where([data-nf-pane='left'][data-nf-collapsed='true']) { margin-inline-start: var(--nf-pane-slide-offset, calc(-1 * var(--nf-layout-left-pane-width))); }
+    :where([data-nf-pane='right'][data-nf-collapsed='true']) { margin-inline-end: var(--nf-pane-slide-offset, calc(-1 * var(--nf-layout-right-pane-width))); }
+    @starting-style {
+      :where([data-nf-pane='left'][data-nf-collapsed='false']) { margin-inline-start: var(--nf-pane-slide-offset, calc(-1 * var(--nf-layout-left-pane-width))); }
+      :where([data-nf-pane='right'][data-nf-collapsed='false']) { margin-inline-end: var(--nf-pane-slide-offset, calc(-1 * var(--nf-layout-right-pane-width))); }
+    }
+
+    /* Both panes share the spare space as the right pane grows from its split width. */
+    :where([data-nf-workspace]:not([data-nf-expanded]) > [data-nf-fullscreen]) {
+      transition-property: flex-grow, background-color, margin-inline-end, display;
+    }
+    :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-fullscreen]) > [data-nf-pane='main']) {
+      transition-property: flex-grow, opacity, min-inline-size, padding-inline, display;
+    }
+    :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-fullscreen='true']) > [data-nf-pane='main'][hidden]) {
+      flex-grow: 0;
+      min-inline-size: 0 !important;
+      padding-inline: 0 !important;
+      opacity: 0;
+    }
+    @starting-style {
+      :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-fullscreen='false']:not([data-nf-collapsed='true'])) > [data-nf-pane='main']:not([hidden])) {
+        flex-grow: 0;
+        min-inline-size: 0 !important;
+        padding-inline: 0 !important;
+        opacity: 0;
+      }
+    }
+  }
+}
+
+@container nf-workspace (min-width: 768px) {
+  :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-pane='main']:not([hidden])):has(> [data-nf-pane='left']:not([hidden], [data-nf-collapsed='true'])) > [data-nf-resize='left']),
+  :where([data-nf-workspace]:not([data-nf-expanded]):has(> [data-nf-pane='main']:not([hidden])):has(> [data-nf-pane='right']:not([hidden], [data-nf-collapsed='true'])) > [data-nf-resize='right']) {
+    display: block;
+  }
+  :where([data-nf-workspace]:has(> [data-nf-resize]) > [data-nf-pane='main']) {
+    min-inline-size: var(--nf-resize-main-min, 192px);
+  }
+  :where([data-nf-workspace]:has(> [data-nf-resize='left']) > [data-nf-pane='left']),
+  :where([data-nf-workspace]:has(> [data-nf-resize='right']) > [data-nf-pane='right']) {
+    min-inline-size: var(--nf-resize-pane-min, 128px);
+  }
+}
+:where([data-nf-workspace] > [data-nf-resize]) {
+  position: relative;
+  flex: 0 0 16px;
+  margin-inline: -8px;
+  align-self: stretch;
+  z-index: 1;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+}
+:where([data-nf-resize='right']) {
+  order: 2;
+}
+:where([data-nf-resize])::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--nf-line);
+}
+@media (any-hover: hover) {
+  :where([data-nf-resize]:hover)::before {
+    background: color-mix(in srgb, var(--nf-line) 72%, var(--nf-muted));
+  }
+}
+:where([data-nf-resize]:focus-visible)::before {
+  width: 2px;
+  background: var(--nf-accent);
+}
+:where([data-nf-resize]:focus-visible) { outline: none; }
+@media (pointer: coarse) {
+  :where([data-nf-workspace] > [data-nf-resize]) {
+    flex-basis: 24px;
+    margin-inline: -12px;
   }
 }

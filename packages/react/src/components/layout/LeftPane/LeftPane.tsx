@@ -1,9 +1,7 @@
-import type { ComponentPropsWithRef, CSSProperties } from 'react';
+import { SidePane, type SidePaneProps } from '../SidePane/SidePane.js';
 
-export interface LeftPaneProps extends ComponentPropsWithRef<'aside'> {
-  width?: CSSProperties['width'];
-}
+export type LeftPaneProps = SidePaneProps;
 
-export function LeftPane({ width, style, ...props }: LeftPaneProps) {
-  return <aside {...props} data-nf-pane="left" style={{ width, ...style }} />;
+export function LeftPane(props: LeftPaneProps) {
+  return <SidePane {...props} side="left" />;
 }

@@ -12,13 +12,29 @@ import { LeftPane, MainPane, RightPane, WorkspaceLayout } from '@nibferry/react'
 import '@nibferry/react/styles.css';
 
 <WorkspaceLayout style={{ height: '100dvh' }}>
-  <LeftPane aria-label="左侧">左侧</LeftPane>
+  <LeftPane resizable aria-label="左侧">左侧</LeftPane>
   <MainPane role="main">主体</MainPane>
-  <RightPane aria-label="右侧">右侧</RightPane>
+  <RightPane resizable aria-label="右侧">右侧</RightPane>
 </WorkspaceLayout>
 ```
 
 [交互预览](/playground/)
+
+## 区域标题栏
+
+用 `PaneHeader` 的子元素放会话标题或工作区标签，`actions` 放末端操作。在桌面预览中，主体标题从左栏分隔线开始，分享和摘要按钮贴近右栏分隔线。拖动任一侧时，标题栏跟随对应内容区域。空间不足时，从会话标题的下拉菜单使用同一组操作。
+
+```tsx
+import { PaneHeader, PaneButton } from '@nibferry/react';
+import List from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
+
+<PaneHeader actions={
+  <PaneButton icon={List} paneId="summary" aria-expanded={open}
+    aria-label="会话摘要" onClick={() => setOpen(!open)} />
+}>
+  当前会话
+</PaneHeader>
+```
 
 ## 栏宽与内容
 
@@ -31,7 +47,44 @@ import '@nibferry/react/styles.css';
 }
 ```
 
+## 调整分栏宽度
+
+给任一侧栏传入 `resizable`，就能拖动该侧分隔线。用 Tab 聚焦后，左右键每次移动 8px，按住 Shift 移动 32px。Home 和 End 调至最小、最大宽度。默认给侧栏至少保留 128px，主体至少保留 192px。
+
+默认由组件保留拖动后的宽度，可通过 `defaultWidth` 设置初始值。产品已有布局设置时，用 `width` 和 `onWidthChange` 接管数值。下面的右栏尺寸可以直接同步到宿主状态。
+
+```tsx
+import { useState } from 'react';
+import { MainPane, RightPane, WorkspaceLayout } from '@nibferry/react';
+
+export function Layout() {
+  const [width, setWidth] = useState(320);
+  return (
+    <WorkspaceLayout style={{ height: '100dvh' }}>
+      <MainPane>主体</MainPane>
+      <RightPane resizable width={width} onWidthChange={setWidth}>右侧</RightPane>
+    </WorkspaceLayout>
+  );
+}
+```
+
+手柄也可独立导入 `PaneResizeHandle`，通过 `side`、`paneId` 和 `onWidthChange` 连到同一工作区的侧栏。窄屏及单栏展开时，手柄随分栏收起。
+
+并排显示时，如果容器缩窄到主体的最小宽度，两侧可调栏会采用实际显示的宽度，受控栏通过同一个回调同步。
+
 ## 展开与还原
+
+桌面上用 `LeftPane` 的 `collapsed` 收起左栏，主体接收空出的宽度。重新打开时，左栏沿用上次调好的宽度和原有内容。把 `LeftPaneToggle` 放在左栏外，用同一份状态驱动开关和左栏。
+
+```tsx
+<>
+  <LeftPaneToggle paneId="navigation" expanded={open} onClick={() => setOpen(!open)} />
+  <WorkspaceLayout>
+    <LeftPane id="navigation" collapsed={!open} resizable>左侧</LeftPane>
+    <MainPane>主体</MainPane>
+  </WorkspaceLayout>
+</>
+```
 
 容器小于 768px 时，`compactPane` 决定显示哪个区域，默认显示主体。任意宽度下都可以用 `expandedPane` 让某一栏铺满当前工作区。接入方持有这个值，清空它即可恢复分栏或窄屏视图。其余栏保留挂载，输入草稿和组件状态可以跨布局切换保留。
 
@@ -47,6 +100,29 @@ export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
     </WorkspaceLayout>
   );
 }
+```
+
+### 右侧工作区全屏
+
+桌面预览默认收起右栏。工具栏右端的 `RightPaneToggle` 接收 `paneId`、`expanded` 和 `onClick`，与 `RightPane` 的 `collapsed` 由宿主共同控制。打开后可拖动分隔线，也可以点 `RightPaneFullscreenToggle` 展开当前内容。
+
+将同一个布尔值传给主体的 `hidden` 和右栏的 `fullscreen`。切换时分隔边界从当前栏宽移动到左侧导航旁，主体同步淡出。退出时边界移回原位，主体淡入。过渡时长与缓动沿用主题的 `--nf-motion-reveal` 和 `--nf-ease`。恢复分栏时两个区域仍在原处，保留内容、阅读位置和调好的宽度。工具栏按钮可以替换为产品已有的控件。
+
+```tsx
+<>
+  <RightPaneFullscreenToggle
+    paneId="details"
+    fullscreen={fullscreen}
+    onClick={() => setFullscreen(!fullscreen)}
+  />
+  <WorkspaceLayout compactPane={fullscreen ? 'right' : 'main'}>
+    <LeftPane>导航</LeftPane>
+    <MainPane hidden={fullscreen}>主体</MainPane>
+    <RightPane id="details" resizable fullscreen={fullscreen}>
+      详情
+    </RightPane>
+  </WorkspaceLayout>
+</>
 ```
 
 ## 纵向排列

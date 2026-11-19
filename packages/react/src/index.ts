@@ -17,5 +17,23 @@ export {
   type WorkspacePane,
 } from './components/layout/WorkspaceLayout/WorkspaceLayout.js';
 export { LeftPane, type LeftPaneProps } from './components/layout/LeftPane/LeftPane.js';
+export {
+  LeftPaneToggle,
+  type LeftPaneToggleProps,
+} from './components/layout/LeftPaneToggle/LeftPaneToggle.js';
 export { MainPane, type MainPaneProps } from './components/layout/MainPane/MainPane.js';
+export { PaneHeader, type PaneHeaderProps } from './components/layout/PaneHeader/PaneHeader.js';
+export { PaneButton, type PaneButtonProps } from './components/layout/PaneButton/PaneButton.js';
 export { RightPane, type RightPaneProps } from './components/layout/RightPane/RightPane.js';
+export {
+  RightPaneToggle,
+  type RightPaneToggleProps,
+} from './components/layout/RightPaneToggle/RightPaneToggle.js';
+export {
+  RightPaneFullscreenToggle,
+  type RightPaneFullscreenToggleProps,
+} from './components/layout/RightPaneFullscreenToggle/RightPaneFullscreenToggle.js';
+export {
+  PaneResizeHandle,
+  type PaneResizeHandleProps,
+} from './components/layout/PaneResizeHandle/PaneResizeHandle.js';

@@ -1,9 +1,9 @@
-import type { ComponentPropsWithRef, CSSProperties } from 'react';
+import { SidePane, type SidePaneProps } from '../SidePane/SidePane.js';
 
-export interface RightPaneProps extends ComponentPropsWithRef<'aside'> {
-  width?: CSSProperties['width'];
+export interface RightPaneProps extends SidePaneProps {
+  fullscreen?: boolean;
 }
 
-export function RightPane({ width, style, ...props }: RightPaneProps) {
-  return <aside {...props} data-nf-pane="right" style={{ width, ...style }} />;
+export function RightPane({ fullscreen, ...props }: RightPaneProps) {
+  return <SidePane {...props} side="right" data-nf-fullscreen={fullscreen} />;
 }

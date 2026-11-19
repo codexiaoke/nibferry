@@ -8,6 +8,8 @@ const themePath = fileURLToPath(new URL('./src/theme/values.json', import.meta.u
 
 const stylePaths = [
   new URL('./src/components/layout/WorkspaceLayout/WorkspaceLayout.css', import.meta.url),
+  new URL('./src/components/layout/PaneButton/PaneButton.css', import.meta.url),
+  new URL('./src/components/layout/PaneHeader/PaneHeader.css', import.meta.url),
   new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
 ].map((url) => fileURLToPath(url));
 
@@ -48,7 +50,13 @@ export default defineConfig({
       external: ['react', 'react/jsx-runtime', '@hugeicons/react', '@radix-ui/react-dropdown-menu'],
     },
     lib: {
-      entry: { index: 'src/index.ts', theme: 'src/theme/tokens.ts' },
+      entry: {
+        index: 'src/index.ts',
+        theme: 'src/theme/tokens.ts',
+        // Separate client entries retain their directives in the published ESM.
+        'side-pane': 'src/components/layout/SidePane/SidePane.tsx',
+        'pane-resize-handle': 'src/components/layout/PaneResizeHandle/PaneResizeHandle.tsx',
+      },
       formats: ['es'],
       fileName: (_, name) => name + '.js',
     },
