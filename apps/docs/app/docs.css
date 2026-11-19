@@ -85,8 +85,10 @@ html:has(.doc-search-dialog[open]) {
 .search-scroll {
   overflow-y: auto;
   max-height: min(50dvh, 376px);
-  padding: 8px;
   overscroll-behavior: contain;
+}
+.search-content {
+  padding: 8px;
 }
 .search-caption {
   font-size: 12px;
@@ -101,8 +103,26 @@ html:has(.doc-search-dialog[open]) {
   border-radius: 8px;
   cursor: pointer;
 }
-.search-result[aria-selected='true'] {
+#search-results {
+  position: relative;
+  isolation: isolate;
+}
+#search-results:not(:empty)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: var(--selection-height);
+  transform: translateY(var(--selection-y));
   background: var(--site-soft);
+  border-radius: 8px;
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  .search-result[aria-selected='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 .search-result > div {
   min-width: 0;

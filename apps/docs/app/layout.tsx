@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@nibferry/react/styles.css';
 import './site.css';
 import './docs.css';
+import './motion.css';
 import SiteHeader from './_components/SiteHeader/SiteHeader';
 
 import { getSearchIndex } from '../lib/docs';

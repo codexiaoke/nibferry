@@ -214,3 +214,71 @@ test('代码块复制保留命令和换行', async ({ page, context }) => {
     await block.locator('code').textContent(),
   );
 });
+
+test('搜索面板、结果高度和键盘高亮在状态切换时过渡', async ({ page }) => {
+  await page.goto('./docs/');
+  const trigger = page.getByRole('button', { name: '搜索文档' });
+  await expect(trigger.locator('kbd')).toHaveText(/K$/);
+  const dialog = page.locator('.doc-search-dialog');
+  // Record actual transitions even when the runner samples after an animation finishes.
+  await dialog.evaluate((element) => {
+    element.addEventListener('transitionrun', (event) => {
+      const transition = event as TransitionEvent;
+      const target = transition.target as HTMLElement;
+      if (target === element && transition.propertyName === 'opacity') {
+        element.dataset[element.hasAttribute('open') ? 'entered' : 'exited'] = 'true';
+      }
+      if (target.matches('.search-scroll') && transition.propertyName === 'height') {
+        element.dataset.resized = 'true';
+      }
+      if (
+        target.id === 'search-results' &&
+        transition.pseudoElement === '::before' &&
+        transition.propertyName === 'transform'
+      ) {
+        element.dataset.moved = 'true';
+      }
+    });
+  });
+
+  await trigger.click();
+  await expect(dialog).toHaveAttribute('data-entered', 'true');
+  const search = page.getByRole('combobox');
+  await search.fill('border.input');
+  await expect(dialog).toHaveAttribute('data-resized', 'true');
+  await search.press('ArrowDown');
+  await expect(dialog).toHaveAttribute('data-moved', 'true');
+  const list = page.getByRole('listbox');
+  await expect
+    .poll(() =>
+      list.evaluate((el) => {
+        const option = el.querySelector<HTMLElement>('[aria-selected="true"]')!;
+        const y = new DOMMatrixReadOnly(getComputedStyle(el, '::before').transform).m42;
+        return Math.abs(y - option.offsetTop) < 1;
+      }),
+    )
+    .toBe(true);
+  await search.press('Escape');
+  await expect(dialog).toHaveAttribute('data-exited', 'true');
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press('Control+k');
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue('');
+});
+
+test('减少动态效果时搜索、筛选和目录切换即时完成', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./docs/');
+  const trigger = page.getByRole('button', { name: '搜索文档' });
+  await trigger.click();
+  const search = page.getByRole('combobox');
+  await search.fill('border.input');
+  await search.press('ArrowDown');
+  const dialog = page.locator('.doc-search-dialog');
+  expect(await dialog.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
+  await search.press('Escape');
+  await expect(dialog).toHaveCSS('display', 'none');
+  const menu = page.getByRole('button', { name: '设计规范' });
+  await menu.click();
+  await expect(page.locator('.nav-options:visible')).toHaveCSS('animation-name', 'none');
+});

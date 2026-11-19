@@ -33,6 +33,7 @@
   box-sizing: border-box;
 }
 html {
+  scrollbar-gutter: stable;
   scroll-padding-top: 64px;
 }
 body {
