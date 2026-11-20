@@ -11,6 +11,7 @@ import './PreviewConversationHeader.css';
 
 interface Props {
   title: string;
+  project: string;
   active: boolean;
   summaryId: string;
   summaryOpen: boolean;
@@ -18,7 +19,7 @@ interface Props {
 }
 
 export default function PreviewConversationHeader({
-  title, active, summaryId, summaryOpen, onToggleSummary,
+  title, project, active, summaryId, summaryOpen, onToggleSummary,
 }: Props) {
   const [status, setStatus] = useState('');
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function PreviewConversationHeader({
       {active && (
         <>
           <PreviewConversationMenu
+            project={project}
             onCopyLink={share}
             onCopyTitle={() => copy(title, '已复制会话标题', '复制会话标题失败')}
             summaryId={summaryId}

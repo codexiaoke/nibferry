@@ -21,6 +21,7 @@ import './PreviewConversationMenu.css';
 
 interface Props {
   children: ReactElement;
+  project: string;
   onCopyLink: () => void;
   onCopyTitle: () => void;
   summaryId: string;
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export default function PreviewConversationMenu({
-  children, onCopyLink, onCopyTitle, summaryId, summaryLabel, onToggleSummary,
+  children, project, onCopyLink, onCopyTitle, summaryId, summaryLabel, onToggleSummary,
 }: Props) {
   return (
     <DropdownMenu modal={false}>
@@ -77,15 +78,15 @@ export default function PreviewConversationMenu({
           <MenuItem icon={Trash} danger>删除</MenuItem>
         </MenuGroup>
         <MenuSeparator />
-        <MenuGroup label="Nibferry">
+        <MenuGroup label={project}>
           <MenuSub>
             <MenuSubTrigger icon={Project}>移至项目</MenuSubTrigger>
             <MenuSubContent className="preview-conversation-menu">
-              <MenuItem disabled>Nibferry（当前项目）</MenuItem>
+              <MenuItem disabled>{project}（当前项目）</MenuItem>
               <MenuItem>其他项目…</MenuItem>
             </MenuSubContent>
           </MenuSub>
-          <MenuItem icon={Remove}>从“Nibferry”中移除</MenuItem>
+          <MenuItem icon={Remove}>从“{project}”中移除</MenuItem>
         </MenuGroup>
       </MenuContent>
     </DropdownMenu>

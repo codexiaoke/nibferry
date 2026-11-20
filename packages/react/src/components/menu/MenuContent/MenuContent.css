@@ -1,3 +1,9 @@
+[data-nf-context-anchor] {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
 :where(button[data-nf-menu-trigger]:not([data-nf-pane-button])) {
   appearance: none;
   border: 0;

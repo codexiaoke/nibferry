@@ -1,0 +1,87 @@
+---
+title: 项目与会话列表
+description: 在左栏按项目组织会话，独立控制分组展开和当前会话。
+---
+
+## 图标导航栏
+
+桌面预览把 `NavigationRail` 放在工作区左侧。收起项目列表后，图标仍留在原位。点击首页可重新展开列表，回到当前会话。接入方控制图标、顺序、当前页和点击行为。
+
+```tsx
+import Home from '@hugeicons/core-free-icons/Home09Icon';
+import { NavigationRail, NavigationRailItem } from '@nibferry/react';
+
+<NavigationRail label="主导航">
+  <NavigationRailItem icon={Home} label="首页" current={page === 'home'} onClick={() => navigate('home')} />
+</NavigationRail>
+```
+
+## 组合项目分组
+
+在左栏中，将 `SidebarMenu` 放在 `ConversationList` 之前即可添加工作区菜单。标题右侧的搜索按钮通过 `actions` 放置，点击打开居中的搜索弹框。快捷入口由 `PaneButton` 和 `CountBadge` 组合，待办和通知使用弹出菜单。[搜索弹框](/docs/search-dialog/)
+
+将 `ConversationList` 放在 `LeftPane` 内。每个 `ConversationGroup` 对应一个项目，同一时间可以展开多个项目。需要平铺会话时，把 `ConversationItem` 直接放入列表。
+
+```tsx
+import { useState } from 'react';
+import { ConversationGroup, ConversationItem, ConversationList } from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+function ProjectConversations({ project, currentId, onSelect }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <ConversationList label="项目">
+      <ConversationGroup label={project.name} expanded={open} onToggle={() => setOpen(!open)}>
+        {project.conversations.map(chat => (
+          <ConversationItem key={chat.id} current={currentId === chat.id} onClick={() => onSelect(chat.id)}>
+            {chat.title}
+          </ConversationItem>
+        ))}
+      </ConversationGroup>
+    </ConversationList>
+  );
+}
+```
+
+## 项目信息与操作
+
+将 `ProjectInfo` 传入分组的 `details`。鼠标悬停项目名可以查看聊天数量、仓库和目录，也可以聚焦项目名后按右方向键进入卡片。按 Esc 收起。项目名的点击仍用于展开和收起列表。
+
+`actions` 接受任意行尾控件。预览把「项目操作」菜单和「新建聊天」按钮放在这里。菜单和信息卡共用接入方的置顶、编辑回调。
+
+```tsx
+import { ConversationGroup, PaneButton, ProjectInfo } from '@nibferry/react';
+
+<ConversationGroup label={project.name} expanded={open} onToggle={toggleGroup}
+  details={<ProjectInfo name={project.name} chatCount={chats.length} activeChatCount={activeCount}
+    repository={project.repository} directory={project.directory}
+    pinned={project.pinned} onPinnedChange={setPinned} onEdit={editProject} />}
+  actions={<>{projectMenu}<PaneButton icon={composeIcon} aria-label="新建聊天" onClick={newChat} /></>}>
+  {items}
+</ConversationGroup>
+```
+
+## 选择会话
+
+每个 `ConversationItem` 都可以通过 `actions` 单独配置行尾按钮。预览中，鼠标悬停会话行或用 Tab 聚焦时会出现置顶和归档图标。触屏直接显示。使用方决定显示哪些图标及点击后的行为。
+
+当前会话由接入方持有。预览中，选择条目会同步更新标题栏和摘要，折叠分组后再展开仍能看到选中项。窄屏选择会话后回到主体。用 Tab 定位到项目或会话，用 Enter 或空格操作。[桌面交互预览](/playground/)
+
+## 右键菜单
+
+项目标题和会话条目都支持 `contextMenuContent`。预览中，项目标题的右键菜单与「⋯」共用置顶、编辑命令，会话行的右键菜单与行尾按钮共用置顶、归档命令。右键另一行时，当前会话与分组展开状态保持原位。
+
+```tsx
+import { ConversationItem, MenuContent, MenuItem } from '@nibferry/react';
+
+<ConversationItem current={chat.id === currentId} onClick={() => select(chat.id)}
+  contextMenuContent={
+    <MenuContent aria-label="会话操作">
+      <MenuItem onSelect={() => archive(chat.id)}>归档聊天</MenuItem>
+    </MenuContent>
+  }>
+  {chat.title}
+</ConversationItem>
+```
+
+聚焦项目标题或会话条目后也可以按 Shift+F10 或菜单键打开，按 Esc 返回触发项。

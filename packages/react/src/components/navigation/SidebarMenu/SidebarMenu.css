@@ -1,0 +1,52 @@
+[data-nf-sidebar-menu] {
+  min-inline-size: 0;
+  padding: var(--nf-space-sm);
+  color: var(--nf-ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+[data-nf-sidebar-menu] > [data-nf-pane-header] {
+  gap: var(--nf-space-sm);
+  min-block-size: calc(2 * var(--nf-space-md));
+  padding-inline: var(--nf-space-sm);
+  color: var(--nf-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+[data-nf-sidebar-menu] [data-nf-summary-item] {
+  gap: var(--nf-space-sm);
+  min-block-size: calc(2 * var(--nf-space-md));
+  padding-inline: var(--nf-space-sm);
+}
+
+[data-nf-sidebar-menu] > [data-nf-pane-button][data-nf-labeled] {
+  display: flex;
+  justify-content: start;
+  inline-size: 100%;
+  gap: var(--nf-space-sm);
+  block-size: auto;
+  min-block-size: 42px;
+  padding-inline: var(--nf-space-sm);
+  color: var(--nf-ink);
+}
+
+[data-nf-sidebar-menu] > [data-nf-pane-button] > svg { flex: none; }
+[data-nf-sidebar-menu] > [data-nf-pane-button] > span:not([data-nf-count-badge]) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-nf-sidebar-menu] > [data-nf-pane-button] > [data-nf-count-badge] { flex: none; margin-inline-start: auto; }
+
+@media (pointer: coarse) {
+  [data-nf-sidebar-menu] button[data-nf-summary-item],
+  [data-nf-sidebar-menu] > [data-nf-pane-button][data-nf-labeled] { min-block-size: 44px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-sidebar-menu] button[data-nf-summary-item] {
+    transition: background-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+}

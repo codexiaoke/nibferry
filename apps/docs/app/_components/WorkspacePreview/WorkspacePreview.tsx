@@ -5,10 +5,22 @@ import Globe from '@hugeicons/core-free-icons/GlobalIcon';
 import Chat from '@hugeicons/core-free-icons/BubbleChatIcon';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Changes from '@hugeicons/core-free-icons/FileEditIcon';
+import Home from '@hugeicons/core-free-icons/Home09Icon';
+import Documents from '@hugeicons/core-free-icons/Copy01Icon';
+import History from '@hugeicons/core-free-icons/Clock01Icon';
+import More from '@hugeicons/core-free-icons/MoreHorizontalIcon';
+import Branch from '@hugeicons/core-free-icons/GitBranchIcon';
+import Grid from '@hugeicons/core-free-icons/DashboardSquare01Icon';
 import {
+  DropdownMenu,
   LeftPane,
   LeftPaneToggle,
   MainPane,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  NavigationRail,
+  NavigationRailItem,
   PaneHeader,
   RightPane,
   RightPaneFullscreenToggle,
@@ -23,25 +35,32 @@ import {
   type WorkspacePane,
 } from '@nibferry/react';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
+import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';
 import { basePath } from '../../site-links';
+import type { SearchEntry } from '../../../lib/docs';
 import './WorkspacePreview.css';
 
-const conversationTitle = '梳理 Nibferry 项目交接';
 const sources = [
   { title: '组件与工作区设计规范', path: '/docs/component-design/' },
   { title: '基础布局组件', path: '/docs/layout/' },
 ];
+const navigationGuide = { title: '项目与会话列表', path: '/docs/conversation-list/' };
 type PreviewPage = { title: string; path?: string };
 const blankPage: PreviewPage = { title: '新标签页' };
 const firstTab = 'preview-tab-1';
 
-export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: ReactNode }) {
+export default function WorkspacePreview({ toolbarStart, searchEntries }: { toolbarStart?: ReactNode; searchEntries: SearchEntry[] }) {
   const workspace = useRef<HTMLDivElement>(null);
   const titlebar = useRef<HTMLDivElement>(null);
   const leftPane = useRef<HTMLElement>(null);
   const mainPane = useRef<HTMLDivElement>(null);
   const rightPane = useRef<HTMLElement>(null);
   const rightToggle = useRef<HTMLButtonElement>(null);
+  const leftToggle = useRef<HTMLButtonElement>(null);
+  const [projects, setProjects] = useState(initialProjects);
+  const [conversationId, setConversationId] = useState(initialProjects[0].conversations[0].id);
+  const project = projects.find(entry => entry.conversations.some(chat => chat.id === conversationId))!;
+  const conversation = project.conversations.find(chat => chat.id === conversationId)!;
   const [compact, setCompact] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const [compactPane, setCompactPane] = useState<WorkspacePane>('main');
@@ -110,7 +129,8 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
         const pane = element.getBoundingClientRect();
         return Math.max(0, Math.min(bounds.right, pane.right) - Math.max(bounds.left, pane.left));
       }
-      bar.style.setProperty('--preview-left-header-width', (narrow ? 0 : visibleWidth(left)) + 'px');
+      const railWidth = bounds.left - bar.getBoundingClientRect().left;
+      bar.style.setProperty('--preview-left-header-width', (narrow ? 0 : railWidth + visibleWidth(left)) + 'px');
       bar.style.setProperty('--preview-right-header-width', visibleWidth(right) + 'px');
     };
     sync();
@@ -125,6 +145,19 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
   const leftOpen = compact ? compactPane === 'left' : !desktopCollapsed;
   const rightOpen = compact ? compactPane === 'right' : rightMode !== 'closed';
   const fullscreen = !compact && rightMode === 'fullscreen';
+  const currentPath = rightOpen && activeId ? pages[activeId].path : undefined;
+  const visibleChats = project.conversations.filter(chat => !chat.archived);
+
+  function selectConversation(id: string) {
+    setConversationId(id);
+    if (compact) {
+      setCompactPane('main');
+      leftToggle.current?.focus();
+    } else if (fullscreen) {
+      setRightMode('split');
+    }
+  }
+
   useLayoutEffect(() => {
     const tab = activeButton.current;
     if (rightOpen) tab?.parentElement?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -140,6 +173,7 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
         <div className="workspace-preview-window-controls">
           {toolbarStart}
           <LeftPaneToggle
+            ref={leftToggle}
             paneId="preview-left"
             expanded={leftOpen}
             onClick={() => {
@@ -149,7 +183,8 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
           />
         </div>
         <PreviewConversationHeader
-          title={conversationTitle}
+          title={conversation.title}
+          project={project.name}
           active={compact ? compactPane === 'main' : !fullscreen}
           summaryId="preview-summary"
           summaryOpen={summaryOpen}
@@ -192,6 +227,41 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
           )}
         </PaneHeader>
       </div>
+      <NavigationRail label="主导航" className="workspace-preview-rail">
+        <NavigationRailItem label="首页" icon={Home} className="workspace-preview-home" current={!currentPath}
+          onClick={() => {
+            setDesktopCollapsed(false);
+            setRightMode('closed');
+            setCompactPane('main');
+          }} />
+        <NavigationRailItem label="设计规范" icon={Documents} current={currentPath === sources[0].path}
+          onClick={() => openSource(sources[0])} />
+        <DropdownMenu modal={false}>
+          <MenuTrigger asChild>
+            <NavigationRailItem label="项目会话" icon={History} disabled={!visibleChats.length} />
+          </MenuTrigger>
+          <MenuContent side="right" className="preview-conversation-menu" aria-label="项目会话">
+            {visibleChats.map(chat => <MenuItem key={chat.id} onSelect={() => selectConversation(chat.id)}>{chat.title}</MenuItem>)}
+          </MenuContent>
+        </DropdownMenu>
+        <NavigationRailItem label="会话摘要" icon={Chat} paneId="preview-summary" aria-expanded={summaryOpen && !fullscreen}
+          onClick={() => {
+            if (fullscreen) setRightMode('split');
+            setSummaryOpen(fullscreen || !summaryOpen);
+          }} />
+        <DropdownMenu modal={false}>
+          <MenuTrigger asChild><NavigationRailItem label="更多导航" icon={More} /></MenuTrigger>
+          <MenuContent side="right" className="preview-conversation-menu" aria-label="更多导航">
+            <MenuItem onSelect={() => openSource({ title: '文档概览', path: '/docs/' })}>文档概览</MenuItem>
+            <MenuItem onSelect={() => openSource({ title: '接入项目', path: '/docs/installation/' })}>接入项目</MenuItem>
+          </MenuContent>
+        </DropdownMenu>
+        <hr aria-hidden="true" />
+        <NavigationRailItem label="项目导航指南" icon={Branch} current={currentPath === navigationGuide.path}
+          onClick={() => openSource(navigationGuide)} />
+        <NavigationRailItem label="布局组件指南" icon={Grid} current={currentPath === sources[1].path}
+          onClick={() => openSource(sources[1])} />
+      </NavigationRail>
       <WorkspaceLayout ref={workspace} compactPane={compactPane}>
         <LeftPane
           ref={leftPane}
@@ -200,16 +270,19 @@ export default function WorkspacePreview({ toolbarStart }: { toolbarStart?: Reac
           collapsed={compact ? undefined : desktopCollapsed}
           aria-label="左侧"
         >
-          左侧
+          <PreviewConversationList projects={projects} currentId={conversationId}
+            searchEntries={searchEntries} onOpenPage={openSource}
+            onProjectChange={next => setProjects(all => all.map(entry => entry.id === next.id ? next : entry))}
+            onSelect={selectConversation} />
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
           主体
           <SummaryCard id="preview-summary" className="workspace-preview-summary" aria-label="会话摘要" hidden={!summaryOpen}>
-            <SummaryGroup label="Nibferry">
+            <SummaryGroup label={project.name}>
               <SummaryItem icon={Changes} trailing={`${sources.length} 份文档`}>变更</SummaryItem>
             </SummaryGroup>
             <SummaryGroup label="侧边聊天">
-              <SummaryItem icon={Chat}>{conversationTitle}</SummaryItem>
+              <SummaryItem icon={Chat}>{conversation.title}</SummaryItem>
             </SummaryGroup>
             <SummaryGroup label="来源">
               {sources.map((entry) => (

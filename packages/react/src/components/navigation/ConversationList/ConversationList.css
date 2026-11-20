@@ -1,0 +1,174 @@
+[data-nf-conversation-list] {
+  min-inline-size: 0;
+  padding: var(--nf-space-sm);
+}
+[data-nf-conversation-heading] {
+  padding: 8px 8px 6px;
+  color: var(--nf-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+[data-nf-conversation-group] + [data-nf-conversation-group] { margin-block-start: 4px; }
+[data-nf-conversation-disclosure], [data-nf-conversation-item] {
+  appearance: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 32px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nf-ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: start;
+  cursor: pointer;
+}
+[data-nf-conversation-item] span, [data-nf-conversation-disclosure] span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-nf-conversation-disclosure] svg { flex: none; }
+[data-nf-conversation-disclosure] svg:last-child {
+  margin-inline-start: auto;
+  color: var(--nf-muted);
+  opacity: 0;
+}
+[data-nf-conversation-disclosure]:focus-visible svg:last-child { opacity: 1; }
+@media (hover: hover) {
+  [data-nf-conversation-disclosure]:hover svg:last-child { opacity: 1; }
+}
+[data-nf-conversation-disclosure][aria-expanded='true'] svg:last-child { rotate: 90deg; }
+[data-nf-conversation-body] {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+[data-nf-conversation-body][inert] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+}
+[data-nf-conversation-body] > div {
+  min-block-size: 0;
+  overflow: clip;
+}
+[data-nf-conversation-group] [data-nf-conversation-item] { padding-inline-start: 32px; }
+[data-nf-project-row]:is(:hover, [data-nf-context-open]), [data-nf-project-row]:has([aria-haspopup="menu"][aria-expanded="true"]),
+:where([data-nf-conversation-row]:is(:hover, [data-nf-context-open])) > [data-nf-conversation-item]:where(:enabled),
+[data-nf-conversation-item]:where(:enabled:hover, [data-nf-context-open]:enabled) {
+  background: color-mix(in srgb, var(--nf-ink) 5%, transparent);
+}
+[data-nf-conversation-item][aria-current='page'] {
+  background: color-mix(in srgb, var(--nf-ink) 8%, transparent);
+}
+:is([data-nf-conversation-disclosure], [data-nf-conversation-item]):focus-visible {
+  outline: 2px solid var(--nf-accent);
+  outline-offset: -2px;
+}
+[data-nf-conversation-item]:disabled { opacity: 0.5; cursor: default; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-conversation-body] {
+    transition-property: grid-template-rows, opacity;
+    transition-duration: calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1));
+    transition-timing-function: var(--nf-ease);
+  }
+  [data-nf-conversation-body][inert] {
+    transition-property: grid-template-rows, opacity, visibility;
+  }
+  [data-nf-project-row], [data-nf-conversation-item] {
+    transition: background-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  [data-nf-conversation-disclosure] svg:last-child {
+    transition-property: rotate, opacity;
+    transition-duration: calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1));
+    transition-timing-function: var(--nf-ease);
+  }
+}
+@media (pointer: coarse) {
+  [data-nf-conversation-disclosure], [data-nf-conversation-item] { min-block-size: 44px; }
+}
+
+[data-nf-project-row] {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+}
+[data-nf-conversation-row]:not([hidden]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+/* The title button paints the whole row, including the area behind the actions. */
+[data-nf-conversation-row] > [data-nf-conversation-item] {
+  grid-area: 1 / 1 / 2 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-self: stretch;
+  column-gap: 0;
+}
+[data-nf-conversation-row] > [data-nf-conversation-item] > span {
+  grid-column: 1 / var(--nf-conversation-title-end, -1);
+}
+[data-nf-conversation-actions] { grid-area: 1 / 2; justify-self: end; }
+[data-nf-project-actions], [data-nf-conversation-actions] {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding-inline-end: 4px;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-nf-conversation-row]:is(:hover, [data-nf-context-open], :has(:focus-visible), :has([aria-haspopup][aria-expanded="true"])) {
+  --nf-conversation-title-end: 2;
+}
+:is([data-nf-project-row], [data-nf-conversation-row]):is(:hover, [data-nf-context-open], :has(:focus-visible), :has([aria-haspopup][aria-expanded="true"])) > :is([data-nf-project-actions], [data-nf-conversation-actions]),
+[data-nf-conversation-group]:has(> :popover-open) > [data-nf-project-row] [data-nf-project-actions] {
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-nf-conversation-group]:has(> :popover-open) > [data-nf-project-row] {
+  background: color-mix(in srgb, var(--nf-ink) 5%, transparent);
+}
+[data-nf-project-popover] {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  inline-size: 336px;
+  max-inline-size: calc(100vw - 16px);
+  max-block-size: calc(100dvh - 16px);
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--nf-line);
+  border-radius: 16px;
+  background: var(--nf-canvas);
+  color: var(--nf-ink);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--nf-ink) 10%, transparent);
+  font: inherit;
+  font-size: 13px;
+}
+[data-nf-project-popover]:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: -2px; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-project-actions], [data-nf-conversation-actions] {
+    transition: opacity calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  [data-nf-project-popover]:popover-open {
+    animation: nf-project-info-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  @keyframes nf-project-info-in { from { opacity: 0; } to { opacity: 1; } }
+}
+@media (hover: none) {
+  [data-nf-conversation-row] { --nf-conversation-title-end: 2; }
+  [data-nf-conversation-actions],
+  [data-nf-project-row]:has([data-nf-conversation-disclosure][aria-expanded="true"]) [data-nf-project-actions] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

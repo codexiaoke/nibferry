@@ -5,7 +5,7 @@
 ```tsx
 import PreviewConversationMenu from './PreviewConversationMenu';
 
-<PreviewConversationMenu onCopyTitle={copyTitle} onCopyLink={copyLink} summaryId="summary"
+<PreviewConversationMenu project="Nibferry" onCopyTitle={copyTitle} onCopyLink={copyLink} summaryId="summary"
   summaryLabel="查看会话摘要" onToggleSummary={toggleSummary}>
   <button type="button">当前会话</button>
 </PreviewConversationMenu>
