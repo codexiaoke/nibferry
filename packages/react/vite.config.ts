@@ -11,6 +11,7 @@ const stylePaths = [
   new URL('./src/components/layout/PaneButton/PaneButton.css', import.meta.url),
   new URL('./src/components/layout/PaneHeader/PaneHeader.css', import.meta.url),
   new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
+  new URL('./src/components/summary/SummaryCard/SummaryCard.css', import.meta.url),
 ].map((url) => fileURLToPath(url));
 
 export default defineConfig({
