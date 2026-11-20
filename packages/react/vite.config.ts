@@ -12,6 +12,7 @@ const stylePaths = [
   new URL('./src/components/layout/PaneHeader/PaneHeader.css', import.meta.url),
   new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
   new URL('./src/components/summary/SummaryCard/SummaryCard.css', import.meta.url),
+  new URL('./src/components/navigation/WorkspaceTabList/WorkspaceTabList.css', import.meta.url),
 ].map((url) => fileURLToPath(url));
 
 export default defineConfig({
@@ -57,6 +58,8 @@ export default defineConfig({
         // Separate client entries retain their directives in the published ESM.
         'side-pane': 'src/components/layout/SidePane/SidePane.tsx',
         'pane-resize-handle': 'src/components/layout/PaneResizeHandle/PaneResizeHandle.tsx',
+        'workspace-tab-list': 'src/components/navigation/WorkspaceTabList/WorkspaceTabList.tsx',
+        'workspace-tab': 'src/components/navigation/WorkspaceTab/WorkspaceTab.tsx',
       },
       formats: ['es'],
       fileName: (_, name) => name + '.js',
