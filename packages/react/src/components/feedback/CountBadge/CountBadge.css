@@ -1,0 +1,13 @@
+[data-nf-count-badge] {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 18px;
+  padding-inline: calc(var(--nf-space-sm) * .75);
+  border-radius: 999px;
+  background: var(--nf-accent-text);
+  color: var(--nf-canvas);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}

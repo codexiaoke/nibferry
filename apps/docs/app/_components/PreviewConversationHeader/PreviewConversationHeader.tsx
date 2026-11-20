@@ -5,13 +5,13 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import Chevron from '@hugeicons/core-free-icons/ArrowDown01Icon';
 import Share from '@hugeicons/core-free-icons/Upload01Icon';
-import List from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
-import { PaneButton, PaneHeader } from '@nibferry/react';
+import { PaneButton, PaneHeader, SummaryToggle } from '@nibferry/react';
 import PreviewConversationMenu from '../PreviewConversationMenu/PreviewConversationMenu';
 import './PreviewConversationHeader.css';
 
 interface Props {
   title: string;
+  project: string;
   active: boolean;
   summaryId: string;
   summaryOpen: boolean;
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export default function PreviewConversationHeader({
-  title, active, summaryId, summaryOpen, onToggleSummary,
+  title, project, active, summaryId, summaryOpen, onToggleSummary,
 }: Props) {
   const [status, setStatus] = useState('');
   useEffect(() => {
@@ -47,12 +47,9 @@ export default function PreviewConversationHeader({
       actions={active && (
         <>
           <PaneButton icon={Share} aria-label="复制预览链接" title="复制预览链接" onClick={share} />
-          <PaneButton
-            icon={List}
+          <SummaryToggle
             paneId={summaryId}
-            aria-expanded={summaryOpen}
-            aria-label={summaryLabel}
-            title={summaryLabel}
+            expanded={summaryOpen}
             onClick={onToggleSummary}
           />
         </>
@@ -61,6 +58,7 @@ export default function PreviewConversationHeader({
       {active && (
         <>
           <PreviewConversationMenu
+            project={project}
             onCopyLink={share}
             onCopyTitle={() => copy(title, '已复制会话标题', '复制会话标题失败')}
             summaryId={summaryId}

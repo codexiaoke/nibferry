@@ -7,7 +7,7 @@
 }
 
 .workspace-preview-toolbar[aria-hidden='false']::before,
-.workspace-preview-toolbar[aria-hidden='false']:has(+ .workspace-preview-right-toolbar .workspace-preview-tab)::after {
+.workspace-preview-toolbar[aria-hidden='false']:has(+ .workspace-preview-right-toolbar [data-nf-tab-list])::after {
   position: absolute;
   width: 1px;
   height: 16px;

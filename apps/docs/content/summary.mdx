@@ -1,0 +1,41 @@
+---
+title: 摘要面板
+description: 将摘要卡片放在主体中，用独立开关控制显示，按需组合分组和条目。
+---
+
+## 组合摘要
+
+`SummaryCard` 放在需要查看摘要的位置。`SummaryToggle` 可以放在卡片外的工具栏，和卡片共用宿主的显隐状态。将卡片放入主区域后，右栏收起时也能看摘要。
+
+```tsx
+import { useState } from 'react';
+import { SummaryCard, SummaryGroup, SummaryItem, SummaryToggle } from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+function Sources({ files, openFile }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <SummaryToggle paneId="file-summary" expanded={open} onClick={() => setOpen(!open)} />
+      <SummaryCard id="file-summary" aria-label="项目摘要" hidden={!open}>
+        <SummaryGroup label="项目">
+          <SummaryItem trailing={files.length}>文件</SummaryItem>
+        </SummaryGroup>
+        <SummaryGroup label="来源">
+          {files.map(file => (
+            <SummaryItem key={file.id} onSelect={() => openFile(file)}>
+              {file.name}
+            </SummaryItem>
+          ))}
+        </SummaryGroup>
+      </SummaryCard>
+    </>
+  );
+}
+```
+
+## 选中条目
+
+给条目传入 `onSelect` 后，用户可以点击或用 Enter、空格选择。回调由接入方决定要展示的内容。静态条目可显示数量和状态，Tab 只停在可操作的条目上。长名称在宽度不足时省略，读屏仍可读取完整名称。
+
+在桌面预览中点「查看会话摘要」，再选一项来源。桌面上文档在右栏打开，窄屏上单独显示。收起右栏后可继续查看摘要。[交互预览](/playground/)

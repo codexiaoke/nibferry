@@ -1,0 +1,37 @@
+[data-nf-navigation-rail]:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  flex: none;
+  inline-size: 52px;
+  min-block-size: 0;
+  padding-block: 10px;
+  overflow-y: auto;
+  background: var(--nf-subtle);
+}
+
+[data-nf-navigation-rail] > hr {
+  flex: none;
+  inline-size: 24px;
+  margin: 0;
+  border: 0;
+  border-block-start: 1px solid var(--nf-line);
+}
+
+[data-nf-rail-item] {
+  inline-size: 36px;
+  block-size: 36px;
+  border-radius: 10px;
+}
+
+[data-nf-rail-item] > svg { width: 20px; height: 20px; }
+[data-nf-rail-item]:is([aria-current='page'], [aria-expanded='true'], [aria-pressed='true']) {
+  background: color-mix(in srgb, var(--nf-ink) 7%, transparent);
+  color: var(--nf-ink);
+}
+
+@media (pointer: coarse) {
+  [data-nf-rail-item] { inline-size: 44px; block-size: 44px; }
+}

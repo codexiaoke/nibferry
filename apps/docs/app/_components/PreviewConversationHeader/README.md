@@ -5,7 +5,7 @@
 ```tsx
 import PreviewConversationHeader from './PreviewConversationHeader';
 
-<PreviewConversationHeader title="当前会话" active summaryId="summary"
+<PreviewConversationHeader title="当前会话" project="Nibferry" active summaryId="summary"
   summaryOpen={open} onToggleSummary={() => setOpen(!open)} />
 ```
 

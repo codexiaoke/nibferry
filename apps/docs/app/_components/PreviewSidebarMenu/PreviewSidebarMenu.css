@@ -1,0 +1,19 @@
+.preview-sidebar-shortcuts > [data-nf-pane-header] {
+  align-items: flex-start;
+  margin-block: var(--nf-space-sm) var(--nf-space-md);
+}
+.preview-sidebar-shortcuts > [data-nf-pane-header] :is(strong, small) { display: block; }
+.preview-sidebar-shortcuts > [data-nf-pane-header] strong { color: var(--nf-ink); font-size: 15px; font-weight: 600; }
+.preview-sidebar-shortcuts > [data-nf-pane-header] small { margin-block-start: calc(var(--nf-space-sm) / 4); font-size: 12px; font-weight: 400; }
+.preview-sidebar-shortcuts > [data-nf-pane-header] [data-nf-pane-button] { margin-block-start: -3px; }
+
+.preview-workspace-search {
+  --nf-dialog-shadow: 0 12px 32px rgb(0 0 0 / 12%);
+  max-inline-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
+  max-block-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
+  background: color-mix(in srgb, var(--nf-canvas) 94%, transparent);
+  backdrop-filter: blur(16px);
+}
+.preview-workspace-search::backdrop {
+  clip-path: inset(var(--preview-desktop-inset) round 14px);
+}

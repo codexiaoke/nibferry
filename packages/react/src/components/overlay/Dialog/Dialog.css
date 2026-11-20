@@ -1,0 +1,28 @@
+:where([data-nf-dialog]) {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-inline-size: calc(100% - 2 * var(--nf-space-md));
+  max-block-size: calc(100% - 2 * var(--nf-space-md));
+  padding: var(--nf-space-md);
+  border: 1px solid var(--nf-line);
+  border-radius: 20px;
+  background: var(--nf-canvas);
+  color: var(--nf-ink);
+  box-shadow: var(--nf-dialog-shadow, none);
+  font: inherit;
+}
+:where([data-nf-dialog])::backdrop {
+  background: var(--nf-dialog-backdrop, rgb(0 0 0 / 16%));
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-nf-dialog][open]) {
+    animation: nf-dialog-in calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  :where([data-nf-dialog][open])::backdrop {
+    animation: nf-dialog-dim calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  @keyframes nf-dialog-in { from { opacity: 0; transform: translateY(4px) scale(.99); } }
+  @keyframes nf-dialog-dim { from { opacity: 0; } }
+}

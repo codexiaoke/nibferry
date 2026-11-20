@@ -17,7 +17,7 @@ import '@nibferry/react/styles.css';
 
 ## 收起左栏
 
-宿主通过 `collapsed` 收起左栏，并可在栏外放置 [LeftPaneToggle](../LeftPaneToggle/README.md) 切换状态。左栏内容保留挂载，收起期间退出键盘导航，重新展开时沿用上次的宽度。宽屏收展使用主题的展开时长与缓动，系统偏好减少动态效果时立即切换。
+宿主通过 `collapsed` 收起左栏，并可在栏外放置 [LeftPaneToggle](../LeftPaneToggle/README.md) 切换状态。左栏内容保留挂载，收起期间退出键盘导航，重新展开时沿用上次的宽度。宽屏收起时左栏随滑动淡出，展开时同步淡入。两者共用主题的展开时长与缓动，系统偏好减少动态效果时立即切换。
 
 ## 调整宽度
 

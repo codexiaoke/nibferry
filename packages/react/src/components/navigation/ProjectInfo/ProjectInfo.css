@@ -1,0 +1,11 @@
+[data-nf-project-section] {
+  margin-block-start: 4px;
+  padding-block-start: 4px;
+  border-block-start: 1px solid var(--nf-line);
+}
+[data-nf-project-info] [data-nf-summary-item] { min-block-size: 24px; padding: 3px 2px; gap: 7px; }
+[data-nf-project-info] [data-nf-summary-item] > svg { color: var(--nf-muted); }
+[data-nf-project-info] [aria-pressed="true"] { color: var(--nf-ink); background: var(--nf-line); }
+@media (pointer: coarse) {
+  [data-nf-project-info] button[data-nf-summary-item] { min-block-size: 44px; }
+}

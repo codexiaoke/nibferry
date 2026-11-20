@@ -5,6 +5,7 @@ html:has(.playground-desktop) {
 .playground-desktop {
   width: 100%;
   height: 100dvh;
-  padding: 30px;
+  --preview-desktop-inset: 30px;
+  padding: var(--preview-desktop-inset);
   background: var(--site-line);
 }
