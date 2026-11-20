@@ -1166,6 +1166,44 @@ test('收起左栏释放空间，键盘展开恢复原栏宽和内容', async ({
   await expect(left).toHaveCSS('width', '272px');
 });
 
+test('左栏收起和展开时随位移渐隐渐显，中途可反向展开', async ({ page }) => {
+  await page.goto('./playground/');
+  const left = page.locator('#preview-left');
+  const rail = page.getByRole('navigation', { name: '主导航' });
+  const toggle = page.getByRole('button', { name: /左侧栏/ });
+  await expect(left).toHaveCSS('opacity', '1');
+  await left.evaluate(el => {
+    el.style.setProperty('--nf-motion-reveal', '800ms');
+    el.style.setProperty('--nf-ease', 'linear');
+  });
+
+  async function expectMidpoint() {
+    const frame = await left.evaluate(async el => {
+      const transitions = el.getAnimations();
+      await Promise.all(transitions.map(t => t.ready));
+      for (const t of transitions) t.currentTime = 400;
+      const style = getComputedStyle(el);
+      return { opacity: Number(style.opacity), offset: parseFloat(style.marginInlineStart), width: el.clientWidth };
+    });
+    expect(frame.opacity).toBeCloseTo(0.5, 1);
+    expect(frame.offset).toBeCloseTo(-frame.width / 2, 0);
+    await expect(rail).toHaveCSS('opacity', '1');
+  }
+
+  await toggle.press('Enter');
+  await expectMidpoint();
+  await toggle.press('Space');
+  const reversing = await left.evaluate(el => Number(getComputedStyle(el).opacity));
+  expect(reversing).toBeGreaterThan(0);
+  expect(reversing).toBeLessThan(1);
+  await expect(left).toHaveCSS('opacity', '1');
+  await toggle.press('Enter');
+  await expect(left).toBeHidden();
+  await toggle.press('Enter');
+  await expectMidpoint();
+  await expect(left).toHaveCSS('opacity', '1');
+});
+
 test('窄屏可从主体进入左栏并返回，桌面展开状态独立保留', async ({ page }) => {
   await page.setViewportSize({ width: 1100, height: 700 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
