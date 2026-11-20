@@ -63,7 +63,7 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   await page.getByRole('link', { name: '交互预览', exact: true }).click();
   await expect(page.getByRole('main')).toHaveText('主体', { useInnerText: true });
   await expect(page.getByText('左侧', { exact: true })).toBeHidden();
-  await expect(page.getByText('右侧', { exact: true })).toBeHidden();
+  await expect(page.locator('#preview-right')).toBeHidden();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -284,6 +284,27 @@ test('右栏标签与主标题共用一行，调宽、全屏和还原时跟随�
   await expect(right).toBeHidden();
 });
 
+test('快速开合右栏时窗口底部始终没有横向溢出', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('./playground/');
+  const toggle = page.getByRole('button', { name: '展开右侧栏' });
+  const overflow = await toggle.evaluate(async (button: HTMLButtonElement) => {
+    const windowContent = button.closest('.mac-window-content')!;
+    let peak = 0;
+    for (let click = 0; click < 8; click++) {
+      button.click();
+      for (let frame = 0; frame < 3; frame++) {
+        await new Promise(requestAnimationFrame);
+        peak = Math.max(peak, windowContent.scrollWidth - windowContent.clientWidth);
+      }
+    }
+    return peak;
+  });
+  expect(overflow).toBe(0);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+});
+
 test('会话标题跟随左栏，操作始终在主体与右栏的交界处', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('./playground/');
@@ -326,11 +347,123 @@ test('会话标题菜单支持键盘收展，窄标题栏仍可分享和切换�
   await title.press('Space');
   await page.getByRole('menuitem', { name: '收起会话摘要' }).press('Enter');
   await expect(summary).toBeHidden();
+  await expect(title).toBeFocused();
   await title.press('Enter');
   await page.getByRole('menuitem', { name: '复制', exact: true }).press('ArrowRight');
   await page.getByRole('menuitem', { name: '复制预览链接' }).press('Enter');
   await expect(page.getByRole('status').filter({ hasText: '已复制预览链接' })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(page.url());
+});
+
+for (const width of [1280, 390]) {
+  test(`在 ${width}px 窗口从主体摘要打开来源，收起右栏后可继续查看摘要`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+    await page.goto('./playground/');
+    if (width === 390) {
+      await page.getByRole('button', { name: '梳理 Nibferry 项目交接' }).click();
+      await page.getByRole('menuitem', { name: '查看会话摘要' }).press('Enter');
+    } else {
+      await page.getByRole('button', { name: '查看会话摘要' }).press('Space');
+    }
+    const main = page.getByRole('main');
+    const card = main.getByRole('complementary', { name: '会话摘要' });
+    const sources = card.getByRole('group', { name: '来源' });
+    const doc = sources.getByRole('button', { name: '基础布局组件' });
+    await expect(card.getByRole('group')).toHaveCount(3);
+    const staticIcon = card.getByRole('group', { name: '侧边聊天' }).locator('svg');
+    expect((await doc.locator('svg').boundingBox())!.x).toBe((await staticIcon.boundingBox())!.x);
+    await expect(card).toHaveCSS('animation-name', 'none');
+    await expect(page.getByRole('complementary', { name: '右侧' })).toBeHidden();
+    await doc.press('Enter');
+    const right = page.getByRole('complementary', { name: '右侧' });
+    await expect(right.frameLocator('iframe').getByRole('heading', { level: 1 })).toHaveText('基础布局组件');
+    if (width === 390) await expect(main).toBeHidden();
+    else await expect(main).toBeVisible();
+    await page.getByRole('button', { name: '收起右侧栏' }).press('Space');
+    await expect(doc).toBeVisible();
+  });
+}
+
+test('新增、选择与关闭工作区标签，最后一页关闭后仍可从右栏重新打开', async ({ page }) => {
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const add = page.getByRole('button', { name: '新增标签页' });
+  const tabs = page.getByRole('tab');
+  const active = page.getByRole('tab', { selected: true });
+  const panel = page.getByRole('tabpanel');
+  await panel.getByRole('button', { name: '基础布局组件' }).click();
+  await expect(active).toHaveAccessibleName('基础布局组件');
+  await add.press('Enter');
+  await expect(tabs).toHaveCount(2);
+  await expect(active).toHaveAccessibleName('新标签页');
+  await expect(active).toBeFocused();
+  await panel.getByRole('button', { name: '基础布局组件' }).click();
+  await expect(active).toHaveAccessibleName('基础布局组件');
+  await expect(tabs).toHaveCount(2);
+  await active.press('End');
+  await expect(active).toHaveAccessibleName('新标签页');
+  await page.getByRole('button', { name: '关闭「基础布局组件」' }).click();
+  await expect(active).toHaveAccessibleName('新标签页');
+  await expect(tabs).toHaveCount(1);
+  await active.press('Delete');
+  await expect(page.locator('#preview-right')).toBeHidden();
+  const reopen = page.getByRole('button', { name: '展开右侧栏' });
+  await expect(reopen).toBeFocused();
+  await reopen.press('Enter');
+  await expect(tabs).toHaveCount(1);
+  await expect(active).toHaveAccessibleName('新标签页');
+});
+
+test('指针和键盘可以重排标签，文档的阅读位置在排序和切换后保留', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  const panel = page.getByRole('tabpanel');
+  await panel.getByRole('button', { name: '组件与工作区设计规范' }).click();
+  const first = page.getByRole('tab', { name: '组件与工作区设计规范' });
+  const documentBody = page.frameLocator('iframe[title="组件与工作区设计规范"]').locator('body');
+  const scroll = await documentBody.evaluate(() => {
+    window.scrollTo(0, 240);
+    return window.scrollY;
+  });
+  expect(scroll).toBeGreaterThan(0);
+  await page.getByRole('button', { name: '新增标签页' }).click();
+  await panel.getByRole('button', { name: '基础布局组件' }).click();
+  const second = page.getByRole('tab', { name: '基础布局组件' });
+  await first.dragTo(second);
+  await expect(page.getByRole('tab')).toHaveText(['基础布局组件', '组件与工作区设计规范']);
+  await expect(second).toHaveAttribute('aria-selected', 'true');
+  await second.press('Alt+ArrowRight');
+  await expect(page.getByRole('tab')).toHaveText(['组件与工作区设计规范', '基础布局组件']);
+  await expect(second).toBeFocused();
+  await second.press('Home');
+  await expect(first).toBeFocused();
+  expect(await documentBody.evaluate(() => window.scrollY)).toBe(scroll);
+  await first.press('Delete');
+  await expect(second).toBeFocused();
+  await expect(panel).toHaveAccessibleName('基础布局组件');
+});
+
+test('窄屏标签溢出时只滚动标签栏，新增和收起按钮仍可操作', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 720 });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  const add = page.getByRole('button', { name: '新增标签页' });
+  const closePane = page.getByRole('button', { name: '收起右侧栏' });
+  for (let i = 0; i < 4; i++) await add.click();
+  const list = page.getByRole('tablist');
+  expect(await list.evaluate(el => el.scrollWidth > el.clientWidth && el.scrollLeft > 0)).toBe(true);
+  const window = (await page.locator('.mac-window').boundingBox())!;
+  for (const button of [add, closePane]) {
+    const box = (await button.boundingBox())!;
+    expect(box.x + box.width).toBeLessThanOrEqual(window.x + window.width);
+  }
+  await closePane.click();
+  await openPreviewRightPane(page);
+  await expect(page.getByRole('tab')).toHaveCount(5);
+  await expect(page.getByRole('tab').last()).toHaveAttribute('aria-selected', 'true');
 });
 
 test('会话操作菜单按组排列，键盘可进入子菜单并回到原位', async ({ page }) => {
@@ -443,7 +576,7 @@ test('按工作区自身宽度切换三栏和单栏', async ({ page }) => {
   const layout = page.locator('[data-nf-workspace]');
   const left = page.getByText('左侧', { exact: true });
   const main = page.getByRole('main', { includeHidden: true });
-  const right = page.getByText('右侧', { exact: true });
+  const right = page.locator('#preview-right');
   await layout.evaluate((el) => {
     el.style.width = '600px';
   });
@@ -798,6 +931,10 @@ test('键盘调宽遵循两端边界，窄屏和单栏展开时让出焦点', as
     await page.keyboard.press('Tab');
     await expect(page.getByRole('button', { name, exact: true })).toBeFocused();
   }
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('tab', { selected: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '新增标签页' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: '全屏显示右侧栏' })).toBeFocused();
   await page.keyboard.press('Tab');

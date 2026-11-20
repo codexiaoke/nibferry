@@ -32,31 +32,17 @@
 }
 
 .workspace-preview-right-toolbar > [data-nf-pane-header-content] {
-  overflow: hidden;
-}
-
-.workspace-preview-tab {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
-  max-width: 180px;
-  margin-inline-start: 8px;
-  padding: 2px 8px;
-  border: 1px solid var(--site-line);
-  border-radius: 6px;
-  background: var(--site-bg);
-  color: var(--site-ink);
-}
-
-.workspace-preview-tab svg {
-  flex: none;
-}
-
-.workspace-preview-tab span {
+  /* Only the fixed actions determine the toolbar's minimum width during a slide. */
+  contain: inline-size;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  --nf-canvas: var(--site-bg);
+  --nf-ink: var(--site-ink);
+}
+
+.workspace-preview-right-toolbar [data-nf-tab-list] {
+  margin-inline-start: 6px;
 }
 
 .workspace-preview-right-toolbar > [data-nf-pane-header-actions] {
@@ -72,12 +58,10 @@
   inset-block-start: 8px;
   inset-inline-end: 8px;
   max-inline-size: calc(100% - 16px);
-  padding: 12px 16px;
-  border: 1px solid var(--site-line);
-  border-radius: 10px;
-  background: var(--site-bg);
-  color: var(--site-ink);
-  font-size: 13px;
+  max-block-size: calc(100% - 16px);
+  --nf-canvas: var(--site-bg);
+  --nf-ink: var(--site-ink);
+  --nf-summary-shadow: 0 4px 16px rgb(0 0 0 / 6%);
 }
 
 .workspace-preview > [data-nf-workspace] > [data-nf-pane] {
@@ -90,4 +74,17 @@
 
 .workspace-preview > [data-nf-workspace] > .workspace-preview-fullscreen {
   background: var(--site-bg);
+}
+
+.workspace-preview > [data-nf-workspace] > [data-nf-pane='right']:has(.workspace-preview-tabpanel:not([hidden]) > iframe) {
+  padding: 0;
+}
+
+.workspace-preview-tabpanel { height: 100%; }
+
+.workspace-preview-source {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
