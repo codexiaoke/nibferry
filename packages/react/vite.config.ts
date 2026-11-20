@@ -11,6 +11,8 @@ const stylePaths = [
   new URL('./src/components/layout/PaneButton/PaneButton.css', import.meta.url),
   new URL('./src/components/layout/PaneHeader/PaneHeader.css', import.meta.url),
   new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
+  new URL('./src/components/overlay/Dialog/Dialog.css', import.meta.url),
+  new URL('./src/components/search/SearchDialog/SearchDialog.css', import.meta.url),
   new URL('./src/components/summary/SummaryCard/SummaryCard.css', import.meta.url),
   new URL('./src/components/navigation/WorkspaceTabList/WorkspaceTabList.css', import.meta.url),
 ].map((url) => fileURLToPath(url));
@@ -49,7 +51,7 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', '@hugeicons/react', '@radix-ui/react-dropdown-menu'],
+      external: ['react', 'react/jsx-runtime', 'react-dom', '@hugeicons/react', '@radix-ui/react-dropdown-menu'],
     },
     lib: {
       entry: {
@@ -58,6 +60,8 @@ export default defineConfig({
         // Separate client entries retain their directives in the published ESM.
         'side-pane': 'src/components/layout/SidePane/SidePane.tsx',
         'pane-resize-handle': 'src/components/layout/PaneResizeHandle/PaneResizeHandle.tsx',
+        'dialog': 'src/components/overlay/Dialog/Dialog.tsx',
+        'search-dialog': 'src/components/search/SearchDialog/SearchDialog.tsx',
         'workspace-tab-list': 'src/components/navigation/WorkspaceTabList/WorkspaceTabList.tsx',
         'workspace-tab': 'src/components/navigation/WorkspaceTab/WorkspaceTab.tsx',
       },

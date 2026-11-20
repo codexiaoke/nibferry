@@ -2,7 +2,7 @@
   "pages": [
     "---开始使用---", "index", "installation",
     "---设计体系---", "component-design", "layout", "theme", "colors", "surfaces", "motion",
-    "---组件---", "dropdown-menu", "summary", "workspace-tabs",
+    "---组件---", "search-dialog", "dropdown-menu", "summary", "workspace-tabs",
     "---参与开发---", "contributing"
   ]
 }

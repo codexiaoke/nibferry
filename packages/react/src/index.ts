@@ -2,6 +2,8 @@ export { palettes, theme, type ThemeColors, type ThemeConfig } from './theme/tok
 export { Stack, type StackProps } from './components/layout/Stack/Stack.js';
 export { Inline, type InlineProps } from './components/layout/Inline/Inline.js';
 export type { LayoutGap } from './components/layout/spacing.js';
+export { Dialog, type DialogProps } from './components/overlay/Dialog/Dialog.js';
+export { SearchDialog, type SearchDialogProps, type SearchDialogGroup, type SearchDialogItem } from './components/search/SearchDialog/SearchDialog.js';
 export { WorkspaceTabList, type WorkspaceTabListProps } from './components/navigation/WorkspaceTabList/WorkspaceTabList.js';
 export { WorkspaceTab, type WorkspaceTabProps } from './components/navigation/WorkspaceTab/WorkspaceTab.js';
 export { WorkspaceTabAdd, type WorkspaceTabAddProps } from './components/navigation/WorkspaceTabAdd/WorkspaceTabAdd.js';
