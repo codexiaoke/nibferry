@@ -1,4 +1,4 @@
-[data-nf-count-badge] {
+[data-nf-count-badge]:where(:not([hidden])) {
   display: inline-grid;
   place-items: center;
   min-inline-size: 18px;

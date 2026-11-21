@@ -82,7 +82,7 @@ export function WorkspaceTabList({ onReorder, children, ...props }: WorkspaceTab
         if (event.key === 'Escape' && gesture.current) { reset(); return; }
         const list = event.currentTarget;
         const allTabs = tabsIn(list);
-        const tabs = allTabs.filter(tab => !tab.disabled);
+        const tabs = allTabs.filter(tab => !tab.disabled && !tab.hidden);
         const index = tabs.indexOf(event.target as HTMLButtonElement);
         if (index < 0) return;
         const rtl = getComputedStyle(list).direction === 'rtl';

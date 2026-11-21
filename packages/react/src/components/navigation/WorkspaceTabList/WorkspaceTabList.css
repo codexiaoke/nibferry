@@ -1,4 +1,4 @@
-[data-nf-tab-list] {
+[data-nf-tab-list]:where(:not([hidden])) {
   position: relative;
   display: flex;
   align-items: center;
@@ -10,7 +10,7 @@
   padding: 2px;
 }
 [data-nf-tab-list]::-webkit-scrollbar { display: none; }
-[data-nf-tab-cell] {
+[data-nf-tab-cell]:where(:not([hidden])) {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -28,7 +28,7 @@
   background: var(--nf-canvas);
   color: var(--nf-ink);
 }
-[data-nf-tab] {
+[data-nf-tab]:where(:not([hidden])) {
   appearance: none;
   display: flex;
   align-items: center;

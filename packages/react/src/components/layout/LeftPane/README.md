@@ -19,8 +19,10 @@ import '@nibferry/react/styles.css';
 
 宿主通过 `collapsed` 收起左栏，并可在栏外放置 [LeftPaneToggle](../LeftPaneToggle/README.md) 切换状态。左栏内容保留挂载，收起期间退出键盘导航，重新展开时沿用上次的宽度。宽屏收起时左栏随滑动淡出，展开时同步淡入。两者共用主题的展开时长与缓动，系统偏好减少动态效果时立即切换。
 
+通过 `collapsedContent` 提供收起后的内容，例如一条 NavigationRail。它占用自身宽度，展开内容的栏宽单独保留。省略此属性，收起时整栏让出空间。窄屏下由 WorkspaceLayout 的 `compactPane` 决定展示的区域。
+
 ## 调整宽度
 
-在与 MainPane 并排的工作区中使用 `<LeftPane resizable>左侧</LeftPane>`，组件管理拖动后的宽度。可用 `defaultWidth` 设置起始宽度，或通过 `width` 和 `onWidthChange` 一起接管宽度。仅提供 `onWidthChange` 时仍由组件保存宽度，回调报告像素值。自定义初始样式支持 `style.width`，受控时请用 `width` 作为唯一的宽度来源。
+在与 MainPane 并排的工作区中使用 `<LeftPane resizable>左侧</LeftPane>`，组件管理拖动后的宽度。可用 `defaultWidth` 设置起始宽度，或通过 `width` 和 `onWidthChange` 一起接管宽度。仅提供 `onWidthChange` 时仍由组件保存宽度，回调报告像素值和来源。来源为 `user` 时由用户调宽，为 `container` 时由容器压缩。自定义初始样式支持 `style.width`，受控时请用 `width` 作为唯一的宽度来源。
 
 分隔线可通过 Tab 聚焦，支持左右方向键、Shift 加速、Home 和 End。窄屏与单栏展开时手柄自动收起，恢复分栏时沿用最近宽度。详细键盘与主题规则见 [PaneResizeHandle](../PaneResizeHandle/README.md)。

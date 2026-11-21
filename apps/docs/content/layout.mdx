@@ -70,11 +70,11 @@ export function Layout() {
 
 手柄也可独立导入 `PaneResizeHandle`，通过 `side`、`paneId` 和 `onWidthChange` 连到同一工作区的侧栏。窄屏及单栏展开时，手柄随分栏收起。
 
-并排显示时，如果容器缩窄到主体的最小宽度，两侧可调栏会采用实际显示的宽度，受控栏通过同一个回调同步。
+并排显示时，如果容器缩窄到主体的最小宽度，两侧可调栏会采用实际显示的宽度。`onWidthChange(width, source)` 的第二个参数区分手动调宽（`user`）和容器压缩（`container`）。需要跨布局恢复栏宽时，保存用户手动设置的值。
 
 ## 展开与还原
 
-桌面上用 `LeftPane` 的 `collapsed` 收起左栏，主体接收空出的宽度。重新打开时，左栏沿用上次调好的宽度和原有内容。把 `LeftPaneToggle` 放在左栏外，用同一份状态驱动开关和左栏。
+桌面上用 `LeftPane` 的 `collapsed` 收起左栏，主体接收空出的宽度。可用 `collapsedContent` 保留一组窄栏入口。重新打开时，左栏沿用上次调好的宽度和原有内容。把 `LeftPaneToggle` 放在左栏外，用同一份状态驱动开关和左栏。
 
 ```tsx
 <>

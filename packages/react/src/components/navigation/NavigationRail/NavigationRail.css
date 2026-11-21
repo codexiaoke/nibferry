@@ -21,9 +21,16 @@
 }
 
 [data-nf-rail-item] {
+  position: relative;
   inline-size: 36px;
   block-size: 36px;
   border-radius: 10px;
+}
+[data-nf-rail-item] > [data-nf-pane-badge] {
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-end: -4px;
+  pointer-events: none;
 }
 
 [data-nf-rail-item] > svg { width: 20px; height: 20px; }

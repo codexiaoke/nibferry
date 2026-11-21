@@ -9,7 +9,7 @@
   font-weight: 500;
 }
 [data-nf-conversation-group] + [data-nf-conversation-group] { margin-block-start: 4px; }
-[data-nf-conversation-disclosure], [data-nf-conversation-item] {
+[data-nf-conversation-disclosure], [data-nf-conversation-item]:where(:not([hidden])) {
   appearance: none;
   box-sizing: border-box;
   display: flex;
@@ -106,7 +106,7 @@
   align-items: center;
 }
 /* The title button paints the whole row, including the area behind the actions. */
-[data-nf-conversation-row] > [data-nf-conversation-item] {
+[data-nf-conversation-row] > [data-nf-conversation-item]:where(:not([hidden])) {
   grid-area: 1 / 1 / 2 / -1;
   display: grid;
   grid-template-columns: subgrid;

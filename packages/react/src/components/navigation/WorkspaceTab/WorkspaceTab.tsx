@@ -15,7 +15,7 @@ export interface WorkspaceTabProps extends Omit<ComponentPropsWithRef<'button'>,
 
 export function WorkspaceTab({ id, panelId, label, selected, icon, onClose, onKeyDown, ...props }: WorkspaceTabProps) {
   return (
-    <div role="presentation" data-nf-tab-cell="" data-selected={selected || undefined}>
+    <div role="presentation" hidden={props.hidden} data-nf-tab-cell="" data-selected={selected || undefined}>
       <button type="button" role="tab" id={id} aria-controls={panelId} aria-selected={selected}
         tabIndex={selected ? 0 : -1} title={label} {...props} data-nf-tab=""
         onKeyDown={(event) => {

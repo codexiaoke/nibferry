@@ -1,4 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
 import { themeVariables } from '../packages/react/src/theme/config';
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -438,6 +440,12 @@ test('指针和键盘可以重排标签，文档的阅读位置在排序和切�
   await second.press('Alt+ArrowRight');
   await expect(page.getByRole('tab')).toHaveText(['组件与工作区设计规范', '基础布局组件']);
   await expect(second).toBeFocused();
+  const firstButton = page.locator('[role="tab"][title="组件与工作区设计规范"]');
+  await firstButton.evaluate(el => { el.hidden = true; });
+  await second.press('Home');
+  await expect(second).toBeFocused();
+  await expect(second).toHaveAttribute('aria-selected', 'true');
+  await firstButton.evaluate(el => { el.hidden = false; });
   await second.press('Home');
   await expect(first).toBeFocused();
   expect(await documentBody.evaluate(() => window.scrollY)).toBe(scroll);
@@ -491,6 +499,11 @@ test('会话操作菜单按组排列，键盘可进入子菜单并回到原位',
   await page.keyboard.press('Escape');
   await expect(title).toBeFocused();
   await expect(menu).toBeHidden();
+  await title.click();
+  await expect(menu).toBeFocused();
+  await rename.evaluate(el => { el.hidden = true; });
+  await page.keyboard.press('Home');
+  await expect(menu.getByRole('menuitem', { name: '置顶聊天' })).toBeFocused();
 });
 
 test('主菜单和子菜单之间留出 8px，鼠标可穿过空隙进入分叉选项', async ({ page }) => {
@@ -1085,6 +1098,33 @@ test('右侧全屏时从左栏切换会话，回到并排布局并保留活动�
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('tab', { selected: true })).toHaveText('新标签页');
   await expect(page.getByRole('button', { name: '全屏显示右侧栏' })).toBeVisible();
+});
+
+test('接入方隐藏导航控件后，整项隐藏且 Tab 跳过这些控件', async ({ page }) => {
+  const fromDocs = createRequire(resolve('apps/docs/package.json'));
+  const { createElement: h } = fromDocs('react');
+  const { renderToStaticMarkup } = fromDocs('react-dom/server');
+  const { PaneButton, LeftPaneToggle, NavigationRailItem, SidebarMenu, ConversationItem, WorkspaceTabList, WorkspaceTab, CountBadge } =
+    await import('../packages/react/dist/index.js');
+  const icon = fromDocs('@hugeicons/core-free-icons/Search01Icon');
+  await page.setContent(renderToStaticMarkup(h('main', null,
+    h('button', null, '起点'),
+    h(PaneButton, { hidden: true, icon, text: '搜索' }),
+    h(LeftPaneToggle, { hidden: true, expanded: true, paneId: 'left' }),
+    h(NavigationRailItem, { hidden: true, icon, label: '会话' }),
+    h(SidebarMenu, { label: '菜单' }, h(PaneButton, { hidden: true, icon, text: '新聊天' })),
+    h(ConversationItem, { hidden: true }, '历史会话'),
+    h(ConversationItem, { hidden: true, actions: h('button', null, '归档') }, '当前会话'),
+    h(WorkspaceTabList, null, h(WorkspaceTab, { hidden: true, id: 'tab', panelId: 'page', label: '文档', selected: true, onClose() {} })),
+    h(WorkspaceTabList, { hidden: true }, h('button', null, '新增标签页')),
+    h(CountBadge, { hidden: true, count: 2 }),
+    h('button', null, '终点'),
+  )));
+  await page.addStyleTag({ path: resolve('packages/react/dist/styles.css') });
+  for (const element of await page.locator('[hidden]').all()) await expect(element).toBeHidden();
+  await expect(page.getByRole('button')).toHaveCount(2);
+  await page.getByRole('button', { name: '起点' }).press('Tab');
+  await expect(page.getByRole('button', { name: '终点' })).toBeFocused();
 });
 
 test('图标栏与项目列表并排，收起后仍能切换会话并恢复列表', async ({ page }) => {
