@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { themeVariables } from '../packages/react/src/theme/config';
+import { themeVariables } from '../packages/react/src/theme/tokens';
 
 async function expectNoHorizontalOverflow(page: Page) {
   const { scrollWidth, clientWidth } = await page.locator('html').evaluate((el) => ({
@@ -21,6 +21,105 @@ async function openPreviewRightPane(page: Page) {
   await expect(pane).toBeVisible();
   await pane.evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
 }
+
+test.describe('公开组件接入', () => {
+  let script: string;
+  test.beforeAll(async () => {
+    const fromLibrary = createRequire(resolve('packages/react/package.json'));
+    const { build } = fromLibrary('vite');
+    const bundle = await build({
+      root: resolve('packages/react'), configFile: false, logLevel: 'silent',
+      define: { 'process.env.NODE_ENV': '"production"' },
+      build: { write: false, lib: { entry: resolve('packages/react/tests/consumer.tsx'), formats: ['iife'], name: 'Consumer' } },
+    });
+    script = bundle[0].output[0].code;
+  });
+
+  async function mount(page: Page, fixture: string) {
+    await page.setContent('<body data-fixture="' + fixture + '"><div id="root"></div></body>');
+    await page.addStyleTag({ path: resolve('packages/react/dist/styles.css') });
+    await page.addScriptTag({ content: script });
+  }
+
+  test('同组追加时保留第一项的输入与 DOM', async ({ page }) => {
+    await mount(page, 'stream');
+    const input = page.getByRole('textbox', { name: 'a' });
+    await input.fill('已填写');
+    const original = await input.elementHandle();
+    await page.getByRole('button', { name: '追加' }).click();
+    await expect(page.getByRole('textbox', { name: 'b' })).toBeVisible();
+    await expect(input).toHaveValue('已填写');
+    expect(await input.evaluate((el, before) => el === before, original)).toBe(true);
+  });
+
+  test('弹框内可操作模型与权限列表并继承局部颜色', async ({ page }) => {
+    await mount(page, 'dialog');
+    const dialog = page.locator('dialog');
+    await dialog.getByRole('button', { name: '模型，A' }).click();
+    const option = dialog.getByRole('option', { name: 'B' });
+    expect(await option.evaluate(el => getComputedStyle(el).getPropertyValue('--nf-canvas').trim())).toBe('#facade');
+    await option.click();
+    await dialog.getByRole('button', { name: '权限，B' }).press('Enter');
+    await dialog.getByRole('menuitemradio', { name: 'A' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: '模型，A' })).toBeVisible();
+  });
+
+  test('多个符号菜单匹配最长前缀，卸载邻居后仍可输入', async ({ page }) => {
+    await mount(page, 'menus');
+    await page.addStyleTag({ content: '[data-nf-composer] { position: absolute; inset: auto 30px 20px 90px; }' });
+    const input = page.getByRole('textbox');
+    await input.pressSequentially('@');
+    await expect(page.getByRole('menuitem', { name: '引用' })).toBeVisible();
+    const composer = (await page.locator('[data-nf-composer]').boundingBox())!;
+    await expect.poll(async () => {
+      const menu = await page.getByRole('menu').boundingBox();
+      return menu && Math.max(Math.abs(menu.x - composer.x), Math.abs(menu.y + menu.height + 4 - composer.y));
+    }).toBeLessThanOrEqual(1);
+    await input.pressSequentially('@x');
+    await expect(page.getByRole('menuitem')).toHaveText('@@ x');
+    await input.press('Escape');
+    await input.fill('/');
+    await expect(page.getByRole('menuitem')).toHaveText('/');
+    await input.press('Escape');
+    await page.getByRole('button', { name: '移除命令' }).click();
+    await input.fill('@');
+    await expect(page.getByRole('menuitem')).toHaveText('引用');
+  });
+
+  test('只有附件时发送按钮和回车共用宿主的发送条件', async ({ page }) => {
+    await mount(page, 'attachment');
+    const input = page.getByRole('textbox');
+    await input.press('Enter');
+    await expect(page.locator('output')).toHaveText('0');
+    await page.getByRole('button', { name: '切换附件' }).click();
+    await page.getByRole('button', { name: '发送消息' }).click();
+    await input.press('Enter');
+    await expect(page.locator('output')).toHaveText('2');
+    await page.getByRole('button', { name: '切换附件' }).click();
+    await expect(page.getByRole('button', { name: '语音' })).toBeVisible();
+  });
+
+  test('受控查询可显示宿主返回的结果并通过键盘选择自定义行', async ({ page }) => {
+    await mount(page, 'search');
+    await page.getByRole('combobox').fill('123');
+    await expect(page.getByRole('option', { name: '照片' }).locator('strong')).toHaveText('照片');
+    await page.getByRole('combobox').press('Enter');
+    await expect(page.locator('output')).toHaveText('a');
+  });
+
+  test('标题容纳独立的操作，展开项目时显示指定图标', async ({ page }) => {
+    await mount(page, 'headings');
+    const toggle = page.getByRole('button', { name: '项目' });
+    const glyph = toggle.locator('svg').first();
+    const closed = await glyph.innerHTML();
+    await page.getByRole('group', { name: '来源' }).getByRole('button').click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(await glyph.innerHTML()).not.toBe(closed);
+    await toggle.click();
+    expect(await glyph.innerHTML()).toBe(closed);
+  });
+});
 
 test('官网首页展示工作区，可切换代码示例并进入指南', async ({ page }) => {
   await page.goto('./');

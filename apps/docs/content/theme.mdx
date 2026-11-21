@@ -16,6 +16,16 @@ const duration = theme.motion.feedback;
 
 ## 局部覆盖
 
+`themeVariables` 接受 `ThemeConfig`，将颜色、间距、栏宽和动效配置转换成可以直接传给容器的 CSS 自定义属性。
+
+```tsx
+import { themeVariables } from '@nibferry/react/theme';
+
+<section style={themeVariables({ colors: { canvas: '#202020', ink: '#fafafa' }, motion: false })}>
+  {children}
+</section>
+```
+
 在应用入口导入 `@nibferry/react/styles.css`，在需要换肤的容器上定义同名变量。子元素继承这一组值，容器外的界面继续使用自己的主题。
 
 ```css

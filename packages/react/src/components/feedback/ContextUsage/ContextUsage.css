@@ -1,0 +1,22 @@
+:where([data-nf-context-usage]:not([hidden])) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  vertical-align: middle;
+}
+:where([data-nf-context-usage])::before {
+  content: '';
+  inline-size: calc(100% - 2px);
+  block-size: calc(100% - 2px);
+  /* Optical alignment with the adjacent text and microphone. */
+  translate: 0 .5px;
+  border-radius: 50%;
+  background: conic-gradient(
+    color-mix(in srgb, var(--nf-muted) 82%, var(--nf-canvas)) var(--nf-context-fill),
+    color-mix(in srgb, var(--nf-muted) 10%, var(--nf-line)) 0
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.25px), black calc(100% - 1.75px));
+}

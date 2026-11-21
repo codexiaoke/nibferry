@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { Dialog, type DialogProps } from '../../overlay/Dialog/Dialog.js';
@@ -27,9 +27,13 @@ export interface SearchDialogGroup {
 export interface SearchDialogProps extends Pick<DialogProps, 'open' | 'onOpenChange' | 'className' | 'id'> {
   label: string;
   groups: readonly SearchDialogGroup[];
+  query?: string;
+  onQueryChange?: (query: string) => void;
+  filterItem?: false | ((item: SearchDialogItem, query: string) => boolean);
+  renderItem?: (item: SearchDialogItem) => ReactNode;
 }
 
-export function SearchDialog({ label, groups, open, onOpenChange, ...props }: SearchDialogProps) {
+export function SearchDialog({ label, groups, open, onOpenChange, query, onQueryChange, filterItem, renderItem, ...props }: SearchDialogProps) {
   function choose(item: SearchDialogItem) {
     // Release the focus trap before the host opens or focuses the destination.
     flushSync(() => onOpenChange(false));
@@ -37,14 +41,17 @@ export function SearchDialog({ label, groups, open, onOpenChange, ...props }: Se
   }
   return <Dialog {...props} open={open} onOpenChange={onOpenChange}
     aria-label={label} data-nf-search-dialog="">
-    {open && <SearchPanel label={label} groups={groups} choose={choose} />}
+    {open && <SearchPanel label={label} groups={groups} choose={choose} query={query}
+      onQueryChange={onQueryChange} filterItem={filterItem} renderItem={renderItem} />}
   </Dialog>;
 }
 
-function SearchPanel({ label, groups, choose }: Pick<SearchDialogProps, 'label' | 'groups'> & {
+function SearchPanel({ label, groups, choose, query: controlledQuery, onQueryChange, filterItem, renderItem }:
+  Pick<SearchDialogProps, 'label' | 'groups' | 'query' | 'onQueryChange' | 'filterItem' | 'renderItem'> & {
   choose: (item: SearchDialogItem) => void;
 }) {
-  const [query, setQuery] = useState('');
+  const [localQuery, setLocalQuery] = useState('');
+  const query = controlledQuery ?? localQuery;
   const [category, setCategory] = useState<string | null>(null);
   const [active, setActive] = useState<SearchDialogItem['id'] | null>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -54,7 +61,8 @@ function SearchPanel({ label, groups, choose }: Pick<SearchDialogProps, 'label' 
   useLayoutEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), []);
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   const visible = groups.filter(group => category === null || group.id === category).map(group => {
-    const matching = terms.length ? group.items.filter(item => {
+    const matching = terms.length && filterItem !== false ? group.items.filter(item => {
+      if (filterItem) return filterItem(item, query);
       const text = [item.label, item.detail, item.keywords].join(' ').toLowerCase();
       return terms.every(term => text.includes(term));
     }) : group.items;
@@ -93,18 +101,26 @@ function SearchPanel({ label, groups, choose }: Pick<SearchDialogProps, 'label' 
     <input ref={input} autoFocus role="combobox" aria-label={label} placeholder={label}
       aria-autocomplete="list" aria-expanded="true" aria-controls={listId}
       aria-activedescendant={selected && optionId(selected)} value={query} onKeyDown={handleKey}
-      onChange={event => { setQuery(event.target.value); resetSelection(); }} />
+      onChange={event => {
+        const next = event.target.value;
+        if (controlledQuery === undefined) setLocalQuery(next);
+        onQueryChange?.(next);
+        resetSelection();
+      }} />
     <div data-nf-search-scroll="" ref={list}>
       <div role="listbox" id={listId} aria-label="搜索结果">
         {visible.map(group => <div key={group.id} role="group" aria-label={group.label}>
           <div data-nf-search-heading="" aria-hidden="true">{group.label}</div>
           {group.items.map(item => <div key={item.id} id={optionId(item)} role="option"
+            aria-label={renderItem ? item.label : undefined}
             aria-selected={selected?.id === item.id} onPointerMove={() => setActive(item.id)}
             onMouseDown={event => event.preventDefault()} onClick={() => choose(item)}>
-            {item.icon && <HugeiconsIcon icon={item.icon} size={16} aria-hidden="true" />}
-            <span data-nf-search-label="">{item.label}</span>
-            {item.detail && <small>{item.detail}</small>}
-            {item.shortcutKey && <kbd>{mac ? '⌘' : 'Ctrl+'}{item.shortcutKey.toUpperCase()}</kbd>}
+            {renderItem ? renderItem(item) : <>
+              {item.icon && <HugeiconsIcon icon={item.icon} size={16} aria-hidden="true" />}
+              <span data-nf-search-label="">{item.label}</span>
+              {item.detail && <small>{item.detail}</small>}
+              {item.shortcutKey && <kbd>{mac ? '⌘' : 'Ctrl+'}{item.shortcutKey.toUpperCase()}</kbd>}
+            </>}
           </div>)}
         </div>)}
       </div>

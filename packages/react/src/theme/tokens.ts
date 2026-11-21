@@ -24,4 +24,4 @@ export const palettes = {
   },
 } satisfies Record<string, typeof theme.color>;
 
-export type { ThemeColors, ThemeConfig } from './config.js';
+export { themeVariables, type ThemeColors, type ThemeConfig } from './config.js';

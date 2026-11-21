@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { ContextMenu, type ContextMenuProps } from '../../menu/ContextMenu/ContextMenu.js';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import FolderOpen from '@hugeicons/core-free-icons/FolderOpenIcon';
 import Chevron from '@hugeicons/core-free-icons/ArrowRight01Icon';
@@ -11,6 +11,8 @@ import Chevron from '@hugeicons/core-free-icons/ArrowRight01Icon';
 export interface ConversationGroupProps {
   label: string;
   expanded: boolean;
+  icon?: IconSvgElement;
+  expandedIcon?: IconSvgElement;
   onToggle: () => void;
   details?: ReactNode;
   actions?: ReactNode;
@@ -18,7 +20,7 @@ export interface ConversationGroupProps {
   children: ReactNode;
 }
 
-export function ConversationGroup({ label, expanded, onToggle, details, actions, contextMenuContent, children }: ConversationGroupProps) {
+export function ConversationGroup({ label, expanded, icon, expandedIcon, onToggle, details, actions, contextMenuContent, children }: ConversationGroupProps) {
   const id = useId();
   const header = useRef<HTMLDivElement>(null);
   const disclosure = useRef<HTMLButtonElement>(null);
@@ -86,7 +88,7 @@ export function ConversationGroup({ label, expanded, onToggle, details, actions,
             openDetails(true);
           }
         }}>
-        <HugeiconsIcon icon={expanded ? FolderOpen : Folder} size={16} aria-hidden="true" />
+        <HugeiconsIcon icon={expanded ? expandedIcon ?? icon ?? FolderOpen : icon ?? Folder} size={16} aria-hidden="true" />
         <span>{label}</span>
         {!actions && <HugeiconsIcon icon={Chevron} size={12} aria-hidden="true" />}
       </button>

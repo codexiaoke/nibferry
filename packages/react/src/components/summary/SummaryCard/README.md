@@ -11,4 +11,6 @@ import '@nibferry/react/styles.css';
 </SummaryCard>
 ```
 
+宿主限制卡片高度时，较长的摘要可在卡片内独立滚动，滑块使用 ScrollArea 的主题色。
+
 放在需要呈现摘要的容器内，由容器决定位置。默认宽 300px，并受父级宽度限制。内容可以是 SummaryGroup 或自定义节点。背景、文字和边框沿用 `--nf-canvas`、`--nf-ink` 和 `--nf-line`。投影可通过 `--nf-summary-shadow` 设置。展开时使用主题反馈时长，并遵循减少动态效果偏好。

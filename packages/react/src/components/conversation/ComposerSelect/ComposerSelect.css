@@ -1,0 +1,19 @@
+:where([data-nf-composer-select]) {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--nf-space-sm) / 2);
+  min-block-size: 28px;
+  max-inline-size: 100%;
+  color: var(--nf-ink);
+}
+:where([data-nf-composer-select] > span) {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+:where([data-nf-composer-select] small, [data-nf-composer-options] small) { color: var(--nf-muted); font-size: inherit; }
+:where([data-nf-composer-select]:enabled:hover) { background: var(--nf-subtle); }
+:where([data-nf-composer-select]:disabled) { opacity: .5; cursor: default; }
+@media (pointer: coarse) {
+  :where([data-nf-composer-select]) { min-block-size: 44px; }
+}
