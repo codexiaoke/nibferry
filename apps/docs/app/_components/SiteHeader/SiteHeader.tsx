@@ -7,37 +7,17 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import Layers from '@hugeicons/core-free-icons/Layers01Icon';
 import Menu from '@hugeicons/core-free-icons/Menu01Icon';
 import Close from '@hugeicons/core-free-icons/Cancel01Icon';
-import Down from '@hugeicons/core-free-icons/ArrowDown01Icon';
 import type { SearchEntry } from '../../../lib/docs';
 import { basePath, repository } from '../../site-links';
 import DocSearch from '../DocSearch/DocSearch';
 
-const menus = [
-  {
-    title: '设计规范',
-    links: [
-      ['设计 Token', '/docs/theme'],
-      ['颜色与文字', '/docs/colors'],
-      ['边框与层级', '/docs/surfaces'],
-      ['动效与过渡', '/docs/motion'],
-    ],
-  },
-  {
-    title: '资源',
-    links: [
-      ['贡献指南', '/docs/contributing'],
-      ['反馈问题', repository + '/issues'],
-    ],
-  },
-];
-
 export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
   const [open, setOpen] = useState(false);
-  const [menu, setMenu] = useState('');
   const menuButton = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
 
   const path = usePathname();
+  const current = entries.find(entry => entry.url === path.replace(/\/$/, ''))?.location;
 
   // Previously published links opened the explorer using a fragment on the home page.
   useEffect(() => {
@@ -57,22 +37,14 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
 
   function close() {
     setOpen(false);
-    setMenu('');
   }
 
   useEffect(() => {
-    if (!open && !menu) return;
+    if (!open) return;
     function keydown(event: KeyboardEvent) {
       if (event.key !== 'Escape') return;
-      if (menu) {
-        header.current
-          ?.querySelector<HTMLButtonElement>('.nav-dropdown button[aria-expanded="true"]')
-          ?.focus();
-        setMenu('');
-      } else {
-        setOpen(false);
-        menuButton.current?.focus();
-      }
+      setOpen(false);
+      menuButton.current?.focus();
     }
     function outside(event: Event) {
       if (!header.current?.contains(event.target as Node)) close();
@@ -85,7 +57,7 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
       document.removeEventListener('pointerdown', outside);
       document.removeEventListener('focusin', outside);
     };
-  }, [open, menu]);
+  }, [open]);
 
   return (
     <header className="site-header" ref={header}>
@@ -98,32 +70,10 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
           Nibferry
         </Link>
         <nav id="site-nav" aria-label="主导航" className="main-nav" data-open={open}>
-          <Link href="/docs" onClick={close}>
-            文档
-          </Link>
-          <Link href="/playground/" onClick={close}>
-            交互预览
-          </Link>
-          {menus.map(({ title, links }, i) => (
-            <div className="nav-dropdown" key={title}>
-              <button
-                type="button"
-                aria-controls={'nav-menu-' + i}
-                aria-expanded={menu === title}
-                onClick={() => setMenu(menu === title ? '' : title)}
-              >
-                {title}
-                <HugeiconsIcon icon={Down} size={12} aria-hidden="true" />
-              </button>
-              <div id={'nav-menu-' + i} className="nav-options" hidden={menu !== title}>
-                {links.map(([name, href]) => (
-                  <Link key={href} href={href} onClick={close}>
-                    {name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+          <Link href="/docs/components" aria-current={current === '组件' ? 'location' : undefined} onClick={close}>组件</Link>
+          <Link href="/docs" aria-current={current === '指南' ? 'location' : undefined} onClick={close}>指南</Link>
+          <Link href="/docs/theme" aria-current={current === '主题' ? 'location' : undefined} onClick={close}>主题</Link>
+          <Link href="/playground/" onClick={close}>示例</Link>
         </nav>
         <div className="header-actions">
           <DocSearch entries={entries} onOpen={close} />
@@ -137,10 +87,7 @@ export default function SiteHeader({ entries }: { entries: SearchEntry[] }) {
             aria-label={open ? '关闭导航' : '打开导航'}
             aria-expanded={open}
             aria-controls="site-nav"
-            onClick={() => {
-              setOpen(!open);
-              setMenu('');
-            }}
+            onClick={() => setOpen(!open)}
           >
             <HugeiconsIcon icon={open ? Close : Menu} size={19} aria-hidden="true" />
           </button>

@@ -19,8 +19,6 @@ const examples = {
   ),
   CSS: (
     <>
-      <b>@import</b> <em>"nibferry/styles.css"</em>
-      {';\n\n'}
       <b>body</b>
       {' {\n  color: var(--nf-ink);\n  background: var(--nf-canvas);\n}'}
     </>

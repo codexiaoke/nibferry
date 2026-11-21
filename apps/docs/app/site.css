@@ -661,3 +661,20 @@ summary::-webkit-details-marker {
     width: 100%;
   }
 }
+
+.main-nav a[aria-current] {
+  color: var(--site-ink);
+  font-weight: 600;
+}
+.browse-components {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  background: var(--site-action);
+  color: var(--site-on-action);
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 550;
+}
+.browse-components:hover { background: var(--site-action-hover); }

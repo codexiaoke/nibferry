@@ -1,9 +1,13 @@
 ---
-title: 搜索弹框
+title: 在侧栏接入搜索
 description: 用搜索弹框查找会话、打开资料或执行工作区操作。
 ---
 
+import { SearchDemo, DialogDemo } from '../app/_components/ComponentDemos/OverlayExamples';
+
 ## 从左栏打开
+
+<SearchDemo />
 
 点击工作区名称右侧的放大镜。输入会话标题或项目名可找到聊天，输入文档标题或章节文字可打开对应资料。用底部分类缩小搜索范围。上下方向键移动高亮，Enter 打开结果，Esc 返回搜索入口。[桌面交互预览](/playground/)
 
@@ -13,7 +17,6 @@ description: 用搜索弹框查找会话、打开资料或执行工作区操作�
 
 ```tsx
 import { SearchDialog } from 'nibferry';
-import 'nibferry/styles.css';
 
 <SearchDialog open={open} onOpenChange={setOpen} label="搜索工作区"
   groups={[
@@ -28,6 +31,8 @@ import 'nibferry/styles.css';
 
 ## 通用弹框
 
+<DialogDemo />
+
 需要自定义内容时，使用同一套基础组件 `Dialog`。它处理模态焦点、遮罩、Esc 和入场动效。接入方通过 `open` 与 `onOpenChange` 控制开合，并通过 `aria-label` 或 `aria-labelledby` 提供弹框名称。
 
 ```tsx
@@ -38,3 +43,8 @@ import { Dialog } from 'nibferry';
   <button onClick={saveProject}>保存</button>
 </Dialog>
 ```
+
+## 相关组件
+
+- [搜索弹框](/docs/components/overlay/search-dialog)
+- [模态弹框](/docs/components/overlay/dialog)

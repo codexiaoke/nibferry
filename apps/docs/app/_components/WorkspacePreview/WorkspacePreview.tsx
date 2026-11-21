@@ -376,7 +376,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
         <DropdownMenu modal={false}>
           <MenuTrigger asChild><NavigationRailItem label="更多导航" icon={More} /></MenuTrigger>
           <MenuContent side="right" className="preview-conversation-menu" aria-label="更多导航">
-            <MenuItem onSelect={() => openSource({ title: '文档概览', path: '/docs/' })}>文档概览</MenuItem>
+            <MenuItem onSelect={() => openSource({ title: '使用指南', path: '/docs/' })}>使用指南</MenuItem>
             <MenuItem onSelect={() => openSource({ title: '接入项目', path: '/docs/installation/' })}>接入项目</MenuItem>
           </MenuContent>
         </DropdownMenu>

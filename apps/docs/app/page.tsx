@@ -40,14 +40,16 @@ export default function Home() {
               界面组件库
             </h1>
             <p>
-              用设计 Token 管理配色与动效，
+              组合对话、输入框和工作区，
               <br className="wide-break" />
-              在多个产品中共享主题。
+              为你的 Agent 产品搭建界面。
             </p>
             <div className="hero-actions">
-              <BuildCommand />
+              <Link className="browse-components" href="/docs/components">
+                浏览组件 <HugeiconsIcon icon={Arrow} size={16} aria-hidden="true" />
+              </Link>
               <Link className="text-link" href="/playground/">
-                打开交互预览
+                查看工作区示例
                 <HugeiconsIcon icon={Arrow} size={17} aria-hidden="true" />
               </Link>
             </div>

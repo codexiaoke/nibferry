@@ -3,11 +3,26 @@ title: 贡献指南
 description: 在本地验证改动，通过简短的英文提交和 Pull Request 参与开发。
 ---
 
+## 本地运行
+
+准备 Node.js 22.12 或更高版本和 pnpm 10，在终端运行：
+
+```sh
+git clone https://github.com/codexiaoke/nibferry.git
+cd nibferry
+pnpm install
+pnpm dev
+```
+
+打开[本地官网](http://127.0.0.1:3317/)查看改动。
+
 ## 文档与组件
 
 官网文章位于 `apps/docs/content`。修改正文或标题后，页内目录和全文搜索会随文章一起更新。在 `meta.json` 中安排页面所属分组和顺序。
 
-库组件按界面能力放在 `packages/react/src/components/<模块>/<组件名>/`。每个组件有自己的 README，说明导入方式、参数、回调和键盘行为。
+在 `apps/docs/lib/component-catalog.ts` 中按分类登记组件文档。共用一个交互预览的部件放在同一页，按组合顺序登记中文名和导出名。总览和侧栏展示组合，搜索部件名可直达页内说明。
+
+组件文档从 `packages/react/src/components/<模块>/<组件名>/README.md` 生成。在「用法」中给出导入和代码示例，在「参数与交互」中说明配置、回调和键盘行为。在 `ComponentDemos/examples.ts` 中用组合的主组件名关联交互示例。
 
 ## 本地验证
 

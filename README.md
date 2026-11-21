@@ -4,7 +4,17 @@ Nibferry 是面向 Agent 产品的 React UI 组件库，用于搭建完整对话
 
 组件拆分、状态归属和首页布局见[组件与工作区设计规范](apps/docs/content/component-design.mdx)。默认色系、边框、阴影和主题覆盖见 [UI Token 规范](docs/design-tokens.md)。
 
-在线访问 [Nibferry 官网](https://codexiaoke.github.io/nibferry/) 和[文档中心](https://codexiaoke.github.io/nibferry/docs/)。GitHub Actions 会在 PR 中构建并测试静态站点，合入 `main` 后自动部署到 GitHub Pages。
+在线访问 [Nibferry 官网](https://codexiaoke.github.io/nibferry/) 、[组件总览](https://codexiaoke.github.io/nibferry/docs/components/)和[使用指南](https://codexiaoke.github.io/nibferry/docs/)。GitHub Actions 会在 PR 中构建并测试静态站点，合入 `main` 后自动部署到 GitHub Pages。
+
+## 安装
+
+在 React 19 项目中运行：
+
+```sh
+pnpm install nibferry
+```
+
+在应用入口引入一次 `nibferry/styles.css`，然后从 `nibferry` 导入需要的组件。
 
 ## 本地开发
 
@@ -15,7 +25,7 @@ pnpm install
 pnpm dev
 ```
 
-打开[本地交互预览](http://127.0.0.1:3317/playground/) 查看桌面的左侧、主体和右侧布局，或阅读 [文档中心](http://127.0.0.1:3317/docs)。包的 JS、CSS 和类型声明会随源码变化重新生成。
+打开[本地交互预览](http://127.0.0.1:3317/playground/) 查看桌面的左侧、主体和右侧布局，或在[组件总览](http://127.0.0.1:3317/docs/components/)中查找部件。包的 JS、CSS 和类型声明会随源码变化重新生成。
 
 ## 项目结构
 
@@ -36,9 +46,6 @@ pnpm typecheck
 pnpm build
 pnpm exec playwright install chromium
 pnpm test
-pnpm --filter nibferry pack
 ```
 
-将生成的 `.tgz` 安装到另一个 React 19 项目。Web 应用可引入 `nibferry/styles.css`，无需 DOM 的环境可直接读取主题数据。
-
-使用 `pnpm changeset` 记录公开接口改动，`pnpm version-packages` 更新版本与变更记录。注册表和访问范围由正式分发时确定。
+使用 `pnpm changeset` 记录公开接口改动，`pnpm version-packages` 更新版本与变更记录。通过 npm 公共注册表分发 `nibferry`。

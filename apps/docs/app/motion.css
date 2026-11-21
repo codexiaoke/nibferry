@@ -5,7 +5,6 @@
   }
 }
 
-.nav-dropdown > button[aria-expanded='true'] svg,
 .command-choice[open] summary svg:last-child {
   transform: rotate(180deg);
 }
@@ -70,7 +69,6 @@
     animation: content-appear var(--feedback) var(--nf-ease);
   }
 
-  .nav-options,
   .choice-list,
   .hero-copy,
   .docs-main article,
@@ -79,7 +77,6 @@
   }
 
   :is(
-      .nav-dropdown > button,
       .docs-disclosure,
       .docs-sidebar summary,
       .command-choice summary
@@ -107,7 +104,6 @@
     .repo-link,
     .command-copy,
     .docs-sidebar a,
-    .nav-options a,
     .doc-neighbors a,
     .docs-overview li a,
     .resource-links a,

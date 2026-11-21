@@ -3,13 +3,16 @@ title: 基础布局组件
 description: 组合左侧、主体和右侧区域，使用 Stack 和 Inline 排列区域内的内容。
 ---
 
+import { WorkspaceDemo, ScrollDemo, SpacingDemo } from '../app/_components/ComponentDemos/LayoutExamples';
+
 ## 工作区三栏
+
+<WorkspaceDemo />
 
 将 LeftPane、MainPane、RightPane 直接放入 WorkspaceLayout。左侧默认占 240px，右侧默认占 320px，中间的主体使用剩余宽度。省略任意一侧，主体会接收空出的空间。
 
 ```tsx
 import { LeftPane, MainPane, RightPane, WorkspaceLayout } from 'nibferry';
-import 'nibferry/styles.css';
 
 <WorkspaceLayout style={{ height: '100dvh' }}>
   <LeftPane resizable aria-label="左侧">左侧</LeftPane>
@@ -21,6 +24,8 @@ import 'nibferry/styles.css';
 [交互预览](/playground/)
 
 ## 悬浮滚动条
+
+<ScrollDemo />
 
 `ScrollArea` 的细滑块在滚动时显示，停下片刻后自动隐藏。滑块覆盖在视口边缘，显隐时正文保持原宽。通过 `viewportProps` 可给滚动区命名或监听滚动。
 
@@ -141,11 +146,12 @@ export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
 
 ## 纵向排列
 
+<SpacingDemo />
+
 从包根入口导入 Stack，并在应用入口加载一次样式。默认间距是 16px，子项沿横向拉伸。
 
 ```tsx
 import { Stack } from 'nibferry';
-import 'nibferry/styles.css';
 
 export function Messages() {
   return (
@@ -163,7 +169,6 @@ Inline 默认居中对齐，间距为 8px。传入 `wrap`，容器变窄时，�
 
 ```tsx
 import { Inline } from 'nibferry';
-import 'nibferry/styles.css';
 
 export function Sources() {
   return (
@@ -187,3 +192,10 @@ export function Sources() {
   --nf-space-md: 12px;
 }
 ```
+
+## 相关组件
+
+- [工作区布局](/docs/components/workspace/workspace-layout)
+- [悬浮面板](/docs/components/overlay/floating-panel)
+- [间距布局](/docs/components/layout/stack)
+- [悬浮滚动条](/docs/components/layout/scroll-area)

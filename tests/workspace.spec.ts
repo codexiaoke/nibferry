@@ -933,10 +933,10 @@ test('官网首页展示工作区，可切换代码示例并进入指南', async
   await expect(page.getByLabel('CSS 示例')).toContainText('--nf-canvas');
   await page
     .getByRole('navigation', { name: '主导航' })
-    .getByRole('link', { name: '文档' })
+    .getByRole('link', { name: '指南', exact: true })
     .click();
   await expect(page).toHaveURL(/\/docs\/?$/);
-  await expect(page.getByRole('heading', { name: '文档概览', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '使用指南', level: 1 })).toBeVisible();
 });
 
 test('搜索、分类和切换配色使用主题实际导出的值', async ({ page }) => {
@@ -966,22 +966,25 @@ test('手机导航可关闭，首屏无横向滚动', async ({ page }) => {
   await expect(menu).toBeFocused();
   await expectNoHorizontalOverflow(page);
   await menu.click();
-  await page.getByRole('link', { name: '交互预览', exact: true }).click();
+  await page.getByRole('link', { name: '示例', exact: true }).click();
   await expect(page.getByRole('main').getByRole('textbox', { name: '消息', exact: true })).toBeVisible();
   await expect(page.locator('#preview-left')).toBeHidden();
   await expect(page.locator('#preview-right')).toBeHidden();
   await expectNoHorizontalOverflow(page);
 });
 
-test('切换仓库命令后复制对应内容', async ({ page, context }) => {
+test('首页默认复制 pnpm 安装命令，也可以切换为 npm', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('./');
-  const hero = page.locator('.hero');
-  await hero.getByLabel('选择仓库命令').click();
-  await hero.getByRole('button', { name: '启动官网' }).click();
-  await hero.getByRole('button', { name: '复制命令 pnpm dev' }).click();
-  await expect(hero.getByRole('status')).toHaveText('已复制命令');
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('pnpm dev');
+  const commands = page.locator('.start-section');
+  await commands.getByRole('button', { name: '复制命令 pnpm install nibferry' }).click();
+  await expect(commands.getByRole('status')).toHaveText('已复制命令');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('pnpm install nibferry');
+  await commands.getByLabel('选择包管理器').click();
+  await commands.getByRole('button', { name: 'npm', exact: true }).click();
+  await commands.getByRole('button', { name: '复制命令 npm install nibferry' }).click();
+  await expect(commands.getByRole('status')).toHaveText('已复制命令');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('npm install nibferry');
 });
 
 test('从旧指南打开全局搜索，可以用键盘跳到另一篇文档的章节', async ({ page }) => {
@@ -1023,23 +1026,19 @@ test('在 Token 预览中打开文档搜索会保留筛选和阅读位置', asyn
   expect(await page.evaluate(() => window.scrollY)).toBe(position);
 });
 
-test('设计规范菜单、分组目录和相邻文档链接可导航', async ({ page }) => {
+test('主题导航、分组目录和相邻文档链接可导航', async ({ page }) => {
   await page.goto('./');
-  const menu = page.getByRole('button', { name: '设计规范' });
-  await menu.click();
-  await page.keyboard.press('Escape');
-  await expect(menu).toBeFocused();
-  await menu.click();
-  await page
-    .getByRole('navigation', { name: '主导航' })
-    .getByRole('link', { name: '颜色与文字' })
-    .click();
+  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '主题' }).click();
   const sidebar = page.getByRole('navigation', { name: '文档目录' });
+  await sidebar.getByRole('link', { name: '颜色与文字' }).click();
   await expect(sidebar.getByRole('link', { name: '颜色与文字' })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  await sidebar.getByText('开始使用', { exact: true }).click();
+  await expect(sidebar.getByRole('link', { name: '接入项目' })).toBeHidden();
+  await sidebar.getByText('指南', { exact: true }).click();
+  await expect(sidebar.getByRole('link', { name: '接入项目' })).toBeVisible();
+  await sidebar.getByText('指南', { exact: true }).click();
   await expect(sidebar.getByRole('link', { name: '接入项目' })).toBeHidden();
   await page.getByRole('link', { name: '下一篇 边框与层级' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('边框与层级');
@@ -1059,6 +1058,7 @@ test('手机目录可切换、跟随章节并复制当前页 Markdown', async ({
   await page.setViewportSize({ width: 375, height: 700 });
   await page.goto('./docs');
   await page.getByRole('button', { name: '文档目录' }).click();
+  await page.getByRole('navigation', { name: '文档目录' }).getByText('主题', { exact: true }).click();
   await page
     .getByRole('navigation', { name: '文档目录' })
     .getByRole('link', { name: '动效与过渡' })
@@ -1647,7 +1647,7 @@ test('搜索弹框按分类打开本地文件和文档章节，并支持点击�
   await dialog.getByRole('button', { name: '文件', exact: true }).click();
   await expect(field).toHaveValue('layout.txt');
   await expect(field).toBeFocused();
-  await dialog.getByRole('option', { name: /layout\.txt/ }).click();
+  await dialog.getByRole('option', { name: 'layout.txt 基础布局组件', exact: true }).click();
   await expect(page.getByRole('tab', { name: 'layout.txt' })).toBeFocused();
   await expect(page.locator('iframe[title="layout.txt"]')).toHaveAttribute('src', /\/markdown\/layout\.txt$/);
   await search.click();
@@ -2776,7 +2776,182 @@ test('减少动态效果时搜索、筛选和目录切换即时完成', async ({
   expect(await dialog.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
   await search.press('Escape');
   await expect(dialog).toHaveCSS('display', 'none');
-  const menu = page.getByRole('button', { name: '设计规范' });
-  await menu.click();
-  await expect(page.locator('.nav-options:visible')).toHaveCSS('animation-name', 'none');
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole('button', { name: '打开导航' }).click();
+  await expect(page.getByRole('navigation', { name: '主导航' })).toHaveCSS('animation-name', 'none');
+});
+
+test('从首页筛选公开组件并跳到部件说明', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('link', { name: '浏览组件' }).click();
+  const catalog = page.locator('.component-catalog');
+  const exports = await import('../packages/react/dist/index.js');
+  const links = catalog.locator('.catalog-links a');
+  await expect(links).toHaveCount(16);
+  const urls = await links.evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
+  expect(new Set(urls).size).toBe(16);
+  const documents = await Promise.all(urls.map(async url => (await page.request.get(url)).text()));
+  const names = await page.evaluate(pages => pages.flatMap(html => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    if (doc.querySelectorAll('article .component-demo').length !== 1) throw new Error(doc.title);
+    return Array.from(doc.querySelectorAll('article .component-export, article section > h2[id] > code'),
+      code => code.textContent);
+  }), documents);
+  expect(names.sort()).toEqual(Object.keys(exports).filter(name => /^[A-Z]/.test(name)).sort());
+  await catalog.getByRole('button', { name: '菜单与浮层' }).click();
+  const input = catalog.getByRole('textbox', { name: '筛选组件' });
+  await input.fill('菜单项');
+  await expect(catalog.getByRole('link')).toHaveCount(1);
+  await input.fill('WorkspaceTabClose');
+  await expect(catalog.getByRole('status')).toHaveText('没有找到匹配的组件。');
+  await catalog.getByRole('button', { name: '全部' }).click();
+  await catalog.getByRole('link', { name: /关闭标签按钮/ }).click();
+  await expect(page).toHaveURL(/\/components\/workspace\/workspace-tab-list\/#WorkspaceTabClose$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('工作区标签栏');
+  const sidebar = page.getByRole('navigation', { name: '文档目录' });
+  await expect(sidebar.getByRole('link', { name: '工作区标签栏' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#WorkspaceTabClose')).toBeInViewport();
+
+  await page.getByRole('button', { name: '搜索文档' }).click();
+  const search = page.getByRole('combobox');
+  await search.fill('MenuItem');
+  await search.press('Enter');
+  await expect(page).toHaveURL(/\/dropdown-menu\/#MenuItem$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('下拉菜单');
+  await expect(page.locator('#MenuItem')).toBeInViewport();
+  await page.getByRole('button', { name: '会话操作' }).click();
+  await expect(page.getByRole('menuitem', { name: '置顶' })).toBeVisible();
+});
+
+test('图标导航项旧地址定位到导航栏的部件说明，侧栏只列组合', async ({ page }) => {
+  await page.goto('./docs/components/workspace/navigation-rail-item/');
+  await expect(page).toHaveURL(/\/navigation-rail\/#NavigationRailItem$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('图标导航栏');
+  await expect(page.locator('#NavigationRailItem')).toBeInViewport();
+  const sidebar = page.getByRole('navigation', { name: '文档目录' });
+  await expect(sidebar.getByRole('link', { name: '图标导航栏' })).toHaveAttribute('aria-current', 'page');
+  await expect(sidebar.getByRole('link', { name: '图标导航项' })).toHaveCount(0);
+  const demo = page.locator('.docs-prose .component-demo');
+  await demo.getByRole('button', { name: '文档', exact: true }).press('Enter');
+  await expect(demo.getByRole('button', { name: '接入指南' })).toBeVisible();
+});
+
+test('手机从组件分类进入部件页面，Markdown 与正文都链接到关联组件', async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./docs/components/');
+  await page.getByRole('button', { name: '文档目录' }).click();
+  const nav = page.getByRole('navigation', { name: '文档目录' });
+  await nav.getByText('导航与工作区', { exact: true }).click();
+  await nav.getByRole('link', { name: '工作区布局', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('工作区布局');
+  await expect(nav).toBeHidden();
+  const body = page.locator('.docs-prose');
+  await expect(body.getByRole('heading', { name: '参数与交互', level: 2 })).toBeVisible();
+  const handle = body.locator('section[aria-labelledby="LeftPane"]').getByRole('link', { name: 'PaneResizeHandle' });
+  await expect(handle).toHaveAttribute('href', /\/components\/workspace\/workspace-layout\/#PaneResizeHandle$/);
+  const response = await request.get('./markdown/components/workspace/workspace-layout.txt');
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toMatch(/\[PaneResizeHandle\]\([^)]*\/docs\/components\/workspace\/workspace-layout\/#PaneResizeHandle\)/);
+});
+
+test('应用入口统一加载样式，组件示例只导入所用部件', async ({ page }) => {
+  await page.goto('./docs/installation/');
+  const setup = page.locator('.docs-prose pre').filter({ hasText: 'nibferry/styles.css' });
+  await expect(setup).toHaveCount(1);
+  for (const slug of ['model-select', 'dropdown-menu']) {
+    await page.goto('./docs/' + slug + '/');
+    const example = page.locator('.docs-prose pre').filter({ hasText: "from 'nibferry'" }).first();
+    await expect(example).toBeVisible();
+    await expect(example).not.toContainText('nibferry/styles.css');
+  }
+  await page.getByRole('button', { name: '会话操作' }).click();
+  await expect(page.getByRole('menuitem', { name: '置顶' })).toHaveCSS('display', 'flex');
+});
+
+test('在组件文档中调整强度和切换模型提供商', async ({ page }) => {
+  await page.goto('./docs/model-select/');
+  const trigger = page.getByRole('button', { name: '模型，GPT-6.2 Astra 高' });
+  await trigger.click();
+  const slider = page.getByRole('slider', { name: '推理强度' });
+  await slider.press('Home');
+  await expect(slider).toHaveAttribute('aria-valuetext', '低');
+  await page.getByRole('button', { name: '选择模型，GPT-6.2 Astra' }).click();
+  await page.getByRole('group', { name: 'DeepSeek' }).getByRole('option').click();
+  await expect(page.getByRole('button', { name: '模型，DeepSeek Reasoner 低' })).toBeVisible();
+});
+
+test('在下拉菜单文档中操作菜单项和键盘子菜单', async ({ page }) => {
+  await page.goto('./docs/dropdown-menu/');
+  const demo = page.getByRole('group', { name: '下拉菜单示例' });
+  const trigger = demo.getByRole('button', { name: '会话操作' });
+  await trigger.press('Enter');
+  await page.getByRole('menuitem', { name: '置顶' }).press('Enter');
+  await expect(demo.getByLabel('已置顶')).toBeVisible();
+  await trigger.press('Enter');
+  await page.getByRole('menuitem', { name: '显示密度' }).press('ArrowRight');
+  await page.getByRole('menuitem', { name: '紧凑' }).press('Enter');
+  await expect(demo.locator('.demo-conversation')).toHaveCSS('padding-block-start', '4px');
+  await expect(trigger).toBeFocused();
+});
+
+test('组件目录的每个条目都有实物预览，筛选后可以直接操作', async ({ page }) => {
+  await page.goto('./docs/components/');
+  const catalog = page.locator('.component-catalog');
+  const cards = catalog.locator('.catalog-example');
+  await expect(cards).toHaveCount(16);
+  for (const card of await cards.all()) {
+    await expect(card.locator('.component-demo')).toBeVisible();
+    await expect(card.locator('.component-demo > :first-child')).toBeVisible();
+  }
+  await catalog.getByRole('textbox', { name: '筛选组件' }).fill('WorkspaceTab');
+  await expect(cards).toHaveCount(1);
+  await catalog.getByRole('button', { name: '新增标签页' }).click();
+  await expect(catalog.getByRole('tabpanel')).toHaveText('新文档 3');
+  await catalog.getByRole('button', { name: '关闭「文档 3」' }).click();
+  await expect(catalog.getByRole('tab', { selected: true })).toHaveText('变更');
+  await expect(page).toHaveURL(/\/components\/$/);
+});
+
+test('直达部件文档时可在原地预览输入框并发送引用', async ({ page }) => {
+  await page.goto('./docs/conversation/#ConversationComposer');
+  await expect(page).toHaveURL(/\/components\/input\/conversation-composer\/$/);
+  const preview = page.locator('.docs-prose .component-demo');
+  const input = preview.getByRole('textbox', { name: '示例消息' });
+  await input.pressSequentially('@');
+  await page.getByRole('menuitem', { name: '引用组件指南' }).click();
+  await expect(input).toHaveValue('《组件指南》');
+  await input.press('Enter');
+  await expect(input).toHaveValue('');
+  await expect(preview.locator('[data-nf-user-message]')).toHaveText('《组件指南》');
+
+  await page.getByRole('button', { name: '搜索文档', exact: true }).click();
+  const search = page.getByRole('combobox');
+  await search.fill('UserMessage');
+  await search.press('Enter');
+  await expect(page).toHaveURL(/\/components\/messages\/conversation-view\/#UserMessage$/);
+  await expect(page.locator('.docs-prose .component-demo [data-nf-user-message]')).toBeVisible();
+});
+
+test('工作区布局示例支持宽屏拖动分栏和窄屏切换面板', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('./docs/layout/');
+  await page.getByRole('button', { name: '放大工作区示例' }).click();
+  const dialog = page.getByRole('dialog', { name: '工作区布局示例' });
+  const resize = dialog.locator('[data-nf-resize="right"]');
+  await resize.hover();
+  const right = dialog.locator('[data-nf-pane="right"]');
+  const before = (await right.boundingBox())!.width;
+  const handle = (await resize.boundingBox())!;
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x - 48, handle.y + handle.height / 2, { steps: 5 });
+  await page.mouse.up();
+  await expect.poll(async () => (await right.boundingBox())!.width).toBeGreaterThan(before + 30);
+  await dialog.getByRole('button', { name: '关闭预览' }).click();
+  await page.setViewportSize({ width: 375, height: 812 });
+  const inline = page.locator('.example-workspace-stage > .example-workspace');
+  await inline.locator('button[aria-controls$="-right"][aria-expanded]').click();
+  await expect(inline.locator('[data-nf-pane="right"]')).toBeVisible();
+  await expect(inline.locator('[data-nf-pane="main"]')).toBeHidden();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
