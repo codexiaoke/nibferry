@@ -1,11 +1,12 @@
 # SearchDialog
 
+## 用法
+
 组合 Dialog、搜索框、分组结果和底部分类。接入方提供数据和选中回调，可把同一个搜索入口用于快捷操作、会话和文档。
 
 ```tsx
 import { useState } from 'react';
-import { SearchDialog } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { SearchDialog } from 'nibferry';
 
 function ChatSearch({ newChat }: { newChat: () => void }) {
   const [open, setOpen] = useState(false);
@@ -18,6 +19,8 @@ function ChatSearch({ newChat }: { newChat: () => void }) {
   </>;
 }
 ```
+
+## 参数与交互
 
 - `label` 同时命名弹框和搜索框。`open`、`onOpenChange` 控制显示，`id`、`className` 传给弹框。
 - 每组有唯一的 `id`、标题 `label` 和 `items`。可用 `filterLabel` 自定义底部按钮文字。`previewLimit` 控制空查询时「全部」中显示的条数；输入文字或选中分类后会搜索该范围的全部条目。

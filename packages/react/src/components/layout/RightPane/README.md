@@ -1,15 +1,18 @@
 # RightPane
 
+## 用法
+
 工作区的右侧区域。作为 WorkspaceLayout 的直接子元素时，默认宽度为 320px。通过 `width` 传入像素数值或 CSS 长度即可调整。区域内显示调用方传入的内容。
 
 ```tsx
-import { WorkspaceLayout, RightPane } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceLayout, RightPane } from 'nibferry';
 
 <WorkspaceLayout compactPane="right">
   <RightPane width="30%" aria-label="右侧">右侧</RightPane>
 </WorkspaceLayout>
 ```
+
+## 参数与交互
 
 支持 `children` 及标准 aside 属性，包括 `className`、`style`、DOM 事件和 `ref`。子元素沿用 DOM 焦点顺序。
 

@@ -21,7 +21,7 @@ pnpm dev
 在仓库根目录运行打包命令。切换到目标项目，把输出的压缩包路径交给 pnpm。
 
 ```sh
-pnpm --filter @nibferry/react pack
+pnpm --filter nibferry pack
 ```
 
 ```sh
@@ -33,7 +33,7 @@ pnpm add /path/to/nibferry-react-0.1.0.tgz
 在 Web 应用入口导入默认变量，就可以在任意样式表中使用 `--nf-canvas` 和 `--nf-ink`。需要直接读取颜色或时长时，使用[主题接口](/docs/theme)。
 
 ```tsx
-import '@nibferry/react/styles.css';
+import 'nibferry/styles.css';
 
 export function App() {
   return <main style={{ background: 'var(--nf-canvas)', color: 'var(--nf-ink)' }}>Hello</main>;

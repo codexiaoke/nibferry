@@ -1,11 +1,12 @@
 # LeftPaneToggle
 
+## 用法
+
 切换左栏的图标按钮。将它放在左栏外，收起后仍可通过同一按钮展开。
 
 ```tsx
 import { useState } from 'react';
-import { LeftPane, LeftPaneToggle, MainPane, WorkspaceLayout } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { LeftPane, LeftPaneToggle, MainPane, WorkspaceLayout } from 'nibferry';
 
 export function Workspace() {
   const [open, setOpen] = useState(true);
@@ -20,6 +21,8 @@ export function Workspace() {
   );
 }
 ```
+
+## 参数与交互
 
 `paneId` 对应左栏的 DOM id，`expanded` 表示当前是否展开，`onClick` 由宿主更新状态。按钮支持标准 button 属性、ref 和自定义子元素。默认显示 Hugeicons 侧栏图标，无障碍名称随状态切换。按 Enter 或空格触发操作，焦点留在按钮上。
 

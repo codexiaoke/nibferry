@@ -42,7 +42,7 @@ import {
   WorkspaceTabList,
   type PaneResizeHandleProps,
   type WorkspacePane,
-} from '@nibferry/react';
+} from 'nibferry';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
 import PreviewChat from '../PreviewChat/PreviewChat';
 import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';

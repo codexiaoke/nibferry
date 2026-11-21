@@ -7,7 +7,7 @@ import Check from '@hugeicons/core-free-icons/Tick02Icon';
 import Arrow from '@hugeicons/core-free-icons/ArrowDown01Icon';
 
 const commands = [
-  { label: '打包组件库', command: 'pnpm --filter @nibferry/react pack' },
+  { label: '打包组件库', command: 'pnpm --filter nibferry pack' },
   { label: '启动官网', command: 'pnpm dev' },
   { label: '构建项目', command: 'pnpm build' },
 ];

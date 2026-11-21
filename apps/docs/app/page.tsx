@@ -4,7 +4,7 @@ import { getSearchIndex } from '../lib/docs';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Layers from '@hugeicons/core-free-icons/Layers01Icon';
 import Arrow from '@hugeicons/core-free-icons/ArrowRight02Icon';
-import { palettes, theme } from '@nibferry/react/theme';
+import { palettes, theme } from 'nibferry/theme';
 import BuildCommand from './_components/BuildCommand/BuildCommand';
 import CodeExample from './_components/CodeExample/CodeExample';
 import { repository } from './site-links';
@@ -62,7 +62,7 @@ export default function Home() {
           </div>
         </section>
         <section className="package-section" id="package">
-          <h2>@nibferry/react</h2>
+          <h2>nibferry</h2>
           <p>读取主题数据，或在 CSS 中覆盖默认值。</p>
           <CodeExample />
           <section className="palette-section">
@@ -75,7 +75,7 @@ export default function Home() {
             <div className="palette-board">
               <pre>
                 <code>
-                  {'import { palettes } from "@nibferry/react/theme";\n\nconst light = '}
+                  {'import { palettes } from "nibferry/theme";\n\nconst light = '}
                   <b>palettes.neutral</b>
                   {';\nconst dark = '}
                   <b>palettes.graphite</b>

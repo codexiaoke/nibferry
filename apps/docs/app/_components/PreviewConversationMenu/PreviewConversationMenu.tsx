@@ -16,7 +16,7 @@ import List from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
 import {
   DropdownMenu, MenuContent, MenuGroup, MenuItem, MenuSeparator,
   MenuSub, MenuSubContent, MenuSubTrigger, MenuTrigger,
-} from '@nibferry/react';
+} from 'nibferry';
 import './PreviewConversationMenu.css';
 
 interface Props {

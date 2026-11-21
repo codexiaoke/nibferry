@@ -5,8 +5,8 @@ import Search from '@hugeicons/core-free-icons/Search01Icon';
 import {
   ActivitySequence, ComposerActionMenu, ComposerModelSelect, ComposerSelect, ConversationComposer,
   ConversationGroup, Dialog, MenuItem, SearchDialog, SummaryGroup,
-} from '@nibferry/react';
-import { themeVariables } from '@nibferry/react/theme';
+} from 'nibferry';
+import { themeVariables } from 'nibferry/theme';
 
 function GroupedStream() {
   const [items, setItems] = useState(['a']);

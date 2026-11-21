@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, type CSSProperties } from 'react';
-import { Inline } from '@nibferry/react';
-import { theme } from '@nibferry/react/theme';
+import { Inline } from 'nibferry';
+import { theme } from 'nibferry/theme';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Play from '@hugeicons/core-free-icons/PlayIcon';
 

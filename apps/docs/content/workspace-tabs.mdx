@@ -8,8 +8,8 @@ description: 在面板标题栏中组合标签、添加和关闭按钮，由应�
 `WorkspaceTabList` 和 `WorkspaceTab` 负责选择与排序。将 `WorkspaceTabAdd` 放在列表旁边，横向滚动时仍可新增。向标签传入 `onClose` 即可显示关闭按钮，也可以单独使用 `WorkspaceTabClose`。
 
 ```tsx
-import { WorkspaceTabList, WorkspaceTab, WorkspaceTabAdd } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceTabList, WorkspaceTab, WorkspaceTabAdd } from 'nibferry';
+import 'nibferry/styles.css';
 
 <WorkspaceTabList aria-label="文档标签" onReorder={setOrder}>
   {order.map(id => (

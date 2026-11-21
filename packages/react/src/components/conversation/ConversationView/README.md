@@ -1,14 +1,18 @@
 # ConversationView
 
+## 用法
+
 会话的独立滚动区和输入区。父容器需提供高度。
 
 ```tsx
-import { ConversationView } from '@nibferry/react';
+import { ConversationView } from 'nibferry';
 
 <ConversationView composer={<MyComposer />} empty={<h2>想先看什么？</h2>}>
   {turns.map(turn => <MyTurn key={turn.id} turn={turn} />)}
 </ConversationView>
 ```
+
+## 参数与交互
 
 消息区使用 `ScrollArea` 的悬浮滑块。宿主可用 `--nf-conversation-inset-end` 为右侧摘要预留正文和输入区的空间，滑块仍位于整个消息区的外沿。
 

@@ -15,8 +15,8 @@ description: 组合用户消息、执行过程、动作分组和可交互的回�
 import {
   ActivitySequence, ActionGroup, ActionResult, ActionRow, AssistantMessage, ConversationComposer,
   ConversationTurn, ConversationView, TurnProcess, UserMessage,
-} from '@nibferry/react';
-import '@nibferry/react/styles.css';
+} from 'nibferry';
+import 'nibferry/styles.css';
 
 <ConversationView composer={<ConversationComposer value={draft} onValueChange={setDraft}
   onSend={send} running={running} onStop={stop} />}>
@@ -42,7 +42,7 @@ import '@nibferry/react/styles.css';
 在行首或空白后输入 `@` 或 `/` 也能打开菜单。预览中可输入 `@布局` 引用文档，或输入 `/代码` 后按 Enter 插入代码块。`triggers` 控制启用的符号。传入普通子项时，各入口共用同一组操作。传入渲染函数时，可按 `match.symbol` 和 `match.query` 筛选，并用 `match.start`、`match.end` 替换触发词。点击「＋」时 `match` 为 `null`。
 
 ```tsx
-import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/react';
+import { ComposerActionMenu, ConversationComposer, MenuItem } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   tools={<ComposerActionMenu>
@@ -56,7 +56,7 @@ import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/re
 左侧的 `tools` 可组合「＋」菜单和权限选择。右侧的 `rightTools` 可组合上下文用量、模型选择和语音输入。两侧独立配置，同组控件按传入顺序排列。
 
 ```tsx
-import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibferry/react';
+import { ComposerModelSelect, ContextUsage, ConversationComposer } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   tools={<>{addMenu}{permissionMenu}</>}

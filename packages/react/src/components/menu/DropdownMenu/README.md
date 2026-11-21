@@ -3,8 +3,7 @@
 保存菜单开合状态，连接触发器和面板。
 
 ```tsx
-import { DropdownMenu, MenuTrigger, MenuContent, MenuItem } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { DropdownMenu, MenuTrigger, MenuContent, MenuItem } from 'nibferry';
 
 <DropdownMenu>
   <MenuTrigger>操作</MenuTrigger>

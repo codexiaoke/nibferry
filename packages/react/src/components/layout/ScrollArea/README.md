@@ -1,15 +1,18 @@
 # ScrollArea
 
+## 用法
+
 垂直滚动容器。滑块默认隐藏，滚动时浮现在视口边缘，停下约 0.8 秒后淡出。按住滑块拖动时保持可见。显隐时正文宽度保持稳定，开启减少动效后直接切换显隐。
 
 ```tsx
-import { ScrollArea } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { ScrollArea } from 'nibferry';
 
 <ScrollArea style={{ maxHeight: 240 }} viewportProps={{ role: 'region', 'aria-label': '活动记录' }}>
   {records}
 </ScrollArea>
 ```
+
+## 参数与交互
 
 `children` 是滚动内容。根元素接受 div 属性，可设置高度或最大高度。`viewportProps` 传给实际滚动的视口，用于设置焦点、读取 `ref` 或监听 `onScroll`。
 

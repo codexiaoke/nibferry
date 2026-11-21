@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Inline } from '@nibferry/react';
-import { palettes, theme } from '@nibferry/react/theme';
+import { Inline } from 'nibferry';
+import { palettes, theme } from 'nibferry/theme';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Clock from '@hugeicons/core-free-icons/Time02Icon';
 import Curve from '@hugeicons/core-free-icons/Activity01Icon';

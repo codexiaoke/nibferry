@@ -27,7 +27,7 @@ pnpm dev
 | `apps/docs` | Next.js 官网、MDX 文档与全文搜索 |
 | `tests` | 主题配置和官网加载 CSS 变量的验证 |
 
-通过 `@nibferry/react/theme` 读取主题数据和配色预设。Web 样式入口提供默认 CSS 变量，可按作用域覆盖。示例见[接入指南](apps/docs/content/theme.mdx)。
+通过 `nibferry/theme` 读取主题数据和配色预设。Web 样式入口提供默认 CSS 变量，可按作用域覆盖。示例见[接入指南](apps/docs/content/theme.mdx)。
 
 ## 验证与分发
 
@@ -36,9 +36,9 @@ pnpm typecheck
 pnpm build
 pnpm exec playwright install chromium
 pnpm test
-pnpm --filter @nibferry/react pack
+pnpm --filter nibferry pack
 ```
 
-将生成的 `.tgz` 安装到另一个 React 19 项目。Web 应用可引入 `@nibferry/react/styles.css`，无需 DOM 的环境可直接读取主题数据。
+将生成的 `.tgz` 安装到另一个 React 19 项目。Web 应用可引入 `nibferry/styles.css`，无需 DOM 的环境可直接读取主题数据。
 
 使用 `pnpm changeset` 记录公开接口改动，`pnpm version-packages` 更新版本与变更记录。注册表和访问范围由正式分发时确定。

@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import Layout from '@hugeicons/core-free-icons/LayoutLeftIcon';
-import { PaneButton } from '@nibferry/react';
+import { PaneButton } from 'nibferry';
 import type { SearchEntry } from '../../lib/docs';
 import MacWindow from '../_components/MacWindow/MacWindow';
 import MacWindowControls from '../_components/MacWindowControls/MacWindowControls';

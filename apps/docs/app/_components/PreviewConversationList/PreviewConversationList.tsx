@@ -10,7 +10,7 @@ import Archive from '@hugeicons/core-free-icons/ArchiveIcon';
 import {
   ConversationGroup, ConversationItem, ConversationList, Dialog, DropdownMenu, MenuContent, MenuItem,
   MenuTrigger, PaneButton, ProjectInfo,
-} from '@nibferry/react';
+} from 'nibferry';
 import './PreviewConversationList.css';
 
 interface Project {

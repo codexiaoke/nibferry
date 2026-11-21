@@ -5,7 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import Chevron from '@hugeicons/core-free-icons/ArrowDown01Icon';
 import Share from '@hugeicons/core-free-icons/Upload01Icon';
-import { PaneButton, PaneHeader, SummaryToggle } from '@nibferry/react';
+import { PaneButton, PaneHeader, SummaryToggle } from 'nibferry';
 import PreviewConversationMenu from '../PreviewConversationMenu/PreviewConversationMenu';
 import './PreviewConversationHeader.css';
 

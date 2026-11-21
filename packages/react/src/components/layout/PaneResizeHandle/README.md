@@ -1,11 +1,12 @@
 # PaneResizeHandle
 
+## 用法
+
 调整侧栏与主体之间的分界。传入侧栏的 id 和宽度回调，可以在已有受控布局中单独放置手柄。
 
 ```tsx
 import { useState } from 'react';
-import { WorkspaceLayout, LeftPane, MainPane, PaneResizeHandle } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceLayout, LeftPane, MainPane, PaneResizeHandle } from 'nibferry';
 
 export function Layout() {
   const [width, setWidth] = useState(240);
@@ -18,6 +19,8 @@ export function Layout() {
   );
 }
 ```
+
+## 参数与交互
 
 | 属性 | 作用 |
 | --- | --- |

@@ -8,8 +8,8 @@ description: 组合左侧、主体和右侧区域，使用 Stack 和 Inline 排�
 将 LeftPane、MainPane、RightPane 直接放入 WorkspaceLayout。左侧默认占 240px，右侧默认占 320px，中间的主体使用剩余宽度。省略任意一侧，主体会接收空出的空间。
 
 ```tsx
-import { LeftPane, MainPane, RightPane, WorkspaceLayout } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { LeftPane, MainPane, RightPane, WorkspaceLayout } from 'nibferry';
+import 'nibferry/styles.css';
 
 <WorkspaceLayout style={{ height: '100dvh' }}>
   <LeftPane resizable aria-label="左侧">左侧</LeftPane>
@@ -25,7 +25,7 @@ import '@nibferry/react/styles.css';
 `ScrollArea` 的细滑块在滚动时显示，停下片刻后自动隐藏。滑块覆盖在视口边缘，显隐时正文保持原宽。通过 `viewportProps` 可给滚动区命名或监听滚动。
 
 ```tsx
-import { ScrollArea } from '@nibferry/react';
+import { ScrollArea } from 'nibferry';
 
 <ScrollArea style={{ maxHeight: 240 }} viewportProps={{ role: 'region', 'aria-label': '消息记录' }}>
   {messages}
@@ -37,7 +37,7 @@ import { ScrollArea } from '@nibferry/react';
 用 `PaneHeader` 的子元素放会话标题或工作区标签，`actions` 放末端操作。在桌面预览中，主体标题从左栏分隔线开始，分享和摘要按钮贴近右栏分隔线。拖动任一侧时，标题栏跟随对应内容区域。空间不足时，从会话标题的下拉菜单使用同一组操作。
 
 ```tsx
-import { PaneHeader, PaneButton } from '@nibferry/react';
+import { PaneHeader, PaneButton } from 'nibferry';
 import List from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
 
 <PaneHeader actions={
@@ -67,7 +67,7 @@ import List from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
 
 ```tsx
 import { useState } from 'react';
-import { MainPane, RightPane, WorkspaceLayout } from '@nibferry/react';
+import { MainPane, RightPane, WorkspaceLayout } from 'nibferry';
 
 export function Layout() {
   const [width, setWidth] = useState(320);
@@ -101,7 +101,7 @@ export function Layout() {
 容器小于 768px 时，`compactPane` 决定显示哪个区域，默认显示主体。任意宽度下都可以用 `expandedPane` 让某一栏铺满当前工作区。接入方持有这个值，清空它即可恢复分栏或窄屏视图。其余栏保留挂载，输入草稿和组件状态可以跨布局切换保留。
 
 ```tsx
-import { LeftPane, MainPane, RightPane, WorkspaceLayout, type WorkspacePane } from '@nibferry/react';
+import { LeftPane, MainPane, RightPane, WorkspaceLayout, type WorkspacePane } from 'nibferry';
 
 export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
   return (
@@ -144,8 +144,8 @@ export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
 从包根入口导入 Stack，并在应用入口加载一次样式。默认间距是 16px，子项沿横向拉伸。
 
 ```tsx
-import { Stack } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { Stack } from 'nibferry';
+import 'nibferry/styles.css';
 
 export function Messages() {
   return (
@@ -162,8 +162,8 @@ export function Messages() {
 Inline 默认居中对齐，间距为 8px。传入 `wrap`，容器变窄时，放不下的子项移到下一行。
 
 ```tsx
-import { Inline } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { Inline } from 'nibferry';
+import 'nibferry/styles.css';
 
 export function Sources() {
   return (

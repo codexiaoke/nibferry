@@ -12,8 +12,8 @@ description: 用搜索弹框查找会话、打开资料或执行工作区操作�
 `SearchDialog` 接收分组数据和每个结果的 `onSelect`。`detail` 显示在行尾，适合放项目名或来源。`previewLimit` 控制一组在「全部」初始视图中的条数，输入关键词后会匹配该分类的全部条目。
 
 ```tsx
-import { SearchDialog } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { SearchDialog } from 'nibferry';
+import 'nibferry/styles.css';
 
 <SearchDialog open={open} onOpenChange={setOpen} label="搜索工作区"
   groups={[
@@ -31,7 +31,7 @@ import '@nibferry/react/styles.css';
 需要自定义内容时，使用同一套基础组件 `Dialog`。它处理模态焦点、遮罩、Esc 和入场动效。接入方通过 `open` 与 `onOpenChange` 控制开合，并通过 `aria-label` 或 `aria-labelledby` 提供弹框名称。
 
 ```tsx
-import { Dialog } from '@nibferry/react';
+import { Dialog } from 'nibferry';
 
 <Dialog open={editing} onOpenChange={setEditing} aria-label="编辑项目">
   <label>项目名称<input autoFocus value={name} onChange={e => setName(e.target.value)} /></label>

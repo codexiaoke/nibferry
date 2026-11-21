@@ -1,14 +1,18 @@
 # ConversationGroup
 
+## 用法
+
 以文件夹按钮展开或收起一组会话。接入方持有每组的展开状态，收起时会话条目保留在原位。
 
 ```tsx
-import { ConversationGroup, ConversationItem } from '@nibferry/react';
+import { ConversationGroup, ConversationItem } from 'nibferry';
 
 <ConversationGroup label="Nibferry" expanded={open} onToggle={() => setOpen(!open)}>
   <ConversationItem onClick={openChat}>工作区布局</ConversationItem>
 </ConversationGroup>
 ```
+
+## 参数与交互
 
 `label` 标识项目，`expanded` 控制显隐，`onToggle` 报告标题按钮的点击，`children` 接收组内内容。Tab 可聚焦标题，Enter 或空格切换展开状态。
 
@@ -26,7 +30,7 @@ import { ConversationGroup, ConversationItem } from '@nibferry/react';
 </ConversationGroup>
 ```
 
-`ProjectInfo` 和 `PaneButton` 均从 `@nibferry/react` 导入。
+`ProjectInfo` 和 `PaneButton` 均从 `nibferry` 导入。
 
 分组按内容高度展开和收起，使用 `--nf-motion-reveal` 控制高度和透明度过渡。过渡中再次切换会从当前位置反向。收起开始时，组内条目即退出键盘顺序。系统启用减少动态效果或主题关闭动效时，分组立即切换。
 

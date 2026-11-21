@@ -7,7 +7,7 @@ const examples = {
     <>
       <b>import</b>
       {' { palettes, theme } '}
-      <b>from</b> <em>"@nibferry/react/theme"</em>
+      <b>from</b> <em>"nibferry/theme"</em>
       {';\n\n'}
       <b>const</b>
       {' primary = palettes.neutral.primary;\n'}
@@ -19,7 +19,7 @@ const examples = {
   ),
   CSS: (
     <>
-      <b>@import</b> <em>"@nibferry/react/styles.css"</em>
+      <b>@import</b> <em>"nibferry/styles.css"</em>
       {';\n\n'}
       <b>body</b>
       {' {\n  color: var(--nf-ink);\n  background: var(--nf-canvas);\n}'}

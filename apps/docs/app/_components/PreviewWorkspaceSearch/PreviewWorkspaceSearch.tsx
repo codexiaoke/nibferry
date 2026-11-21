@@ -5,7 +5,7 @@ import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import ChatIcon from '@hugeicons/core-free-icons/BubbleChatIcon';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import TextIcon from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
-import { SearchDialog, type SearchDialogGroup } from '@nibferry/react';
+import { SearchDialog, type SearchDialogGroup } from 'nibferry';
 import type { SearchEntry } from '../../../lib/docs';
 import type { PreviewChat } from '../PreviewSidebarMenu/PreviewSidebarMenu';
 import './PreviewWorkspaceSearch.css';
