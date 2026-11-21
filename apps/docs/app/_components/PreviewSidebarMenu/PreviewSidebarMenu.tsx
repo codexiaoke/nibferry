@@ -10,7 +10,7 @@ import ChatIcon from '@hugeicons/core-free-icons/BubbleChatIcon';
 import {
   CountBadge, DropdownMenu, MenuContent, MenuItem, MenuTrigger,
   NavigationRail, NavigationRailItem, PaneButton, SidebarMenu,
-} from '@nibferry/react';
+} from 'nibferry';
 import { version } from '../../../../../packages/react/package.json';
 import PreviewConversationList from '../PreviewConversationList/PreviewConversationList';
 import './PreviewSidebarMenu.css';

@@ -1,12 +1,16 @@
 # MenuContent
 
+## 用法
+
 排列根菜单内容。DropdownMenu 以触发按钮定位，ContextMenu 以右键位置或键盘焦点定位。
 
 ```tsx
-import { MenuContent, MenuItem } from '@nibferry/react';
+import { MenuContent, MenuItem } from 'nibferry';
 
 <MenuContent align="start"><MenuItem onSelect={copyLink}>复制链接</MenuItem></MenuContent>
 ```
+
+## 参数与交互
 
 放在 DropdownMenu 内时，默认靠触发器下方起始侧，间隔 4px。也可作为 ContextMenu 的 `content`。到达视口边缘时自动调整，`side`、`align`、`sideOffset`、`collisionPadding` 可覆盖位置。上下键移动焦点，Home 和 End 跳至首尾。
 

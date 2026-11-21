@@ -3,7 +3,11 @@ title: 对话与流式内容
 description: 组合用户消息、执行过程、动作分组和可交互的回答。
 ---
 
+import { MessagesDemo, ComposerDemo, ProcessDemo } from '../app/_components/ComponentDemos/ConversationExamples';
+
 ## 试用消息流
+
+<MessagesDemo />
 
 在输入框发送「查一下 useState 文档」，点「已搜索」可展开 JSON 结果，点回复里的来源链接可在右栏打开文档。发送「给我一张布局草图」可操作回复里的草图，发送「怎样收起侧栏？」可查看纯文字回复。示例使用本地数据，生成时可随时停止。[交互预览](/playground/)
 
@@ -15,8 +19,7 @@ description: 组合用户消息、执行过程、动作分组和可交互的回�
 import {
   ActivitySequence, ActionGroup, ActionResult, ActionRow, AssistantMessage, ConversationComposer,
   ConversationTurn, ConversationView, TurnProcess, UserMessage,
-} from '@nibferry/react';
-import '@nibferry/react/styles.css';
+} from 'nibferry';
 
 <ConversationView composer={<ConversationComposer value={draft} onValueChange={setDraft}
   onSend={send} running={running} onStop={stop} />}>
@@ -37,12 +40,14 @@ import '@nibferry/react/styles.css';
 
 ## 输入框操作菜单
 
+<ComposerDemo />
+
 在 `tools` 中放入 `ComposerActionMenu`，点击左下角的「＋」，菜单会在整个输入框上方展开，与输入框等宽。按显示顺序传入 `MenuItem`，每项可设置图标、禁用状态及 `onSelect` 回调。
 
 在行首或空白后输入 `@` 或 `/` 也能打开菜单。预览中可输入 `@布局` 引用文档，或输入 `/代码` 后按 Enter 插入代码块。`triggers` 控制启用的符号。传入普通子项时，各入口共用同一组操作。传入渲染函数时，可按 `match.symbol` 和 `match.query` 筛选，并用 `match.start`、`match.end` 替换触发词。点击「＋」时 `match` 为 `null`。
 
 ```tsx
-import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/react';
+import { ComposerActionMenu, ConversationComposer, MenuItem } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   tools={<ComposerActionMenu>
@@ -56,7 +61,7 @@ import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/re
 左侧的 `tools` 可组合「＋」菜单和权限选择。右侧的 `rightTools` 可组合上下文用量、模型选择和语音输入。两侧独立配置，同组控件按传入顺序排列。
 
 ```tsx
-import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibferry/react';
+import { ComposerModelSelect, ContextUsage, ConversationComposer } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   tools={<>{addMenu}{permissionMenu}</>}
@@ -72,6 +77,8 @@ import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibfer
 点击底栏模型名可拖动滑杆调整推理强度，再点面板中的模型名可切换模型。模型选项的 `provider` 用作分组标题，省略该字段的选项显示在顶部。预览中的模型、强度档位和用量使用示例数据。空草稿时，最右侧的波形按钮可发送一条示例语音消息。麦克风可将示例转写插入草稿。接入实际语音服务时，在这两个按钮上绑定应用自己的回调。
 
 ## 控制分组
+
+<ProcessDemo />
 
 `group.by` 决定相邻动作能否分组，返回 `undefined` 的条目单独显示。从第一个带键动作开始进入 `group.render`，后续同键动作追加到同一组，可在这里换掉整组的外观。省略 `group` 可逐项展示全部内容。
 
@@ -92,3 +99,9 @@ function renderBlock(block: ReplyBlock) {
 ```
 
 示例中的 `ApprovalCard` 和 `CanvasView` 由接入方提供。网络请求、审批决定及画布内容由应用持有。执行过程中的普通说明或交互卡也可以用相同方式插在动作之间。
+
+## 相关组件
+
+- [对话与消息](/docs/components/messages/conversation-view)
+- [对话输入框](/docs/components/input/conversation-composer)
+- [回合执行过程](/docs/components/process/turn-process)

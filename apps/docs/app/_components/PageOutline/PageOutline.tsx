@@ -62,10 +62,10 @@ export default function PageOutline({
         }
       }}
     >
-      <div className="outline-title">
+      {headings.length > 0 && <div className="outline-title">
         <HugeiconsIcon icon={List} size={16} aria-hidden="true" />
         本页内容
-      </div>
+      </div>}
       <button
         type="button"
         ref={trigger}
@@ -75,7 +75,7 @@ export default function PageOutline({
         onClick={() => setOpen(!open)}
       >
         <HugeiconsIcon icon={List} size={16} aria-hidden="true" />
-        本页内容
+        {headings.length ? '本页内容' : '页面操作'}
         <HugeiconsIcon icon={Down} size={14} aria-hidden="true" />
       </button>
       <div id="outline-panel" data-open={open}>

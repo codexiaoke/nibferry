@@ -1,14 +1,18 @@
 # WorkspaceTab
 
+## 用法
+
 呈现一个可选择的标签，包括可选的图标和关闭按钮。在 WorkspaceTabList 中使用时支持方向键切换和排序。
 
 ```tsx
-import { WorkspaceTab } from '@nibferry/react';
+import { WorkspaceTab } from 'nibferry';
 
 <WorkspaceTab id="layout-tab" panelId="layout-page" label="布局"
   selected={activeId === 'layout-tab'} onClick={() => select('layout-tab')}
   onClose={() => close('layout-tab')} />
 ```
+
+## 参数与交互
 
 `id` 是标签的唯一 DOM ID，`panelId` 指向对应内容区。内容区应设置 `role="tabpanel"`、`aria-labelledby` 并随选中状态切换 `hidden`。`label` 为可访问名称和可见标题，`icon` 接收 Hugeicons 图标，`selected` 设置选中样式和 Tab 停靠点。普通按钮属性和 ref 传给选择按钮。
 

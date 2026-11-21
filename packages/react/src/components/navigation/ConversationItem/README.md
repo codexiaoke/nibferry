@@ -1,9 +1,11 @@
 # ConversationItem
 
+## 用法
+
 显示一条可选择的会话，可独立使用或放入项目分组。
 
 ```tsx
-import { ConversationItem, PaneButton } from '@nibferry/react';
+import { ConversationItem, PaneButton } from 'nibferry';
 import Pin from '@hugeicons/core-free-icons/PinIcon';
 import Archive from '@hugeicons/core-free-icons/ArchiveIcon';
 
@@ -15,6 +17,8 @@ import Archive from '@hugeicons/core-free-icons/ArchiveIcon';
   {chat.title}
 </ConversationItem>
 ```
+
+## 参数与交互
 
 `children` 是会话名称。`current` 为当前项设置选中样式和 `aria-current="page"`。接入方通过 `onClick` 更新当前会话。支持按钮属性和 ref，Enter 或空格均可选择。长标题显示省略号，悬停和读屏可获取完整名称。
 

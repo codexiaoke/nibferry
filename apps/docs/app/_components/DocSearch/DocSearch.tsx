@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
 import Up from '@hugeicons/core-free-icons/ArrowUp02Icon';
@@ -23,10 +23,11 @@ function findEntries(entries: SearchEntry[], query: string) {
   return entries
     .flatMap((entry) => {
       const title = entry.title.toLowerCase();
-      const content = (entry.location + ' ' + entry.text).toLowerCase();
+      const content = [entry.location, entry.text, entry.exportName].join(' ').toLowerCase();
       if (!words.every((word) => title.includes(word) || content.includes(word))) return [];
       const score = words.reduce((sum, word) => sum + (title.includes(word) ? 2 : 0), 0);
-      return [{ entry, score: score + (title === query.trim().toLowerCase() ? 4 : 0) }];
+      const exact = [title, entry.exportName?.toLowerCase()].includes(query.trim().toLowerCase());
+      return [{ entry, score: score + (exact ? 6 : 0) }];
     })
     .sort((a, b) => b.score - a.score)
     .map(({ entry }) => entry);
@@ -54,6 +55,7 @@ export default function DocSearch({
   const input = useRef<HTMLInputElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const results = useMemo(() => findEntries(entries, query), [entries, query]);
 
   useLayoutEffect(() => {
@@ -97,6 +99,11 @@ export default function DocSearch({
 
   function select(entry: SearchEntry) {
     dialog.current?.close();
+    const [path, anchor] = entry.url.split('#');
+    if (anchor && path.replace(/\/$/, '') === pathname.replace(/\/$/, '')) {
+      window.location.hash = anchor;
+      return;
+    }
     router.push(entry.url);
   }
 

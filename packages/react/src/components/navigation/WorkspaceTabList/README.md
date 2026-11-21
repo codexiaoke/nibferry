@@ -1,10 +1,11 @@
 # WorkspaceTabList
 
+## 用法
+
 在同一行排列工作区标签。标签过多时可以横向滚动。选中的标签、打开的页面和排列顺序由使用方持有。
 
 ```tsx
-import { WorkspaceTabList, WorkspaceTab } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceTabList, WorkspaceTab } from 'nibferry';
 
 <WorkspaceTabList aria-label="文档标签" onReorder={setOrder}>
   {order.map(id => (
@@ -13,6 +14,8 @@ import '@nibferry/react/styles.css';
   ))}
 </WorkspaceTabList>
 ```
+
+## 参数与交互
 
 `children` 直接放 WorkspaceTab。`onReorder` 接收按新顺序排列的完整标签 ID，接入方更新顺序后完成移动。省略此回调可关闭排序。拖动标签到另一项后松开即可移动，移出标签栏再松开或按 Escape 可取消。支持横向和从右向左的布局。
 

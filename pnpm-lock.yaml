@@ -29,7 +29,7 @@ importers:
       '@hugeicons/react':
         specifier: 1.1.10
         version: 1.1.10(react@19.3.1)
-      '@nibferry/react':
+      'nibferry':
         specifier: workspace:*
         version: link:../../packages/react
       '@radix-ui/react-popover':

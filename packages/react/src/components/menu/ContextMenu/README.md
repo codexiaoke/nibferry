@@ -1,10 +1,11 @@
 # ContextMenu
 
+## 用法
+
 在指针位置打开右键菜单。触发区域保留自己的左键操作和布局。接入方用公开的菜单部件配置命令和回调。
 
 ```tsx
-import { ContextMenu, MenuContent, MenuItem } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { ContextMenu, MenuContent, MenuItem } from 'nibferry';
 
 <ContextMenu content={
   <MenuContent aria-label="文档操作">
@@ -14,6 +15,8 @@ import '@nibferry/react/styles.css';
   <button type="button" onClick={openDocument}>文档</button>
 </ContextMenu>
 ```
+
+## 参数与交互
 
 `children` 是一个接收 DOM 事件的元素。自定义触发组件应把传入属性透传到触发区域。`content` 接收一个 `MenuContent`，可在其中组合菜单项、分组和子菜单。`onOpen` 在菜单打开时调用，可用来收起触发区域的悬停浮层。
 

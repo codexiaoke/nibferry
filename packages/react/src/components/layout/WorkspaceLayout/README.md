@@ -1,10 +1,11 @@
 # WorkspaceLayout
 
+## 用法
+
 给左侧、主体和右侧分配空间。两侧可分别省略，主体填满可用宽度。宿主决定容器高度与各栏内容。
 
 ```tsx
-import { WorkspaceLayout, LeftPane, MainPane, RightPane } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceLayout, LeftPane, MainPane, RightPane } from 'nibferry';
 
 <WorkspaceLayout style={{ height: '100dvh' }}>
   <LeftPane aria-label="左侧">左侧</LeftPane>
@@ -12,6 +13,8 @@ import '@nibferry/react/styles.css';
   <RightPane aria-label="右侧">右侧</RightPane>
 </WorkspaceLayout>
 ```
+
+## 参数与交互
 
 将各栏作为直接子元素，按阅读顺序排列。左侧默认 240px，右侧默认 320px，可通过对应栏的 `width` 属性指定像素值或 CSS 宽度。容器高度受限时，各栏内容独立滚动。
 

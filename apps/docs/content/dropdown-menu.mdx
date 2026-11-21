@@ -1,39 +1,32 @@
 ---
-title: 弹出菜单
-description: 组合触发器、操作项、分组与子菜单，为工作区里的按钮提供操作列表。
+title: 下拉菜单
+description: DropdownMenu 组合触发器、操作项、分组与子菜单，为工作区里的按钮提供操作列表。
 ---
+
+import { DropdownDemo } from '../app/_components/ComponentDemos/DropdownDemo';
+
+## 交互预览
+
+<DropdownDemo />
+
+选择「置顶」会更新会话状态。「显示密度」子菜单可以调整会话行的间距。
 
 ## 打开菜单
 
 `DropdownMenu` 默认管理开合，也可以传入 `open` 和 `onOpenChange` 从外部控制。`MenuTrigger asChild` 可直接使用自己的按钮，`MenuItem` 通过 `onSelect` 报告选择。
 
-```tsx
-import {
-  DropdownMenu, MenuContent, MenuGroup, MenuItem, MenuSeparator,
-  MenuSub, MenuSubContent, MenuSubTrigger, MenuTrigger,
-} from '@nibferry/react';
-import Copy from '@hugeicons/core-free-icons/Copy01Icon';
-import Trash from '@hugeicons/core-free-icons/Delete02Icon';
-import '@nibferry/react/styles.css';
+<include lang="tsx">../app/_components/ComponentDemos/DropdownDemo.tsx</include>
 
-<DropdownMenu>
-  <MenuTrigger>会话操作</MenuTrigger>
-  <MenuContent>
-    <MenuGroup label="当前会话">
-      <MenuItem shortcut="⌥⌘R" onSelect={rename}>重命名</MenuItem>
-      <MenuSub>
-        <MenuSubTrigger icon={Copy}>复制</MenuSubTrigger>
-        <MenuSubContent>
-          <MenuItem onSelect={copyLink}>复制链接</MenuItem>
-          <MenuItem onSelect={copyTitle}>复制标题</MenuItem>
-        </MenuSubContent>
-      </MenuSub>
-    </MenuGroup>
-    <MenuSeparator />
-    <MenuItem icon={Trash} danger onSelect={remove}>删除</MenuItem>
-  </MenuContent>
-</DropdownMenu>
-```
+## 参数与回调
+
+| 属性 | 类型 | 用法 |
+| --- | --- | --- |
+| `defaultOpen` | `boolean` | 设置初始开合状态，之后由菜单管理。 |
+| `open`、`onOpenChange` | `boolean`、`(open: boolean) => void` | 由应用控制弹出菜单的开合。 |
+| `modal` | `boolean` | 设为 `false` 时，菜单打开期间仍可操作页面的其他区域。 |
+| `dir` | `'ltr'` 或 `'rtl'` | 指定书写方向，子菜单和键盘的展开方向随之调整。 |
+
+选择回调放在对应的 [MenuItem](/docs/dropdown-menu/#MenuItem) 上。对齐方式、间距与挂载位置由 [MenuContent](/docs/dropdown-menu/#MenuContent) 控制。
 
 ## 操作与焦点
 
@@ -48,3 +41,7 @@ import '@nibferry/react/styles.css';
 主菜单靠触发器下方起始侧展开，子菜单向侧边展开。空间不足时面板调整位置并限制高度，长菜单可滚动。`MenuContent` 与 `MenuSubContent` 支持 `container` 指定浮层的挂载节点，局部主题可以在该节点或面板覆盖颜色、`--nf-menu-shadow` 与 `--nf-menu-danger`。系统开启减少动效时，菜单即时展开。
 
 打开桌面预览的会话标题，可体验完整的菜单层级。[交互预览](/playground/)
+
+## 相关组件
+
+- [右键菜单](/docs/components/overlay/context-menu)

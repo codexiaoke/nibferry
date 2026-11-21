@@ -1,8 +1,7 @@
 {
   "pages": [
-    "---开始使用---", "index", "installation",
-    "---设计体系---", "component-design", "layout", "theme", "colors", "surfaces", "motion",
-    "---组件---", "conversation", "conversation-list", "search-dialog", "dropdown-menu", "summary", "workspace-tabs",
-    "---参与开发---", "contributing"
+    "---组件---", "components",
+    "---指南---", "index", "installation", "component-design", "conversation", "conversation-list", "workspace-tabs", "search-dialog", "summary", "layout", "contributing",
+    "---主题---", "theme", "colors", "surfaces", "motion"
   ]
 }

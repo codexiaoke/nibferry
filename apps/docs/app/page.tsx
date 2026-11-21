@@ -4,7 +4,7 @@ import { getSearchIndex } from '../lib/docs';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Layers from '@hugeicons/core-free-icons/Layers01Icon';
 import Arrow from '@hugeicons/core-free-icons/ArrowRight02Icon';
-import { palettes, theme } from '@nibferry/react/theme';
+import { palettes, theme } from 'nibferry/theme';
 import BuildCommand from './_components/BuildCommand/BuildCommand';
 import CodeExample from './_components/CodeExample/CodeExample';
 import { repository } from './site-links';
@@ -40,14 +40,16 @@ export default function Home() {
               界面组件库
             </h1>
             <p>
-              用设计 Token 管理配色与动效，
+              组合对话、输入框和工作区，
               <br className="wide-break" />
-              在多个产品中共享主题。
+              为你的 Agent 产品搭建界面。
             </p>
             <div className="hero-actions">
-              <BuildCommand />
+              <Link className="browse-components" href="/docs/components">
+                浏览组件 <HugeiconsIcon icon={Arrow} size={16} aria-hidden="true" />
+              </Link>
               <Link className="text-link" href="/playground/">
-                打开交互预览
+                查看工作区示例
                 <HugeiconsIcon icon={Arrow} size={17} aria-hidden="true" />
               </Link>
             </div>
@@ -62,7 +64,7 @@ export default function Home() {
           </div>
         </section>
         <section className="package-section" id="package">
-          <h2>@nibferry/react</h2>
+          <h2>nibferry</h2>
           <p>读取主题数据，或在 CSS 中覆盖默认值。</p>
           <CodeExample />
           <section className="palette-section">
@@ -75,7 +77,7 @@ export default function Home() {
             <div className="palette-board">
               <pre>
                 <code>
-                  {'import { palettes } from "@nibferry/react/theme";\n\nconst light = '}
+                  {'import { palettes } from "nibferry/theme";\n\nconst light = '}
                   <b>palettes.neutral</b>
                   {';\nconst dark = '}
                   <b>palettes.graphite</b>

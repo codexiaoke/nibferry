@@ -7,9 +7,8 @@ import Check from '@hugeicons/core-free-icons/Tick02Icon';
 import Arrow from '@hugeicons/core-free-icons/ArrowDown01Icon';
 
 const commands = [
-  { label: '打包组件库', command: 'pnpm --filter @nibferry/react pack' },
-  { label: '启动官网', command: 'pnpm dev' },
-  { label: '构建项目', command: 'pnpm build' },
+  { label: 'pnpm', command: 'pnpm install nibferry' },
+  { label: 'npm', command: 'npm install nibferry' },
 ];
 
 export default function BuildCommand() {
@@ -56,7 +55,7 @@ export default function BuildCommand() {
             if (event.key === 'Escape') closePicker();
           }}
         >
-          <summary aria-label="选择仓库命令">
+          <summary aria-label="选择包管理器">
             <HugeiconsIcon icon={Arrow} size={14} aria-hidden="true" />
           </summary>
           <div className="choice-list">

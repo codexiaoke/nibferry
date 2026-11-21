@@ -2,7 +2,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "baseBranch": "main",
-  "access": "restricted",
+  "access": "public",
   "updateInternalDependencies": "patch",
   "ignore": ["@nibferry/docs"]
 }

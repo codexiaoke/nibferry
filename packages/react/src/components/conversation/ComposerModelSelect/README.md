@@ -3,7 +3,7 @@
 输入框底栏的模型与推理强度选择器。按钮并排显示模型名和较淡的当前强度。悬停或键盘聚焦显示操作提示。
 
 ```tsx
-import { ComposerModelSelect } from '@nibferry/react';
+import { ComposerModelSelect } from 'nibferry';
 
 <ComposerModelSelect
   models={[

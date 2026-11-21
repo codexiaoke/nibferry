@@ -1,0 +1,31 @@
+---
+title: 模型选择器
+description: ComposerModelSelect 在输入框底栏选择模型和推理强度。模型可按提供商分组。
+---
+
+import { ModelSelectDemo } from '../app/_components/ComponentDemos/ModelSelectDemo';
+
+## 交互预览
+
+<ModelSelectDemo />
+
+点击当前模型打开推理强度面板。拖动滑块或用方向键切换档位，点击面板中的模型名切换提供商和模型。
+
+## 接入代码
+
+<include lang="tsx">../app/_components/ComponentDemos/ModelSelectDemo.tsx</include>
+
+## 参数与回调
+
+| 属性 | 类型 | 用法 |
+| --- | --- | --- |
+| `models` | `readonly ComposerModelOption[]` | 每项包含唯一的 `value` 和显示名 `label`。可选 `provider`、`detail`、`disabled`。未分组的模型排在顶部。 |
+| `model`、`onModelChange` | `string`、`(value: string) => void` | 当前模型的值和选择回调，由应用更新。 |
+| `levels` | `readonly { value: string; label: string }[]` | 按强度从低到高排列。传入空数组时，按钮直接打开模型列表。 |
+| `level`、`onLevelChange` | `string`、`(value: string) => void` | 当前强度和档位变更回调。 |
+| `resetLevel` | `string`（可选） | 传入有效档位时，显示恢复默认强度按钮。 |
+| `container`、`panelClassName` | 可选 | 指定浮层的挂载容器和样式类，可用于局部主题。 |
+
+## 放入输入框
+
+把选择器传给 `ConversationComposer` 的 `rightTools`。在输入框内按 Ctrl + Shift + M 可打开选择器，Esc 关闭浮层并恢复焦点。[输入框底栏](/docs/conversation/#输入框底栏)

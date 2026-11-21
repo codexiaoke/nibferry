@@ -5,7 +5,7 @@ import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import ChatIcon from '@hugeicons/core-free-icons/BubbleChatIcon';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import TextIcon from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
-import { SearchDialog, type SearchDialogGroup } from '@nibferry/react';
+import { SearchDialog, type SearchDialogGroup } from 'nibferry';
 import type { SearchEntry } from '../../../lib/docs';
 import type { PreviewChat } from '../PreviewSidebarMenu/PreviewSidebarMenu';
 import './PreviewWorkspaceSearch.css';
@@ -35,7 +35,7 @@ export default function PreviewWorkspaceSearch({ open, onOpenChange, chats, onNe
       { id: 'actions', label: '快捷操作', filterLabel: '操作', items: [
         { id: 'new-chat', label: '新聊天', icon: Compose, shortcutKey: 'N', onSelect: onNewChat },
         { id: 'open-library', label: '打开资料空间', icon: Folder, shortcutKey: 'O',
-          onSelect: () => onOpenPage({ title: '文档概览', path: '/docs/' }) },
+          onSelect: () => onOpenPage({ title: '使用指南', path: '/docs/' }) },
       ] },
       { id: 'chats', label: '聊天', previewLimit: 5, items: chats.map(chat => ({
         id: chat.id, label: chat.title, detail: chat.project, icon: ChatIcon, onSelect: () => onOpenChat(chat.id),

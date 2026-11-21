@@ -1,9 +1,11 @@
 # ComposerActionMenu
 
+## 用法
+
 输入框的操作菜单。通过 `ConversationComposer` 的 `tools` 放入左下角，点击「＋」或在输入框键入 `@`、`/` 即可打开。也可以单独使用。
 
 ```tsx
-import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/react';
+import { ComposerActionMenu, ConversationComposer, MenuItem } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   tools={<ComposerActionMenu>
@@ -11,6 +13,8 @@ import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/re
       disabled={action.disabled} onSelect={action.onSelect}>{action.label}</MenuItem>)}
   </ComposerActionMenu>} />
 ```
+
+## 参数与交互
 
 传入的子项决定名称、图标、顺序、禁用状态和选择回调，也可以组合 `MenuGroup` 和 `MenuSeparator`。空列表隐藏入口。`label` 设置按钮和菜单的无障碍名称，`disabled` 禁用入口。其余属性传给 `MenuContent`。
 

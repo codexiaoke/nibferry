@@ -1,41 +1,32 @@
 ---
 title: 接入项目
-description: 从源码启动官网，把本地构建的主题包接入 React 19 项目。
+description: 在 React 19 项目中安装 Nibferry、加载全局样式并使用组件。
 ---
 
-## 本地运行
+## 安装组件库
 
-准备 Node.js 22.12 或更高版本和 pnpm 10，然后在终端执行：
-
-```sh
-git clone https://github.com/codexiaoke/nibferry.git
-cd nibferry
-pnpm install
-pnpm dev
-```
-
-打开 [本地官网](http://127.0.0.1:3317/)。开发服务会同步更新包的 JavaScript、类型声明和 CSS 变量。
-
-## 安装到其他项目
-
-在仓库根目录运行打包命令。切换到目标项目，把输出的压缩包路径交给 pnpm。
+在使用 React 19 和 React DOM 19 的应用中运行：
 
 ```sh
-pnpm --filter @nibferry/react pack
-```
-
-```sh
-pnpm add /path/to/nibferry-react-0.1.0.tgz
+pnpm install nibferry
 ```
 
 ## 导入样式
 
-在 Web 应用入口导入默认变量，就可以在任意样式表中使用 `--nf-canvas` 和 `--nf-ink`。需要直接读取颜色或时长时，使用[主题接口](/docs/theme)。
+在应用入口引入一次样式表，所有页面即可共用组件样式和默认主题变量。Next.js App Router 项目放在根布局 `app/layout.tsx`，Vite React 项目通常放在 `src/main.tsx`。
+
+```ts
+import 'nibferry/styles.css';
+```
+
+## 使用组件
 
 ```tsx
-import '@nibferry/react/styles.css';
+import { AssistantMessage } from 'nibferry';
 
-export function App() {
-  return <main style={{ background: 'var(--nf-canvas)', color: 'var(--nf-ink)' }}>Hello</main>;
+export function Welcome() {
+  return <AssistantMessage>你好，需要什么帮助？</AssistantMessage>;
 }
 ```
+
+在[组件总览](/docs/components)中查看其他组件的预览和用法。主题配置见[设计 Token](/docs/theme)。

@@ -1,15 +1,18 @@
 # SummaryCard
 
+## 用法
+
 在页面中承载相关条目的摘要。卡片支持原生 `aside` 的属性和 ref，使用方通过 `id`、`aria-label` 和 `hidden` 关联开关、命名及控制显示。
 
 ```tsx
-import { SummaryCard } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { SummaryCard } from 'nibferry';
 
 <SummaryCard id="sources" aria-label="来源摘要" hidden={!open}>
   {children}
 </SummaryCard>
 ```
+
+## 参数与交互
 
 宿主限制卡片高度时，较长的摘要可在卡片内独立滚动，滑块使用 ScrollArea 的主题色。
 

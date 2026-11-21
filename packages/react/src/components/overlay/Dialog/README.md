@@ -1,11 +1,12 @@
 # Dialog
 
+## 用法
+
 受控的模态弹框。适合编辑表单，也可以作为搜索弹框等组合组件的容器。
 
 ```tsx
 import { useState } from 'react';
-import { Dialog } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { Dialog } from 'nibferry';
 
 function Editor() {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,8 @@ function Editor() {
   </>;
 }
 ```
+
+## 参数与交互
 
 用 `open` 控制显示，按 Esc 或点击遮罩会触发 `onOpenChange(false)`。原生 `dialog` 负责将焦点留在弹框内，并在关闭后返回原来的控件。传入 `aria-label` 或 `aria-labelledby` 命名弹框。支持原生属性、`children` 和指向弹框元素的 `ref`。
 

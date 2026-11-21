@@ -1,16 +1,19 @@
 # Stack
 
+## 用法
+
 按顺序纵向排列直接子项。可以独立使用，也可以与 Inline 嵌套。
 
 ```tsx
-import { Stack } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { Stack } from 'nibferry';
 
 <Stack gap="md">
   <span>第一条消息</span>
   <span>第二条消息</span>
 </Stack>
 ```
+
+## 参数与交互
 
 | 属性 | 含义 |
 | --- | --- |

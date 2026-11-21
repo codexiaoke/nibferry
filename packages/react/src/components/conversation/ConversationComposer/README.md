@@ -1,9 +1,11 @@
 # ConversationComposer
 
+## 用法
+
 提供受控文本输入、发送按钮和生成中停止按钮。
 
 ```tsx
-import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibferry/react';
+import { ComposerModelSelect, ContextUsage, ConversationComposer } from 'nibferry';
 
 <ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
   running={running} onStop={stop}
@@ -16,6 +18,8 @@ import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibfer
   </>}
   emptyAction={<VoiceChatButton />} />
 ```
+
+## 参数与交互
 
 `tools` 可传入 `ComposerActionMenu` 配置左下角的「＋」菜单，也支持在输入框键入 `@` 或 `/` 打开。`ref` 指向文本框，可用于读取选区或恢复输入焦点。输入时保留原有浅边框，工具按钮保留键盘焦点提示。
 

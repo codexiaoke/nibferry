@@ -1,15 +1,18 @@
 ---
-title: 工作区标签
+title: 管理工作区标签
 description: 在面板标题栏中组合标签、添加和关闭按钮，由应用管理打开的页面与顺序。
 ---
 
+import { TabsDemo } from '../app/_components/ComponentDemos/NavigationExamples';
+
 ## 组合标签栏
+
+<TabsDemo />
 
 `WorkspaceTabList` 和 `WorkspaceTab` 负责选择与排序。将 `WorkspaceTabAdd` 放在列表旁边，横向滚动时仍可新增。向标签传入 `onClose` 即可显示关闭按钮，也可以单独使用 `WorkspaceTabClose`。
 
 ```tsx
-import { WorkspaceTabList, WorkspaceTab, WorkspaceTabAdd } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { WorkspaceTabList, WorkspaceTab, WorkspaceTabAdd } from 'nibferry';
 
 <WorkspaceTabList aria-label="文档标签" onReorder={setOrder}>
   {order.map(id => (
@@ -27,3 +30,7 @@ import '@nibferry/react/styles.css';
 触屏上横滑可浏览超出宽度的标签，按住标签片刻再拖动可排序。左右方向键、Home、End 切换标签，Alt 加左右方向键移动标签，Delete 关闭当前标签。接入方决定新页的内容和关闭后选中哪一页。为每个内容区设置 `role="tabpanel"` 及指向标签的 `aria-labelledby`。嵌入文档时可以按打开顺序挂载内容区，通过 `hidden` 切换显示，以保留文档的阅读位置。
 
 在桌面预览中，点「新增标签页」后可以选择来源。再次打开同一文档会切换到已有标签，关闭最后一页会收起右侧工作区。[交互预览](/playground/)
+
+## 相关组件
+
+- [工作区标签栏](/docs/components/workspace/workspace-tab-list)

@@ -11,7 +11,7 @@ import {
   ActionGroup, ActionResult, type ActionResultValue, ActionRow, ActivitySequence, AssistantMessage, ConversationComposer, ConversationTurn,
   ComposerActionMenu, type ComposerMenuMatch, ComposerModelSelect, ComposerSelect, ContextUsage, ConversationView,
   DropdownMenu, MenuContent, MenuGroup, MenuItem, MenuTrigger, PaneButton, TurnProcess, UserMessage,
-} from '@nibferry/react';
+} from 'nibferry';
 import { layoutSource, type PreviewSource } from '../WorkspacePreview/preview-sources';
 import './PreviewChat.css';
 

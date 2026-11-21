@@ -3,13 +3,17 @@ title: 项目与会话列表
 description: 在左栏按项目组织会话，独立控制分组展开和当前会话。
 ---
 
+import { SidebarDemo, ProjectListDemo } from '../app/_components/ComponentDemos/NavigationExamples';
+
 ## 图标导航栏
+
+<SidebarDemo />
 
 展开时项目侧栏贴齐窗口左边。收起后，预览通过 `LeftPane.collapsedContent` 显示搜索、待办、消息通知和会话入口。「会话」在按钮旁打开相同的项目列表，保留文件夹、会话缩进、当前项和行尾操作。选择会话后浮层关闭，侧栏保持收起。「新聊天」位于标题栏。桌面预览右上方的「常驻导航栏」按钮可以切换到另一种布局，在项目侧栏旁显示独立的 `NavigationRail`。
 
 ```tsx
 import Inbox from '@hugeicons/core-free-icons/InboxIcon';
-import { CountBadge, LeftPane, NavigationRail, NavigationRailItem } from '@nibferry/react';
+import { CountBadge, LeftPane, NavigationRail, NavigationRailItem } from 'nibferry';
 
 <LeftPane collapsed={!open} resizable collapsedContent={
   <NavigationRail label="工作区快捷入口">
@@ -23,14 +27,15 @@ import { CountBadge, LeftPane, NavigationRail, NavigationRailItem } from '@nibfe
 
 ## 组合项目分组
 
-在左栏中，将 `SidebarMenu` 放在 `ConversationList` 之前即可添加工作区菜单。标题右侧的搜索按钮通过 `actions` 放置，点击打开居中的搜索弹框。快捷入口由 `PaneButton` 和 `CountBadge` 组合，待办和通知使用弹出菜单。[搜索弹框](/docs/search-dialog/)
+<ProjectListDemo />
+
+在左栏中，将 `SidebarMenu` 放在 `ConversationList` 之前即可添加工作区菜单。标题右侧的搜索按钮通过 `actions` 放置，点击打开居中的搜索弹框。快捷入口由 `PaneButton` 和 `CountBadge` 组合，待办和通知使用弹出菜单。[在侧栏接入搜索](/docs/search-dialog/)
 
 将 `ConversationList` 放在 `LeftPane` 内。每个 `ConversationGroup` 对应一个项目，同一时间可以展开多个项目。需要平铺会话时，把 `ConversationItem` 直接放入列表。
 
 ```tsx
 import { useState } from 'react';
-import { ConversationGroup, ConversationItem, ConversationList } from '@nibferry/react';
-import '@nibferry/react/styles.css';
+import { ConversationGroup, ConversationItem, ConversationList } from 'nibferry';
 
 function ProjectConversations({ project, currentId, onSelect }) {
   const [open, setOpen] = useState(true);
@@ -55,7 +60,7 @@ function ProjectConversations({ project, currentId, onSelect }) {
 `actions` 接受任意行尾控件。预览把「项目操作」菜单和「新建聊天」按钮放在这里。菜单和信息卡共用接入方的置顶、编辑回调。
 
 ```tsx
-import { ConversationGroup, PaneButton, ProjectInfo } from '@nibferry/react';
+import { ConversationGroup, PaneButton, ProjectInfo } from 'nibferry';
 
 <ConversationGroup label={project.name} expanded={open} onToggle={toggleGroup}
   details={<ProjectInfo name={project.name} chatCount={chats.length} activeChatCount={activeCount}
@@ -77,7 +82,7 @@ import { ConversationGroup, PaneButton, ProjectInfo } from '@nibferry/react';
 项目标题和会话条目都支持 `contextMenuContent`。预览中，项目标题的右键菜单与「⋯」共用置顶、编辑命令，会话行的右键菜单与行尾按钮共用置顶、归档命令。右键另一行时，当前会话与分组展开状态保持原位。
 
 ```tsx
-import { ConversationItem, MenuContent, MenuItem } from '@nibferry/react';
+import { ConversationItem, MenuContent, MenuItem } from 'nibferry';
 
 <ConversationItem current={chat.id === currentId} onClick={() => select(chat.id)}
   contextMenuContent={
@@ -90,3 +95,8 @@ import { ConversationItem, MenuContent, MenuItem } from '@nibferry/react';
 ```
 
 聚焦项目标题或会话条目后也可以按 Shift+F10 或菜单键打开，按 Esc 返回触发项。
+
+## 相关组件
+
+- [图标导航栏](/docs/components/workspace/navigation-rail)
+- [会话列表](/docs/components/workspace/conversation-list)

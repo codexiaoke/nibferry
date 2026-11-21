@@ -1,25 +1,20 @@
 ---
-title: 文档概览
-description: Nibferry 是面向 Agent 产品的 React UI 组件库。这里可以找到接入方式、主题接口和界面设计规范。
+title: 使用指南
+description: 从接入 React 项目开始，逐步组合消息、输入框和工作区。
 ---
 
 ## 快速开始
 
-[接入项目](/docs/installation)介绍如何在本地运行官网、构建包，并在 React 项目里加载默认样式。
+[接入项目](/docs/installation)介绍如何安装 Nibferry、在应用入口加载样式，以及如何使用第一个组件。
 
-## 设计体系
+## 组合工作区
 
-- [**组件与工作区设计规范** 拆分部件、分配状态和组合工作区](/docs/component-design)
-- [**基础布局组件** 工作区三栏、纵向排列与横向排列](/docs/layout)
-- [**设计 Token** 读取主题与局部覆盖](/docs/theme)
-- [**颜色与文字** 为表面、文字和主操作选择颜色](/docs/colors)
-- [**边框与层级** 配置轮廓、焦点和弹层遮罩](/docs/surfaces)
-- [**动效与过渡** 调整反馈时长和缓动曲线](/docs/motion)
+- [**组件与工作区设计规范** 了解哪些状态由应用持有](/docs/component-design)
+- [**对话与流式内容** 组合消息、执行过程和输入框](/docs/conversation)
+- [**基础布局组件** 搭建可调整宽度的工作区](/docs/layout)
 
-## 在浏览器里试用
+## 查阅组件与主题
 
-[对话与流式内容](/docs/conversation)介绍如何组合执行过程、工具分组和带交互组件的回复。
+在[组件总览](/docs/components)中按用途或 React 导出名查找部件。[设计 Token](/docs/theme)介绍如何为这些部件设置颜色、间距和动效。
 
-[弹出菜单](/docs/dropdown-menu)介绍如何把操作项、分组和子菜单接入自己的标题栏。
-
-打开[交互预览](/playground/)，查看左侧、主体与右侧的空间分配。要查某个角色的实际导出值，可以直接进入 [Token 浏览器](/docs/theme/#variables)。
+打开[交互预览](/playground/)可在完整工作区中体验各部件的配合。
