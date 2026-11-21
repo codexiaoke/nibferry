@@ -20,6 +20,18 @@ import '@nibferry/react/styles.css';
 
 [交互预览](/playground/)
 
+## 悬浮滚动条
+
+`ScrollArea` 的细滑块在滚动时显示，停下片刻后自动隐藏。滑块覆盖在视口边缘，显隐时正文保持原宽。通过 `viewportProps` 可给滚动区命名或监听滚动。
+
+```tsx
+import { ScrollArea } from '@nibferry/react';
+
+<ScrollArea style={{ maxHeight: 240 }} viewportProps={{ role: 'region', 'aria-label': '消息记录' }}>
+  {messages}
+</ScrollArea>
+```
+
 ## 区域标题栏
 
 用 `PaneHeader` 的子元素放会话标题或工作区标签，`actions` 放末端操作。在桌面预览中，主体标题从左栏分隔线开始，分享和摘要按钮贴近右栏分隔线。拖动任一侧时，标题栏跟随对应内容区域。空间不足时，从会话标题的下拉菜单使用同一组操作。
@@ -70,11 +82,11 @@ export function Layout() {
 
 手柄也可独立导入 `PaneResizeHandle`，通过 `side`、`paneId` 和 `onWidthChange` 连到同一工作区的侧栏。窄屏及单栏展开时，手柄随分栏收起。
 
-并排显示时，如果容器缩窄到主体的最小宽度，两侧可调栏会采用实际显示的宽度，受控栏通过同一个回调同步。
+并排显示时，如果容器缩窄到主体的最小宽度，两侧可调栏会采用实际显示的宽度。`onWidthChange(width, source)` 的第二个参数区分手动调宽（`user`）和容器压缩（`container`）。需要跨布局恢复栏宽时，保存用户手动设置的值。
 
 ## 展开与还原
 
-桌面上用 `LeftPane` 的 `collapsed` 收起左栏，主体接收空出的宽度。重新打开时，左栏沿用上次调好的宽度和原有内容。把 `LeftPaneToggle` 放在左栏外，用同一份状态驱动开关和左栏。
+桌面上用 `LeftPane` 的 `collapsed` 收起左栏，主体接收空出的宽度。可用 `collapsedContent` 保留一组窄栏入口。重新打开时，左栏沿用上次调好的宽度和原有内容。把 `LeftPaneToggle` 放在左栏外，用同一份状态驱动开关和左栏。
 
 ```tsx
 <>
@@ -107,6 +119,8 @@ export function Workspace({ expandedPane }: { expandedPane?: WorkspacePane }) {
 桌面预览默认收起右栏。工具栏右端的 `RightPaneToggle` 接收 `paneId`、`expanded` 和 `onClick`，与 `RightPane` 的 `collapsed` 由宿主共同控制。打开后可拖动分隔线，也可以点 `RightPaneFullscreenToggle` 展开当前内容。
 
 将同一个布尔值传给主体的 `hidden` 和右栏的 `fullscreen`。切换时分隔边界从当前栏宽移动到左侧导航旁，主体同步淡出。退出时边界移回原位，主体淡入。过渡时长与缓动沿用主题的 `--nf-motion-reveal` 和 `--nf-ease`。恢复分栏时两个区域仍在原处，保留内容、阅读位置和调好的宽度。工具栏按钮可以替换为产品已有的控件。
+
+桌面预览将当前会话放进 `FloatingPanel`，继续编辑同一份草稿。`FloatingPanelTrigger` 可以放在标题栏收起对话，也可以放在工作区右下角恢复对话。两个按钮通过 `paneId` 指向同一浮窗，宿主控制 `open` 并在显隐后转移焦点。
 
 ```tsx
 <>

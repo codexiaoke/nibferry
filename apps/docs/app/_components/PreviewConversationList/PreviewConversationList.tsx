@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import More from '@hugeicons/core-free-icons/MoreHorizontalIcon';
 import Compose from '@hugeicons/core-free-icons/PencilEdit02Icon';
 import Settings from '@hugeicons/core-free-icons/Settings01Icon';
@@ -11,7 +11,6 @@ import {
   ConversationGroup, ConversationItem, ConversationList, Dialog, DropdownMenu, MenuContent, MenuItem,
   MenuTrigger, PaneButton, ProjectInfo,
 } from '@nibferry/react';
-import PreviewSidebarMenu, { type PreviewSearchProps } from '../PreviewSidebarMenu/PreviewSidebarMenu';
 import './PreviewConversationList.css';
 
 interface Project {
@@ -41,43 +40,28 @@ export const initialProjects: Project[] = [
     conversations: [{ id: 'progress', title: '查看开发进度' }] },
 ];
 
-interface Props extends PreviewSearchProps {
+interface Props {
+  expanded: string[];
+  onToggle: (id: string) => void;
+  onNewChat: (project: Project) => void;
   projects: Project[];
   onProjectChange: (project: Project) => void;
   currentId: string;
   onSelect: (id: string) => void;
 }
 
-export default function PreviewConversationList({ projects, onProjectChange, currentId, onSelect, searchEntries, onOpenPage }: Props) {
-  const [expanded, setExpanded] = useState([initialProjects[0].id]);
+export default function PreviewConversationList({ projects, onProjectChange, currentId, onSelect, expanded, onToggle, onNewChat }: Props) {
+  const listId = useId();
   const [editing, setEditing] = useState<Project | null>(null);
   const editor = useRef<HTMLDialogElement>(null);
 
   function closeEditor() {
     editor.current?.close();
-    if (editing) document.getElementById('preview-project-actions-' + editing.id)?.focus();
+    if (editing) document.getElementById(listId + '-project-' + editing.id)?.focus();
     setEditing(null);
   }
 
-  function openChat(project: Project, chatId: string) {
-    setExpanded(open => open.includes(project.id) ? open : [...open, project.id]);
-    onSelect(chatId);
-  }
-
-  function newChat(project: Project) {
-    const conversation = { id: crypto.randomUUID(), title: '新聊天' };
-    onProjectChange({ ...project, conversations: [conversation, ...project.conversations] });
-    openChat(project, conversation.id);
-  }
-
-  const projectForChat = (chatId: string) => projects.find(project => project.conversations.some(chat => chat.id === chatId))!;
-  return <>
-    <PreviewSidebarMenu
-      searchEntries={searchEntries} onOpenPage={onOpenPage}
-      chats={projects.flatMap(project => project.conversations.filter(chat => !chat.archived)
-        .map(chat => ({ id: chat.id, title: chat.title, project: project.name })))}
-      onNewChat={() => newChat(projectForChat(currentId))}
-      onOpenChat={id => openChat(projectForChat(id), id)} />
+  return (
     <ConversationList label="项目">
       {[...projects].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(project => {
         const { id, name, pinned } = project;
@@ -94,14 +78,14 @@ export default function PreviewConversationList({ projects, onProjectChange, cur
         </>;
         return (
           <ConversationGroup key={id} label={name} expanded={expanded.includes(id)}
-            onToggle={() => setExpanded(open => open.includes(id) ? open.filter(key => key !== id) : [...open, id])}
+            onToggle={() => onToggle(id)}
             contextMenuContent={<MenuContent className="preview-conversation-menu" aria-label="项目操作">{projectCommands}</MenuContent>}
             details={<ProjectInfo name={name} repository={project.repository} directory={project.directory}
               chatCount={conversations.length} activeChatCount={conversations.filter(chat => chat.active).length}
               pinned={pinned} onPinnedChange={pin} onEdit={() => setEditing(project)} />}
             actions={<>
               <DropdownMenu modal={false}>
-                <MenuTrigger asChild><PaneButton id={'preview-project-actions-' + id} icon={More} aria-label="项目操作" /></MenuTrigger>
+                <MenuTrigger asChild><PaneButton id={listId + '-project-' + id} icon={More} aria-label="项目操作" /></MenuTrigger>
                 <MenuContent className="preview-conversation-menu" side="right"
                   onCloseAutoFocus={event => {
                     // A dialog or another row may already have taken focus.
@@ -110,7 +94,7 @@ export default function PreviewConversationList({ projects, onProjectChange, cur
                   {projectCommands}
                 </MenuContent>
               </DropdownMenu>
-              <PaneButton icon={Compose} aria-label="新建聊天" onClick={() => newChat(project)} />
+              <PaneButton icon={Compose} aria-label="新建聊天" onClick={() => onNewChat(project)} />
             </>}>
             {conversations.map((chat, index) => {
               const pinIcon = chat.pinned ? PinOff : Pin;
@@ -118,11 +102,11 @@ export default function PreviewConversationList({ projects, onProjectChange, cur
               const togglePin = () => updateChat(chat.id, { pinned: !chat.pinned });
               function archive() {
                 const neighbor = conversations[index + 1] ?? conversations[index - 1];
-                document.getElementById(neighbor ? 'preview-chat-' + neighbor.id : 'preview-project-actions-' + id)?.focus();
+                document.getElementById(listId + (neighbor ? '-chat-' + neighbor.id : '-project-' + id))?.focus();
                 updateChat(chat.id, { archived: true });
               }
               return (
-                <ConversationItem key={chat.id} id={'preview-chat-' + chat.id}
+                <ConversationItem key={chat.id} id={listId + '-chat-' + chat.id}
                   current={currentId === chat.id} onClick={() => onSelect(chat.id)}
                   contextMenuContent={<MenuContent className="preview-conversation-menu" aria-label="会话操作">
                     <MenuItem icon={pinIcon} onSelect={togglePin}>{pinLabel}</MenuItem>
@@ -159,5 +143,5 @@ export default function PreviewConversationList({ projects, onProjectChange, cur
         </Dialog>
       )}
     </ConversationList>
-  </>;
+  );
 }

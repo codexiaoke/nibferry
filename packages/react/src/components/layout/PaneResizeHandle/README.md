@@ -23,7 +23,7 @@ export function Layout() {
 | --- | --- |
 | `side` | `left` 或 `right`。左栏手柄紧跟左栏，右栏手柄紧靠右栏之前。 |
 | `paneId` | 同一 WorkspaceLayout 内对应侧栏的 DOM id，也用于读屏关联。 |
-| `onWidthChange` | 拖动、按键或工作区缩窄压缩侧栏时收到实际宽度，单位为 CSS 像素。宿主将它传回侧栏的 width。 |
+| `onWidthChange(width, source)` | 第一个参数是实际宽度，单位为 CSS 像素。拖动或按键时来源为 `user`，容器压缩侧栏时为 `container`。宿主可以同步显示宽度，并单独保存用户设置。 |
 | `aria-label`、`title`、`className`、`style`、`ref` | 可自定义无障碍名称、显式添加提示、调整外观或取得分隔线元素。 |
 
 分隔线宽 1px，颜色取自 `--nf-line`。鼠标悬停时，线色混入少量 `--nf-muted` 并显示调宽光标，移开后恢复。按 Tab 聚焦时用 `--nf-accent` 标明当前位置。

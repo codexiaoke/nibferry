@@ -1,0 +1,160 @@
+.nf-model-anchor {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+}
+.nf-model-trigger, .nf-model-panel button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--nf-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.nf-model-trigger {
+  display: grid;
+  place-items: center;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.nf-model-trigger > span { grid-area: 1 / 1; }
+.nf-model-caption { display: flex; align-items: baseline; gap: 4px; min-width: 0; max-width: 100%; }
+.nf-model-caption > span, .nf-model-switch span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nf-model-caption[data-concealed] { visibility: hidden; }
+.nf-model-caption small, .nf-model-prompt {
+  color: color-mix(in srgb, var(--nf-muted) 87%, var(--nf-canvas));
+  font: inherit;
+  white-space: nowrap;
+}
+.nf-model-trigger:enabled:hover, .nf-model-trigger[data-state='open'], .nf-model-panel button:enabled:hover {
+  background: color-mix(in srgb, var(--nf-ink) 6%, var(--nf-canvas));
+}
+.nf-model-trigger:disabled, .nf-model-panel button:disabled { cursor: default; opacity: .45; }
+.nf-model-tip {
+  position: absolute;
+  z-index: var(--nf-menu-layer, 10);
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 7px 5px 12px;
+  background: var(--nf-ink);
+  color: var(--nf-canvas);
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.nf-model-tip kbd { padding-inline: 6px; border-radius: 99px; background: color-mix(in srgb, currentColor 22%, transparent); font: inherit; }
+@media (hover: hover) {
+  .nf-model-trigger:enabled:hover + .nf-model-tip { display: flex; }
+}
+.nf-model-trigger:focus-visible + .nf-model-tip { display: flex; }
+
+.nf-model-panel {
+  box-sizing: border-box;
+  width: 255px;
+  max-width: var(--radix-popover-content-available-width);
+  z-index: var(--nf-menu-layer, 10);
+  background: var(--nf-canvas);
+  color: var(--nf-ink);
+  border: 1px solid var(--nf-line);
+  border-radius: 16px;
+  box-shadow: var(--nf-menu-shadow, 0 6px 16px var(--nf-shadow));
+  font-size: 14px;
+  line-height: 1.4;
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+.nf-model-level { padding: 8px 12px 10px; }
+.nf-model-head { display: grid; grid-template-columns: 24px minmax(0, 1fr) 24px; align-items: start; }
+.nf-model-head button { border-radius: 7px; }
+.nf-model-head .nf-model-reset { grid-area: 1 / 3; display: grid; place-items: center; height: 24px; padding: 0; color: var(--nf-muted); }
+.nf-model-switch {
+  grid-area: 1 / 2;
+  justify-self: center;
+  display: grid;
+  justify-items: center;
+  max-width: 100%;
+  padding: 2px 10px;
+}
+.nf-model-switch strong { font-weight: 600; }
+.nf-model-switch span { display: flex; align-items: center; max-width: 100%; color: var(--nf-muted); font-size: 12px; }
+.nf-model-slider { --thumb-size: 28px; position: relative; height: var(--thumb-size); margin-top: 8px; border-radius: 99px; }
+.nf-model-track {
+  position: absolute;
+  inset: 2px 0;
+  pointer-events: none;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--nf-ink) 10%, var(--nf-canvas));
+}
+.nf-model-stops { position: absolute; inset: 0 calc(var(--thumb-size) / 2); display: flex; justify-content: space-between; align-items: center; }
+.nf-model-fill {
+  position: absolute; inset-block: 0; inset-inline-start: calc(var(--thumb-size) / -2);
+  box-sizing: content-box; padding-inline-start: calc(var(--thumb-size) / 2); background: var(--nf-ink);
+  border-start-start-radius: 99px; border-end-start-radius: 99px;
+}
+.nf-model-thumb {
+  position: absolute; z-index: 1; top: 50%; inset-inline-end: calc(var(--thumb-size) / -2);
+  box-sizing: border-box; width: var(--thumb-size); height: var(--thumb-size); transform: translateY(-50%);
+  border-radius: 50%; background: var(--nf-canvas); border: 1px solid var(--nf-line); box-shadow: 0 1px 3px var(--nf-shadow);
+}
+.nf-model-stops i { position: relative; flex: none; width: 0; height: 0; }
+.nf-model-stops i:only-of-type { margin-inline: auto; }
+.nf-model-stops i::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--nf-muted); opacity: .55; }
+.nf-model-slider input {
+  position: relative;
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  border-radius: 99px;
+  opacity: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.nf-model-slider input::-webkit-slider-thumb {
+  appearance: none; width: var(--thumb-size); height: var(--thumb-size);
+}
+.nf-model-slider input::-moz-range-thumb {
+  width: var(--thumb-size); height: var(--thumb-size); border: 0;
+}
+
+.nf-model-options { max-height: min(320px, calc(var(--radix-popover-content-available-height) - 2px)); border-radius: inherit; overflow: hidden; }
+.nf-model-list { padding: 4px; }
+.nf-model-list-title { padding: 5px 8px; color: var(--nf-muted); font-size: 13px; }
+.nf-model-provider {
+  margin: 4px var(--nf-space-sm) 0;
+  padding: 6px 0 3px;
+  border-block-start: 1px solid var(--nf-line);
+  color: var(--nf-muted);
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.nf-model-list button {
+  display: flex; justify-content: space-between; align-items: center; min-height: 29px; width: 100%;
+  border-radius: 10px; padding: 4px 8px; text-align: start; font-weight: 400;
+}
+.nf-model-list small { display: block; font-size: 12px; color: var(--nf-muted); }
+.nf-model-list svg { color: var(--nf-secondary); flex: none; }
+.nf-model-panel button:focus-visible, .nf-model-slider:has(input:focus-visible), .nf-model-trigger:focus-visible { outline: 2px solid var(--nf-accent-text); outline-offset: 1px; }
+.nf-model-list button:focus-visible { outline-offset: -2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .nf-model-slider:not([data-dragging]) .nf-model-fill { transition: width calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+  .nf-model-panel[data-state='open'], .nf-model-tip { animation: nf-menu-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+  .nf-model-tip { animation-name: nf-model-tip-in; }
+  @keyframes nf-model-tip-in { from { opacity: 0; } to { opacity: 1; } }
+}
+@media (pointer: coarse) {
+  .nf-model-trigger, .nf-model-list button { min-height: 44px; }
+}

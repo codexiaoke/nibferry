@@ -15,7 +15,7 @@ export interface PaneResizeHandleProps
   > {
   side: 'left' | 'right';
   paneId: string;
-  onWidthChange: (width: number) => void;
+  onWidthChange: (width: number, source: 'user' | 'container') => void;
 }
 
 function lengthInPixels(length: string, basis: number) {
@@ -67,7 +67,7 @@ export function PaneResizeHandle({
         next.width < previous.width &&
         next.atMainMin
       ) {
-        onWidthChange(next.width);
+        onWidthChange(next.width, 'container');
       }
       previous = next;
       setRange((old) =>
@@ -105,7 +105,7 @@ export function PaneResizeHandle({
     if (!panels.current || !handle.current?.getClientRects().length) return;
     const { width, min, max } = measure(panels.current.pane, panels.current.main);
     const clamped = Math.max(min, Math.min(max, Math.round(next)));
-    if (clamped !== width) onWidthChange(clamped);
+    if (clamped !== width) onWidthChange(clamped, 'user');
   }
   const label = props['aria-label'] ?? (side === 'left' ? '调整左栏宽度' : '调整右栏宽度');
   return (

@@ -42,7 +42,7 @@
   z-index: var(--nf-menu-layer, 10);
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
 }
-:where([data-nf-menu-item]) {
+:where([data-nf-menu-item]:not([hidden])) {
   display: flex;
   align-items: center;
   gap: 6px;

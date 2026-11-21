@@ -1,10 +1,13 @@
-.preview-conversation-menu {
+.preview-conversation-menu,
+.preview-composer-menu {
   --nf-canvas: var(--site-bg);
   --nf-ink: var(--site-ink);
   --nf-line: var(--site-line);
   --nf-muted: var(--site-muted);
+}
+.preview-conversation-menu {
   --nf-menu-shadow: 0 6px 20px rgb(0 0 0 / 8%);
 }
 @media (prefers-color-scheme: dark) {
-  .preview-conversation-menu { --nf-menu-danger: #ff9a90; }
+  .preview-conversation-menu, .preview-composer-menu { --nf-menu-danger: #ff9a90; }
 }

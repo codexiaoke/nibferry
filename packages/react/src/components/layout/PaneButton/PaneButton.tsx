@@ -9,9 +9,10 @@ export interface PaneButtonProps extends ComponentPropsWithRef<'button'> {
   paneId?: string;
   icon: HugeiconsIconProps['icon'];
   text?: ReactNode;
+  badge?: ReactNode;
 }
 
-export function PaneButton({ paneId, icon, text, children, ...props }: PaneButtonProps) {
+export function PaneButton({ paneId, icon, text, badge, children, ...props }: PaneButtonProps) {
   return (
     <button
       type="button"
@@ -26,6 +27,7 @@ export function PaneButton({ paneId, icon, text, children, ...props }: PaneButto
           {text}
         </>
       )}
+      {badge != null && <span data-nf-pane-badge="">{badge}</span>}
     </button>
   );
 }

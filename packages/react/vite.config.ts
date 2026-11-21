@@ -7,11 +7,17 @@ import { themeVariables } from './src/theme/config.ts';
 const themePath = fileURLToPath(new URL('./src/theme/values.json', import.meta.url));
 
 const stylePaths = [
+  new URL('./src/components/layout/ScrollArea/ScrollArea.css', import.meta.url),
+  new URL('./src/components/conversation/ConversationView/ConversationView.css', import.meta.url),
+  new URL('./src/components/conversation/ComposerSelect/ComposerSelect.css', import.meta.url),
+  new URL('./src/components/conversation/ComposerModelSelect/ComposerModelSelect.css', import.meta.url),
+  new URL('./src/components/feedback/ContextUsage/ContextUsage.css', import.meta.url),
   new URL('./src/components/layout/WorkspaceLayout/WorkspaceLayout.css', import.meta.url),
   new URL('./src/components/layout/PaneButton/PaneButton.css', import.meta.url),
   new URL('./src/components/layout/PaneHeader/PaneHeader.css', import.meta.url),
   new URL('./src/components/menu/MenuContent/MenuContent.css', import.meta.url),
   new URL('./src/components/overlay/Dialog/Dialog.css', import.meta.url),
+  new URL('./src/components/overlay/FloatingPanel/FloatingPanel.css', import.meta.url),
   new URL('./src/components/search/SearchDialog/SearchDialog.css', import.meta.url),
   new URL('./src/components/summary/SummaryCard/SummaryCard.css', import.meta.url),
   new URL('./src/components/navigation/WorkspaceTabList/WorkspaceTabList.css', import.meta.url),
@@ -58,16 +64,27 @@ export default defineConfig({
     rollupOptions: {
       // Shared icon data must stay outside client entries that are also imported by the server.
       output: { codeSplitting: { groups: [{ name: 'icons', test: /@hugeicons\/core-free-icons/ }] } },
-      external: ['react', 'react/jsx-runtime', 'react-dom', '@radix-ui/react-slot', '@hugeicons/react', '@floating-ui/dom', '@radix-ui/react-dropdown-menu'],
+      external: ['react', 'react/jsx-runtime', 'react-dom', '@radix-ui/react-slot', '@hugeicons/react', '@floating-ui/dom', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-scroll-area'],
     },
     lib: {
       entry: {
         index: 'src/index.ts',
         theme: 'src/theme/tokens.ts',
         // Separate client entries retain their directives in the published ESM.
+        'scroll-area': 'src/components/layout/ScrollArea/ScrollArea.tsx',
+        'conversation-view': 'src/components/conversation/ConversationView/ConversationView.tsx',
+        'activity-disclosure': 'src/components/conversation/ActivityDisclosure/ActivityDisclosure.tsx',
+        'action-group': 'src/components/conversation/ActionGroup/ActionGroup.tsx',
+        'conversation-composer': 'src/components/conversation/ConversationComposer/ConversationComposer.tsx',
+        'composer-action-menu': 'src/components/conversation/ComposerActionMenu/ComposerActionMenu.tsx',
+        'composer-model-select': 'src/components/conversation/ComposerModelSelect/ComposerModelSelect.tsx',
+        'composer-select': 'src/components/conversation/ComposerSelect/ComposerSelect.tsx',
         'side-pane': 'src/components/layout/SidePane/SidePane.tsx',
         'pane-resize-handle': 'src/components/layout/PaneResizeHandle/PaneResizeHandle.tsx',
         'context-menu': 'src/components/menu/ContextMenu/ContextMenu.tsx',
+        'dropdown-menu': 'src/components/menu/DropdownMenu/DropdownMenu.tsx',
+        'menu-trigger': 'src/components/menu/MenuTrigger/MenuTrigger.tsx',
+        'menu-content': 'src/components/menu/MenuContent/MenuContent.tsx',
         'dialog': 'src/components/overlay/Dialog/Dialog.tsx',
         'search-dialog': 'src/components/search/SearchDialog/SearchDialog.tsx',
         'conversation-group': 'src/components/navigation/ConversationGroup/ConversationGroup.tsx',

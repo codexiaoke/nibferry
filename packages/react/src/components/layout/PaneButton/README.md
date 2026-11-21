@@ -13,4 +13,6 @@ import '@nibferry/react/styles.css';
 
 传入 Hugeicons 的 `icon`，可用 `text` 附加文字或标题节点。`children` 可替换按钮内容。控制页面区域时，可用 `paneId` 设置 `aria-controls`。纯图标按钮需要可访问名称。标准 button 属性、点击回调与 ref 直接传给按钮。焦点取 `--nf-accent`，图标和悬停底色取 `--nf-muted`。
 
+`badge` 接受 CountBadge 等行尾内容。SidebarMenu 将它对齐到文字行末，NavigationRailItem 将它定位在按钮右上角。
+
 悬停时底色渐变，按下时图标轻微缩小。时长取 `--nf-motion-feedback`，按钮的点击区域始终保持原尺寸。

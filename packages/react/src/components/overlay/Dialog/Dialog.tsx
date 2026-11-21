@@ -1,29 +1,30 @@
 'use client';
 
-import { useImperativeHandle, useLayoutEffect, useRef, type ComponentPropsWithRef } from 'react';
+import { createContext, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
+
+export const DialogContainer = createContext<HTMLDialogElement | null>(null);
 
 export interface DialogProps extends Omit<ComponentPropsWithRef<'dialog'>, 'open'> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function Dialog({ open, onOpenChange, onCancel, onClose, onPointerDown, onClick, ref, ...props }: DialogProps) {
-  const element = useRef<HTMLDialogElement>(null);
+export function Dialog({ children, open, onOpenChange, onCancel, onClose, onPointerDown, onClick, ref, ...props }: DialogProps) {
+  const [dialog, setDialog] = useState<HTMLDialogElement | null>(null);
   const pressedBackdrop = useRef(false);
-  useImperativeHandle(ref, () => element.current!, []);
+  useImperativeHandle(ref, () => dialog!, [dialog]);
   useLayoutEffect(() => {
-    const dialog = element.current!;
-    if (!open) return;
+    if (!open || !dialog) return;
     dialog.showModal();
     return () => dialog.close();
-  }, [open]);
+  }, [open, dialog]);
 
   function outside(x: number, y: number) {
-    const rect = element.current!.getBoundingClientRect();
+    const rect = dialog!.getBoundingClientRect();
     return x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom;
   }
 
-  return <dialog {...props} ref={element} data-nf-dialog=""
+  return <dialog {...props} ref={setDialog} data-nf-dialog=""
     onCancel={event => {
       onCancel?.(event);
       if (event.defaultPrevented) return;
@@ -44,5 +45,5 @@ export function Dialog({ open, onOpenChange, onCancel, onClose, onPointerDown, o
         onOpenChange(false);
       }
       pressedBackdrop.current = false;
-    }} />;
+    }}><DialogContainer.Provider value={dialog}>{children}</DialogContainer.Provider></dialog>;
 }

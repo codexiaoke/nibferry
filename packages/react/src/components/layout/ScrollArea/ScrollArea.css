@@ -1,0 +1,52 @@
+:where([data-nf-scroll-area]:not([hidden])) {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+:where([data-nf-scroll-viewport]) {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overscroll-behavior-y: contain;
+}
+:where([data-nf-scroll-viewport]:focus-visible) {
+  outline: 2px solid var(--nf-accent-text);
+  outline-offset: -2px;
+}
+:where([data-nf-scrollbar]) {
+  box-sizing: border-box;
+  display: flex;
+  inline-size: 12px;
+  padding: 3px 4px;
+  touch-action: none;
+  user-select: none;
+}
+:where([data-nf-scroll-thumb]) {
+  flex: 1;
+  border-radius: 999px;
+  background-color: var(--nf-scroll-thumb, color-mix(in srgb, var(--nf-muted) 32%, transparent));
+}
+:where([data-nf-scrollbar][data-state='hidden']:not([data-dragging])) {
+  pointer-events: none;
+}
+:where([data-nf-scrollbar]:is(:hover, :active)) > [data-nf-scroll-thumb] {
+  background-color: var(--nf-scroll-thumb-active, color-mix(in srgb, var(--nf-muted) 54%, transparent));
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-nf-scrollbar][data-state='visible']) {
+    animation: nf-scrollbar-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  :where([data-nf-scrollbar][data-state='hidden']:not([data-dragging])) {
+    animation: nf-scrollbar-out calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease) forwards;
+  }
+  @keyframes nf-scrollbar-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes nf-scrollbar-out { from { opacity: 1; } to { opacity: 0; } }
+  :where([data-nf-scroll-thumb]) {
+    transition: background-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+}
+@media (forced-colors: active) {
+  [data-nf-scroll-thumb] { background-color: ButtonText; }
+}

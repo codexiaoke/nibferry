@@ -10,14 +10,14 @@ import {
   type CSSProperties,
   type ComponentPropsWithRef,
 } from 'react';
-import { PaneResizeHandle } from '../PaneResizeHandle/PaneResizeHandle.js';
+import { PaneResizeHandle, type PaneResizeHandleProps } from '../PaneResizeHandle/PaneResizeHandle.js';
 
 export interface SidePaneProps extends ComponentPropsWithRef<'aside'> {
   width?: CSSProperties['width'];
   defaultWidth?: CSSProperties['width'];
   resizable?: boolean;
   collapsed?: boolean;
-  onWidthChange?: (width: number) => void;
+  onWidthChange?: PaneResizeHandleProps['onWidthChange'];
 }
 
 export function SidePane({
@@ -53,10 +53,10 @@ export function SidePane({
   const [localWidth, setLocalWidth] = useState<number>();
   const controlled = width !== undefined && onWidthChange !== undefined;
   const pixels = controlled ? undefined : localWidth;
-  const changeWidth = useCallback(
-    (next: number) => {
+  const changeWidth = useCallback<PaneResizeHandleProps['onWidthChange']>(
+    (next, source) => {
       if (!controlled) setLocalWidth(next);
-      onWidthChange?.(next);
+      onWidthChange?.(next, source);
     },
     [controlled, onWidthChange],
   );

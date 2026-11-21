@@ -1,0 +1,94 @@
+---
+title: 对话与流式内容
+description: 组合用户消息、执行过程、动作分组和可交互的回答。
+---
+
+## 试用消息流
+
+在输入框发送「查一下 useState 文档」，点「已搜索」可展开 JSON 结果，点回复里的来源链接可在右栏打开文档。发送「给我一张布局草图」可操作回复里的草图，发送「怎样收起侧栏？」可查看纯文字回复。示例使用本地数据，生成时可随时停止。[交互预览](/playground/)
+
+## 组合一个回合
+
+把应用的回合放进 `ConversationView`，草稿交给 `ConversationComposer`。父容器提供高度。消息区独立滚动；上翻阅读时，新内容到达也会保留当前位置。可用自己的输入区替换整个 `composer`。
+
+```tsx
+import {
+  ActivitySequence, ActionGroup, ActionResult, ActionRow, AssistantMessage, ConversationComposer,
+  ConversationTurn, ConversationView, TurnProcess, UserMessage,
+} from '@nibferry/react';
+import '@nibferry/react/styles.css';
+
+<ConversationView composer={<ConversationComposer value={draft} onValueChange={setDraft}
+  onSend={send} running={running} onStop={stop} />}>
+  {turns.map(turn => <ConversationTurn key={turn.id}>
+    <UserMessage>{turn.question}</UserMessage>
+    {turn.actions.length > 0 && <TurnProcess running={turn.running} label={turn.durationLabel}>
+      <ActivitySequence items={turn.actions} getKey={action => action.id}
+        renderItem={action => <ActionRow label={action.title}><ActionResult value={action.result} /></ActionRow>}
+        group={{ by: action => action.toolName, render: (actions, rows) =>
+          <ActionGroup label={`执行了 ${actions.length} 个动作`}>{rows}</ActionGroup> }} />
+    </TurnProcess>}
+    <AssistantMessage>
+      <ActivitySequence items={turn.reply} getKey={block => block.id} renderItem={renderBlock} />
+    </AssistantMessage>
+  </ConversationTurn>)}
+</ConversationView>
+```
+
+## 输入框操作菜单
+
+在 `tools` 中放入 `ComposerActionMenu`，点击左下角的「＋」，菜单会在整个输入框上方展开，与输入框等宽。按显示顺序传入 `MenuItem`，每项可设置图标、禁用状态及 `onSelect` 回调。
+
+在行首或空白后输入 `@` 或 `/` 也能打开菜单。预览中可输入 `@布局` 引用文档，或输入 `/代码` 后按 Enter 插入代码块。`triggers` 控制启用的符号。传入普通子项时，各入口共用同一组操作。传入渲染函数时，可按 `match.symbol` 和 `match.query` 筛选，并用 `match.start`、`match.end` 替换触发词。点击「＋」时 `match` 为 `null`。
+
+```tsx
+import { ComposerActionMenu, ConversationComposer, MenuItem } from '@nibferry/react';
+
+<ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
+  tools={<ComposerActionMenu>
+    {actions.map(action => <MenuItem key={action.id} icon={action.icon}
+      disabled={action.disabled} onSelect={action.onSelect}>{action.label}</MenuItem>)}
+  </ComposerActionMenu>} />
+```
+
+## 输入框底栏
+
+左侧的 `tools` 可组合「＋」菜单和权限选择。右侧的 `rightTools` 可组合上下文用量、模型选择和语音输入。两侧独立配置，同组控件按传入顺序排列。
+
+```tsx
+import { ComposerModelSelect, ContextUsage, ConversationComposer } from '@nibferry/react';
+
+<ConversationComposer value={draft} onValueChange={setDraft} onSend={send}
+  tools={<>{addMenu}{permissionMenu}</>}
+  rightTools={<>
+    <ContextUsage value={contextPercent} />
+    <ComposerModelSelect models={models} model={model} onModelChange={setModel}
+      levels={levels} level={level} onLevelChange={setLevel} />
+    {dictationButton}
+  </>}
+  emptyAction={voiceChatButton} running={running} onStop={stop} />
+```
+
+点击底栏模型名可拖动滑杆调整推理强度，再点面板中的模型名可切换模型。模型选项的 `provider` 用作分组标题，省略该字段的选项显示在顶部。预览中的模型、强度档位和用量使用示例数据。空草稿时，最右侧的波形按钮可发送一条示例语音消息。麦克风可将示例转写插入草稿。接入实际语音服务时，在这两个按钮上绑定应用自己的回调。
+
+## 控制分组
+
+`group.by` 决定相邻动作能否分组，返回 `undefined` 的条目单独显示。从第一个带键动作开始进入 `group.render`，后续同键动作追加到同一组，可在这里换掉整组的外观。省略 `group` 可逐项展示全部内容。
+
+`TurnProcess` 运行中展开，结束后默认折叠。`ActionGroup`、带详情的 `ActionRow` 和已结束的 `TurnProcess` 都支持 `defaultExpanded`，也可用 `expanded` 与 `onExpandedChange` 从外部控制。收起时组件仍挂载。
+
+## 在文字中插入组件
+
+条目的类型、顺序和渲染函数由应用定义。例如收到一条审批记录，可以渲染现有的审批卡；收到画布数据，则插入产品自己的画布。后续文字使用新的条目 ID。流式补全同一段文字时，继续使用该段原来的 ID。
+
+```tsx
+function renderBlock(block: ReplyBlock) {
+  switch (block.type) {
+    case 'text': return <p>{block.text}</p>;
+    case 'approval': return <ApprovalCard request={block.request} onDecide={decide} />;
+    case 'canvas': return <CanvasView document={block.document} onChange={saveCanvas} />;
+  }
+}
+```
+
+示例中的 `ApprovalCard` 和 `CanvasView` 由接入方提供。网络请求、审批决定及画布内容由应用持有。执行过程中的普通说明或交互卡也可以用相同方式插在动作之间。

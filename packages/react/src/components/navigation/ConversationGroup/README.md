@@ -31,3 +31,5 @@ import { ConversationGroup, ConversationItem } from '@nibferry/react';
 分组按内容高度展开和收起，使用 `--nf-motion-reveal` 控制高度和透明度过渡。过渡中再次切换会从当前位置反向。收起开始时，组内条目即退出键盘顺序。系统启用减少动态效果或主题关闭动效时，分组立即切换。
 
 `contextMenuContent` 接收可选的 `MenuContent`。在项目标题行右键或聚焦后按 Shift+F10，会收起项目信息卡并打开菜单。分组继续保持原来的展开状态。行尾菜单和右键菜单可以传入同一组 `MenuItem`。
+
+`icon` 设置项目图标，`expandedIcon` 可单独指定展开时的图标。只传 `icon` 时两个状态共用它，默认按展开状态显示开合文件夹。

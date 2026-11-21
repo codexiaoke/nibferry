@@ -2,8 +2,7 @@
   box-sizing: border-box;
   inline-size: 300px;
   max-inline-size: 100%;
-  padding: 8px 12px;
-  overflow: auto;
+  overflow: clip;
   border: 1px solid var(--nf-line);
   border-radius: 16px;
   background: var(--nf-canvas);
@@ -13,16 +12,21 @@
   font-size: 13px;
   line-height: 20px;
 }
-
+:where([data-nf-summary-card]:not([hidden])) { display: flex; flex-direction: column; }
+:where([data-nf-summary-content]) { padding: 8px 12px; }
 :where([data-nf-summary-group]) { padding-block: 4px; }
-:where([data-nf-summary-card] > [data-nf-summary-group] + [data-nf-summary-group]) {
+:where([data-nf-summary-content] > [data-nf-summary-group] + [data-nf-summary-group]) {
   border-block-start: 1px solid var(--nf-line);
 }
 :where([data-nf-summary-heading]) {
+  display: flex;
+  align-items: center;
+  gap: var(--nf-space-sm);
   padding: 4px 8px;
   color: var(--nf-muted);
   overflow-wrap: anywhere;
 }
+:where([data-nf-summary-heading] > span:first-child) { flex: 1; min-inline-size: 0; }
 [data-nf-summary-item] {
   appearance: none;
   box-sizing: border-box;

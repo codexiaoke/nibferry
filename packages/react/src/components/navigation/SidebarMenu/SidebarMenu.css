@@ -21,7 +21,7 @@
   padding-inline: var(--nf-space-sm);
 }
 
-[data-nf-sidebar-menu] > [data-nf-pane-button][data-nf-labeled] {
+[data-nf-sidebar-menu] > [data-nf-pane-button][data-nf-labeled]:where(:not([hidden])) {
   display: flex;
   justify-content: start;
   inline-size: 100%;
@@ -33,12 +33,12 @@
 }
 
 [data-nf-sidebar-menu] > [data-nf-pane-button] > svg { flex: none; }
-[data-nf-sidebar-menu] > [data-nf-pane-button] > span:not([data-nf-count-badge]) {
+[data-nf-sidebar-menu] > [data-nf-pane-button] > span:not([data-nf-count-badge], [data-nf-pane-badge]) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-[data-nf-sidebar-menu] > [data-nf-pane-button] > [data-nf-count-badge] { flex: none; margin-inline-start: auto; }
+[data-nf-sidebar-menu] > [data-nf-pane-button] > :is([data-nf-count-badge], [data-nf-pane-badge]) { flex: none; margin-inline-start: auto; }
 
 @media (pointer: coarse) {
   [data-nf-sidebar-menu] button[data-nf-summary-item],
