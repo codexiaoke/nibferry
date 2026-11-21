@@ -5,15 +5,20 @@ description: 在左栏按项目组织会话，独立控制分组展开和当前�
 
 ## 图标导航栏
 
-桌面预览把 `NavigationRail` 放在工作区左侧。收起项目列表后，图标仍留在原位。点击首页可重新展开列表，回到当前会话。接入方控制图标、顺序、当前页和点击行为。
+展开时项目侧栏贴齐窗口左边。收起后，预览通过 `LeftPane.collapsedContent` 显示搜索、待办、消息通知和会话入口。「会话」在按钮旁打开相同的项目列表，保留文件夹、会话缩进、当前项和行尾操作。选择会话后浮层关闭，侧栏保持收起。「新聊天」位于标题栏。桌面预览右上方的「常驻导航栏」按钮可以切换到另一种布局，在项目侧栏旁显示独立的 `NavigationRail`。
 
 ```tsx
-import Home from '@hugeicons/core-free-icons/Home09Icon';
-import { NavigationRail, NavigationRailItem } from '@nibferry/react';
+import Inbox from '@hugeicons/core-free-icons/InboxIcon';
+import { CountBadge, LeftPane, NavigationRail, NavigationRailItem } from '@nibferry/react';
 
-<NavigationRail label="主导航">
-  <NavigationRailItem icon={Home} label="首页" current={page === 'home'} onClick={() => navigate('home')} />
-</NavigationRail>
+<LeftPane collapsed={!open} resizable collapsedContent={
+  <NavigationRail label="工作区快捷入口">
+    <NavigationRailItem icon={Inbox} label="待办" aria-label={`待办，${count} 条`}
+      badge={<CountBadge count={count} />} onClick={openInbox} />
+  </NavigationRail>
+}>
+  {sidebar}
+</LeftPane>
 ```
 
 ## 组合项目分组

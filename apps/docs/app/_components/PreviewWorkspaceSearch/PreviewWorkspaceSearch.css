@@ -1,0 +1,10 @@
+.preview-workspace-search {
+  --nf-dialog-shadow: 0 12px 32px rgb(0 0 0 / 12%);
+  max-inline-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
+  max-block-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
+  background: color-mix(in srgb, var(--nf-canvas) 94%, transparent);
+  backdrop-filter: blur(16px);
+}
+.preview-workspace-search::backdrop {
+  clip-path: inset(var(--preview-desktop-inset) round 14px);
+}

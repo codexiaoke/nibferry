@@ -3,9 +3,25 @@ html:has(.playground-desktop) {
 }
 
 .playground-desktop {
+  position: relative;
   width: 100%;
   height: 100dvh;
   --preview-desktop-inset: 30px;
   padding: var(--preview-desktop-inset);
   background: var(--site-line);
+}
+
+.playground-layout-switch {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-end: var(--preview-desktop-inset);
+  height: calc(var(--preview-desktop-inset) - 6px);
+  border: 1px solid var(--site-line);
+  background: var(--site-bg);
+  color: var(--site-muted);
+  font-size: 12px;
+}
+.playground-layout-switch[aria-pressed='true'] {
+  background: var(--site-ink);
+  color: var(--site-bg);
 }

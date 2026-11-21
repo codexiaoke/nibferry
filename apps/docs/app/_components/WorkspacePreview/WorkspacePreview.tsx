@@ -1,26 +1,34 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Component, useCallback, useLayoutEffect, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
+import { HugeiconsIcon } from '@hugeicons/react';
+import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import Globe from '@hugeicons/core-free-icons/GlobalIcon';
 import Chat from '@hugeicons/core-free-icons/BubbleChatIcon';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Changes from '@hugeicons/core-free-icons/FileEditIcon';
+import Compose from '@hugeicons/core-free-icons/PencilEdit02Icon';
 import Home from '@hugeicons/core-free-icons/Home09Icon';
 import Documents from '@hugeicons/core-free-icons/Copy01Icon';
 import History from '@hugeicons/core-free-icons/Clock01Icon';
 import More from '@hugeicons/core-free-icons/MoreHorizontalIcon';
 import Branch from '@hugeicons/core-free-icons/GitBranchIcon';
 import Grid from '@hugeicons/core-free-icons/DashboardSquare01Icon';
+import Minus from '@hugeicons/core-free-icons/MinusSignIcon';
 import {
   DropdownMenu,
-  LeftPane,
-  LeftPaneToggle,
-  MainPane,
+  FloatingPanel,
+  FloatingPanelTrigger,
   MenuContent,
   MenuItem,
   MenuTrigger,
   NavigationRail,
   NavigationRailItem,
+  PaneButton,
+  LeftPane,
+  LeftPaneToggle,
+  MainPane,
   PaneHeader,
   RightPane,
   RightPaneFullscreenToggle,
@@ -32,33 +40,112 @@ import {
   WorkspaceTab,
   WorkspaceTabAdd,
   WorkspaceTabList,
+  type PaneResizeHandleProps,
   type WorkspacePane,
 } from '@nibferry/react';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
+import PreviewChat from '../PreviewChat/PreviewChat';
 import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';
+import PreviewSidebarMenu from '../PreviewSidebarMenu/PreviewSidebarMenu';
+import PreviewWorkspaceSearch from '../PreviewWorkspaceSearch/PreviewWorkspaceSearch';
 import { basePath } from '../../site-links';
 import type { SearchEntry } from '../../../lib/docs';
+import { layoutSource, type PreviewSource } from './preview-sources';
 import './WorkspacePreview.css';
 
 const sources = [
   { title: '组件与工作区设计规范', path: '/docs/component-design/' },
-  { title: '基础布局组件', path: '/docs/layout/' },
+  layoutSource,
 ];
 const navigationGuide = { title: '项目与会话列表', path: '/docs/conversation-list/' };
 type PreviewPage = { title: string; path?: string };
 const blankPage: PreviewPage = { title: '新标签页' };
 const firstTab = 'preview-tab-1';
 
-export default function WorkspacePreview({ toolbarStart, searchEntries }: { toolbarStart?: ReactNode; searchEntries: SearchEntry[] }) {
+interface ChatOutletProps {
+  target: RefObject<HTMLDivElement | null>;
+  visible: boolean;
+  conversationId: string;
+  children: ReactNode;
+}
+
+interface ChatOutletState { host: HTMLDivElement | null }
+
+class ChatOutlet extends Component<ChatOutletProps, ChatOutletState, boolean> {
+  state: ChatOutletState = { host: null };
+  private readonly positions = new WeakMap<HTMLElement, number>();
+
+  componentDidMount() {
+    const host = document.createElement('div');
+    host.className = 'preview-chat-host';
+    this.setState({ host });
+  }
+
+  getSnapshotBeforeUpdate(previous: ChatOutletProps) {
+    const changed = previous.target !== this.props.target || previous.visible !== this.props.visible ||
+      previous.conversationId !== this.props.conversationId;
+    // A hidden viewport reports zero, even before its pending scroll event is delivered.
+    if (changed) this.state.host?.querySelectorAll<HTMLElement>('[data-nf-thread-scroll]').forEach(viewport => {
+      if (viewport.clientHeight) this.positions.set(viewport, viewport.scrollTop);
+    });
+    return changed;
+  }
+
+  componentDidUpdate(_previous: ChatOutletProps, _state: ChatOutletState, changed: boolean) {
+    const { host } = this.state;
+    const target = this.props.target.current;
+    if (!host || !target) return;
+    if (host.parentNode !== target) target.prepend(host);
+    if (changed && this.props.visible) host.querySelectorAll<HTMLElement>('[data-nf-thread-scroll]').forEach(viewport => {
+      const top = this.positions.get(viewport);
+      if (top !== undefined && viewport.clientHeight) viewport.scrollTop = top;
+    });
+  }
+
+  componentWillUnmount() { this.state.host?.remove(); }
+
+  render() {
+    return this.state.host && createPortal(this.props.children, this.state.host);
+  }
+}
+
+interface WorkspacePreviewProps {
+  toolbarStart?: ReactNode;
+  searchEntries: SearchEntry[];
+  globalNavigation: boolean;
+}
+
+function usePreviewPaneWidth(globalNavigation: boolean) {
+  const preferred = useRef<number>(undefined);
+  const [width, setWidth] = useState<number>();
+  useLayoutEffect(() => setWidth(preferred.current), [globalNavigation]);
+  const changeWidth = useCallback<PaneResizeHandleProps['onWidthChange']>((width, source) => {
+    if (source === 'user') preferred.current = width;
+    setWidth(width);
+  }, []);
+  return [width, changeWidth] as const;
+}
+
+export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation }: WorkspacePreviewProps) {
   const workspace = useRef<HTMLDivElement>(null);
   const titlebar = useRef<HTMLDivElement>(null);
   const leftPane = useRef<HTMLElement>(null);
   const mainPane = useRef<HTMLDivElement>(null);
   const rightPane = useRef<HTMLElement>(null);
   const rightToggle = useRef<HTMLButtonElement>(null);
+  const floatingBody = useRef<HTMLDivElement>(null);
+  const floatingToggle = useRef<HTMLButtonElement>(null);
+  const floatingPanel = useRef<HTMLElement>(null);
+  const [floatingOpen, setFloatingOpen] = useState(true);
+  const focusAfterToggle = useRef(false);
   const leftToggle = useRef<HTMLButtonElement>(null);
   const [projects, setProjects] = useState(initialProjects);
+  const [expandedProjects, setExpandedProjects] = useState([initialProjects[0].id]);
+  const [leftWidth, setLeftWidth] = usePreviewPaneWidth(globalNavigation);
+  const [rightWidth, setRightWidth] = usePreviewPaneWidth(globalNavigation);
+  const [searching, setSearching] = useState(false);
   const [conversationId, setConversationId] = useState(initialProjects[0].conversations[0].id);
+  const [visitedChats, setVisitedChats] = useState([conversationId]);
   const project = projects.find(entry => entry.conversations.some(chat => chat.id === conversationId))!;
   const conversation = project.conversations.find(chat => chat.id === conversationId)!;
   const [compact, setCompact] = useState(false);
@@ -99,7 +186,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
     restoreTabFocus.current = true;
   }
 
-  function openSource(selected: (typeof sources)[number]) {
+  function openSource(selected: PreviewSource) {
     const existing = order.find(id => pages[id].path === selected.path);
     if (existing === activeId && rightOpen) {
       activeButton.current?.focus();
@@ -129,9 +216,11 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
         const pane = element.getBoundingClientRect();
         return Math.max(0, Math.min(bounds.right, pane.right) - Math.max(bounds.left, pane.left));
       }
-      const railWidth = bounds.left - bar.getBoundingClientRect().left;
-      bar.style.setProperty('--preview-left-header-width', (narrow ? 0 : railWidth + visibleWidth(left)) + 'px');
+      const content = main.getClientRects().length ? main : right;
+      const leftWidth = content.getBoundingClientRect().left - bar.getBoundingClientRect().left;
+      bar.style.setProperty('--preview-left-header-width', (narrow ? 0 : leftWidth) + 'px');
       bar.style.setProperty('--preview-right-header-width', visibleWidth(right) + 'px');
+      node.style.setProperty('--preview-right-width', visibleWidth(right) + 'px');
     };
     sync();
     const observer = new ResizeObserver(sync);
@@ -145,11 +234,26 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
   const leftOpen = compact ? compactPane === 'left' : !desktopCollapsed;
   const rightOpen = compact ? compactPane === 'right' : rightMode !== 'closed';
   const fullscreen = !compact && rightMode === 'fullscreen';
+
+  useLayoutEffect(() => {
+    if (fullscreen && focusAfterToggle.current) {
+      (floatingOpen ? floatingPanel : floatingToggle).current?.focus({ preventScroll: true });
+    }
+    focusAfterToggle.current = false;
+  }, [floatingOpen, fullscreen]);
+  function toggleFloating() {
+    focusAfterToggle.current = true;
+    setFloatingOpen(open => !open);
+  }
   const currentPath = rightOpen && activeId ? pages[activeId].path : undefined;
   const visibleChats = project.conversations.filter(chat => !chat.archived);
+  const chats = projects.flatMap(project => project.conversations.filter(chat => !chat.archived)
+    .map(chat => ({ id: chat.id, title: chat.title, project: project.name, projectId: project.id })));
 
-  function selectConversation(id: string) {
+  function selectConversation(id: string, projectId = chats.find(chat => chat.id === id)!.projectId) {
+    setExpandedProjects(open => open.includes(projectId) ? open : [...open, projectId]);
     setConversationId(id);
+    setVisitedChats(ids => ids.includes(id) ? ids : [...ids, id]);
     if (compact) {
       setCompactPane('main');
       leftToggle.current?.focus();
@@ -157,6 +261,25 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
       setRightMode('split');
     }
   }
+
+  function newChat(target = project) {
+    const chat = { id: crypto.randomUUID(), title: '新聊天' };
+    setProjects(all => all.map(entry => entry.id === target.id
+      ? { ...entry, conversations: [chat, ...entry.conversations] } : entry));
+    selectConversation(chat.id, target.id);
+  }
+
+  const menuProps = {
+    chats, searching, onSearch: () => setSearching(true),
+    onOpenChat: selectConversation, onNewChat: () => newChat(),
+  };
+  const projectListProps = {
+    projects, currentId: conversationId, expanded: expandedProjects,
+    onToggle: id => setExpandedProjects(open => open.includes(id) ? open.filter(key => key !== id) : [...open, id]),
+    onNewChat: newChat,
+    onProjectChange: next => setProjects(all => all.map(entry => entry.id === next.id ? next : entry)),
+    onSelect: selectConversation,
+  } satisfies ComponentProps<typeof PreviewConversationList>;
 
   useLayoutEffect(() => {
     const tab = activeButton.current;
@@ -168,7 +291,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
   }, [activeId, order, pages, rightOpen]);
 
   return (
-    <div className="workspace-preview">
+    <div className="workspace-preview" style={{ '--nf-layout-left-pane-width': leftWidth && leftWidth + 'px' } as CSSProperties}>
       <div className="workspace-preview-titlebar" ref={titlebar}>
         <div className="workspace-preview-window-controls">
           {toolbarStart}
@@ -181,6 +304,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
               else setDesktopCollapsed(leftOpen);
             }}
           />
+          {!globalNavigation && !compact && desktopCollapsed && <PaneButton icon={Compose} aria-label="新聊天" title="新聊天" onClick={menuProps.onNewChat} />}
         </div>
         <PreviewConversationHeader
           title={conversation.title}
@@ -196,7 +320,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
               <RightPaneFullscreenToggle
                 paneId="preview-right"
                 fullscreen={fullscreen}
-                onClick={() => setRightMode(fullscreen ? 'split' : 'fullscreen')}
+                onClick={() => { setFloatingOpen(true); setRightMode(fullscreen ? 'split' : 'fullscreen'); }}
               />
             )}
             {!fullscreen && (
@@ -227,7 +351,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
           )}
         </PaneHeader>
       </div>
-      <NavigationRail label="主导航" className="workspace-preview-rail">
+      {globalNavigation && <NavigationRail label="主导航" className="workspace-preview-rail">
         <NavigationRailItem label="首页" icon={Home} className="workspace-preview-home" current={!currentPath}
           onClick={() => {
             setDesktopCollapsed(false);
@@ -261,22 +385,26 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
           onClick={() => openSource(navigationGuide)} />
         <NavigationRailItem label="布局组件指南" icon={Grid} current={currentPath === sources[1].path}
           onClick={() => openSource(sources[1])} />
-      </NavigationRail>
+      </NavigationRail>}
       <WorkspaceLayout ref={workspace} compactPane={compactPane}>
         <LeftPane
           ref={leftPane}
           id="preview-left"
           resizable
+          width={leftWidth ?? 'var(--nf-layout-left-pane-width)'}
+          onWidthChange={setLeftWidth}
           collapsed={compact ? undefined : desktopCollapsed}
+          collapsedContent={globalNavigation ? undefined : <PreviewSidebarMenu {...menuProps} collapsedProjects={projectListProps} />}
           aria-label="左侧"
         >
-          <PreviewConversationList projects={projects} currentId={conversationId}
-            searchEntries={searchEntries} onOpenPage={openSource}
-            onProjectChange={next => setProjects(all => all.map(entry => entry.id === next.id ? next : entry))}
-            onSelect={selectConversation} />
+          {(!compact || leftOpen) && <PreviewSidebarMenu {...menuProps} />}
+          <PreviewConversationList {...projectListProps} />
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
-          主体
+          <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={fullscreen ? floatingOpen : !compact || compactPane === 'main'} conversationId={conversationId}>
+            {visitedChats.map(id => <PreviewChat key={id} seeded={id === initialProjects[0].conversations[0].id}
+              hidden={id !== conversationId} onOpenSource={openSource} />)}
+          </ChatOutlet>
           <SummaryCard id="preview-summary" className="workspace-preview-summary" aria-label="会话摘要" hidden={!summaryOpen}>
             <SummaryGroup label={project.name}>
               <SummaryItem icon={Changes} trailing={`${sources.length} 份文档`}>变更</SummaryItem>
@@ -296,6 +424,8 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
         <RightPane
           ref={rightPane}
           id="preview-right"
+          width={rightWidth ?? 'var(--nf-layout-right-pane-width)'}
+          onWidthChange={setRightWidth}
           className={fullscreen ? 'workspace-preview-fullscreen' : undefined}
           resizable
           collapsed={compact ? undefined : !rightOpen}
@@ -307,7 +437,9 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
             <div key={id} id={id + '-panel'} role="tabpanel" aria-labelledby={id}
               className="workspace-preview-tabpanel" hidden={id !== activeId}>
               {page.path ? (
-                <iframe className="workspace-preview-source" title={page.title} src={basePath + page.path} />
+                <iframe className="workspace-preview-source" title={page.title}
+                  src={page.path.startsWith('/') ? basePath + page.path : page.path}
+                  sandbox={page.path.startsWith('/') ? undefined : 'allow-scripts allow-same-origin'} />
               ) : (
                 <SummaryGroup label="来源">
                   {sources.map(entry => (
@@ -318,7 +450,21 @@ export default function WorkspacePreview({ toolbarStart, searchEntries }: { tool
             </div>
           ))}
         </RightPane>
+        <div className="preview-floating-area" hidden={!fullscreen}>
+          <FloatingPanel ref={floatingPanel} id="preview-floating-chat" aria-label={conversation.title}
+            open={fullscreen && floatingOpen} header={<PaneHeader>
+              <FloatingPanelTrigger paneId="preview-floating-chat" expanded icon={Minus} onClick={toggleFloating} />
+              <HugeiconsIcon icon={Folder} size={16} aria-hidden="true" />
+              <span>{conversation.title}</span>
+            </PaneHeader>}>
+            <div ref={floatingBody} className="preview-floating-chat-body" />
+          </FloatingPanel>
+          <FloatingPanelTrigger ref={floatingToggle} paneId="preview-floating-chat" expanded={floatingOpen}
+            hidden={floatingOpen} aria-label="恢复浮动对话" onClick={toggleFloating} />
+        </div>
       </WorkspaceLayout>
+      <PreviewWorkspaceSearch open={searching} onOpenChange={setSearching} chats={chats}
+        searchEntries={searchEntries} onOpenPage={openSource} onOpenChat={selectConversation} onNewChat={menuProps.onNewChat} />
     </div>
   );
 }

@@ -7,13 +7,23 @@
 .preview-sidebar-shortcuts > [data-nf-pane-header] small { margin-block-start: calc(var(--nf-space-sm) / 4); font-size: 12px; font-weight: 400; }
 .preview-sidebar-shortcuts > [data-nf-pane-header] [data-nf-pane-button] { margin-block-start: -3px; }
 
-.preview-workspace-search {
-  --nf-dialog-shadow: 0 12px 32px rgb(0 0 0 / 12%);
-  max-inline-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
-  max-block-size: calc(100% - 2 * (var(--preview-desktop-inset) + var(--nf-space-sm)));
-  background: color-mix(in srgb, var(--nf-canvas) 94%, transparent);
-  backdrop-filter: blur(16px);
+.preview-sidebar-projects {
+  box-sizing: border-box;
+  inline-size: var(--nf-layout-left-pane-width);
+  max-inline-size: var(--radix-popover-content-available-width);
+  max-block-size: var(--radix-popover-content-available-height);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--nf-line);
+  border-radius: 16px;
+  background: var(--site-soft);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 8%);
+  z-index: var(--nf-menu-layer, 10);
 }
-.preview-workspace-search::backdrop {
-  clip-path: inset(var(--preview-desktop-inset) round 14px);
+
+@media (prefers-reduced-motion: no-preference) {
+  .preview-sidebar-projects[data-state='open'] {
+    animation: preview-sidebar-projects-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  @keyframes preview-sidebar-projects-in { from { opacity: 0; } }
 }

@@ -1,0 +1,85 @@
+.preview-chat {
+  --nf-primary: var(--site-action);
+  --nf-on-primary: var(--site-on-action);
+  --nf-secondary: var(--site-muted);
+  --nf-subtle: var(--site-soft);
+}
+.preview-chat [data-nf-transcript] > h2 { margin: 0; text-align: center; font-size: 1.35rem; }
+.preview-chat [data-nf-composer-toolbar] { font-size: .875rem; color: var(--nf-ink); }
+.preview-chat .preview-full-access { color: #973c0b; }
+@media (prefers-color-scheme: dark) {
+  .preview-chat .preview-full-access { color: #ffb683; }
+}
+.preview-chat .nf-model-trigger { padding-inline-end: 4px; }
+.preview-dictation { margin-inline-end: 4px; }
+@media (pointer: coarse) {
+  /* The 44px touch target already supplies the space on both sides of the glyph. */
+  .preview-chat .nf-model-trigger { padding-inline-end: 0; }
+  .preview-dictation { margin-inline: calc(var(--nf-space-sm) / -2); }
+}
+.preview-dictation > svg { width: 18px; height: 18px; }
+.preview-chat .preview-voice-chat {
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: 50%;
+  color: var(--nf-on-primary);
+  background: var(--nf-primary);
+}
+.preview-chat [data-nf-turn-process] p { margin-block: .65em; }
+.preview-chat [data-nf-assistant-message] > p:not(:first-child) { margin-block-start: .65em; }
+.preview-chat [data-nf-assistant-message] > p:not(:last-child) { margin-block-end: .65em; }
+.preview-sketch-head { display: flex; gap: var(--nf-space-sm); align-items: center; }
+.preview-sketch button, .preview-source-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--nf-secondary);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.preview-sketch button:hover, .preview-sketch button[aria-pressed='true'] {
+  background: var(--nf-subtle);
+  color: var(--nf-ink);
+}
+.preview-sketch {
+  display: grid;
+  grid-template-rows: 1fr;
+  border: 1px solid var(--nf-line);
+  border-radius: 14px;
+  max-width: 28rem;
+}
+.preview-sketch-content { min-block-size: 0; overflow: clip; padding-inline: var(--nf-space-md); }
+.preview-sketch-head { margin-block-start: var(--nf-space-md); justify-content: space-between; font-size: .9rem; }
+.preview-sketch-panes {
+  display: flex;
+  min-height: 68px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--nf-line);
+  margin-top: var(--nf-space-sm);
+  margin-block-end: var(--nf-space-md);
+  font-size: .8rem;
+  color: var(--nf-secondary);
+}
+.preview-sketch-panes span { display: grid; place-items: center; flex: 1; background: var(--nf-subtle); }
+.preview-sketch-panes span:nth-child(2) { flex: 2; background: var(--nf-canvas); }
+.preview-sketch-panes span + span { border-inline-start: 1px solid var(--nf-line); }
+.preview-source-link { color: var(--nf-accent-text); padding-inline: 0; display: inline-flex; align-items: center; gap: 4px; }
+.preview-doc-sources { margin: 0; padding-inline-start: var(--nf-space-lg); }
+.preview-doc-sources a { color: var(--nf-accent-text); text-decoration: underline; }
+.preview-stream-dot { display: inline-block; width: 7px; height: 7px; border-radius: 100%; background: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .preview-sketch {
+    transition: grid-template-rows calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  @starting-style {
+    .preview-sketch { grid-template-rows: 0fr; }
+  }
+  .preview-stream-dot {
+    animation: preview-chat-pulse calc(1s * var(--nf-motion-scale, 1)) var(--nf-ease) infinite alternate;
+  }
+  @keyframes preview-chat-pulse { to { opacity: .35; } }
+}
