@@ -58,7 +58,10 @@ test.describe('公开组件接入', () => {
     const option = dialog.getByRole('option', { name: 'B' });
     expect(await option.evaluate(el => getComputedStyle(el).getPropertyValue('--nf-canvas').trim())).toBe('#facade');
     await option.click();
-    await dialog.getByRole('button', { name: '权限，B' }).press('Enter');
+    await expect(dialog.getByRole('button', { name: '模型，B' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(dialog.getByRole('button', { name: '权限，B' })).toBeFocused();
+    await page.keyboard.press('Enter');
     await dialog.getByRole('menuitemradio', { name: 'A' }).focus();
     await page.keyboard.press('Enter');
     await expect(dialog.getByRole('button', { name: '模型，A' })).toBeVisible();
