@@ -1,0 +1,2 @@
+.preview-reply-motion > div { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nf-space-sm); }
+.preview-reply-motion p { min-block-size: 3.3em; line-height: 1.65; margin-block: var(--nf-space-sm); }

@@ -15,6 +15,7 @@ async function expectNoHorizontalOverflow(page: Page) {
 async function sendPreviewMessage(page: Page, message: string) {
   const input = page.getByRole('main').getByRole('textbox', { name: '消息', exact: true });
   await input.fill(message);
+  await expect(page.getByRole('main').getByRole('button', { name: '发送消息', exact: true })).toBeEnabled();
   await input.press('Enter');
 }
 
@@ -45,6 +46,22 @@ test.describe('公开组件接入', () => {
     await mount(page, 'foundation');
     await page.addStyleTag({ path: resolve('apps/docs/local-preview/preview.css') });
   }
+
+  test('空会话可请求首批历史消息，失败后通过键盘重试', async ({ page }) => {
+    await mount(page, 'history');
+    await page.getByRole('button', { name: '加载更早消息' }).press('Enter');
+    await page.getByRole('button', { name: '重试加载历史消息' }).press('Enter');
+    await expect(page.getByRole('article')).toHaveText('第一条消息');
+    await expect(page.getByRole('button', { name: /加载历史消息/ })).toHaveCount(0);
+  });
+
+  test('接入方可覆盖 Markdown 标题并接管引用链接', async ({ page }) => {
+    await mount(page, 'markdown');
+    await expect(page.getByRole('heading', { level: 3, name: '项目资料' })).toBeVisible();
+    await expect(page.locator('em')).toHaveCount(0);
+    await page.getByRole('link', { name: '布局文档' }).press('Enter');
+    await expect(page.locator('output')).toHaveText('/docs/layout/');
+  });
 
   test('字段关联错误说明，按钮保存后更新头像并短暂提示', async ({ page }) => {
     await mountGallery(page);
@@ -620,7 +637,7 @@ test('输入框加号菜单可用鼠标和键盘插入内容，取消保留草�
   await input.press('ArrowLeft');
   await add.click();
   await expect(menu).toHaveAttribute('data-side', 'top');
-  await expect(menu.getByRole('menuitem')).toHaveText(['引用布局文档', '插入代码块']);
+  await expect(menu.getByRole('menuitem')).toHaveText(['添加文件', '引用布局文档', '插入代码块']);
   await menu.getByRole('menuitem', { name: '引用布局文档' }).click();
   await expect(input).toBeFocused();
   await expect(input).toHaveValue('前[基础布局组件](/docs/layout/)后');
@@ -628,8 +645,8 @@ test('输入框加号菜单可用鼠标和键盘插入内容，取消保留草�
   await input.press('Tab');
   await expect(add).toBeFocused();
   await add.press('Enter');
-  await expect(menu.getByRole('menuitem').first()).toBeFocused();
-  await page.keyboard.press('ArrowDown');
+  await expect(menu.getByRole('menuitem', { name: '添加文件' })).toBeFocused();
+  await page.keyboard.press('End');
   await expect(menu.getByRole('menuitem', { name: '插入代码块' })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(input).toBeFocused();
@@ -877,6 +894,10 @@ test('推理强度滑块连续跟随指针，填充同步，松手和点击刻�
 });
 
 test('空草稿显示语音对话，听写插入草稿，发送时切换为停止', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'SpeechRecognition', { value: undefined });
+    Object.defineProperty(window, 'webkitSpeechRecognition', { value: undefined });
+  });
   await page.goto('./playground/');
   const main = page.getByRole('main');
   const composer = main.locator('[data-nf-composer]');
@@ -887,7 +908,8 @@ test('空草稿显示语音对话，听写插入草稿，发送时切换为停�
   await expect(send).toHaveCount(0);
   await input.fill('答：');
   await composer.getByRole('button', { name: '语音输入' }).click();
-  await page.getByRole('menuitem', { name: '怎样收起侧栏？' }).click();
+  await expect(composer.getByRole('status')).toContainText('此浏览器不支持语音识别');
+  await composer.getByRole('button', { name: '试用示例听写' }).click();
   await expect(input).toHaveValue('答：怎样收起侧栏？');
   await expect(input).toBeFocused();
   await expect(send).toBeEnabled();
@@ -931,6 +953,19 @@ test('输入框可单独提供右侧工具，省略空草稿操作时显示默�
   const right = page.locator('[data-nf-composer-tools="end"]');
   await expect(right.getByRole('button', { name: '选择模型' })).toBeVisible();
   await expect(right.getByRole('button', { name: '发送消息' })).toBeDisabled();
+});
+
+test('附件还在上传时保留禁用的发送按钮', async ({ page }) => {
+  const fromDocs = createRequire(resolve('apps/docs/package.json'));
+  const { createElement: h } = fromDocs('react');
+  const { renderToStaticMarkup } = fromDocs('react-dom/server');
+  const { ConversationComposer } = await import('../packages/react/dist/index.js');
+  await page.setContent(renderToStaticMarkup(h(ConversationComposer, {
+    value: '', onValueChange() {}, onSend() {}, canSend: false,
+    attachments: h('span', null, '上传中'), emptyAction: h('button', null, '语音对话'),
+  })));
+  await expect(page.getByRole('button', { name: '发送消息' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '语音对话' })).toHaveCount(0);
 });
 
 test('普通回复逐段显示，输入框支持换行、输入法和停止生成', async ({ page }) => {
@@ -1074,6 +1109,43 @@ test('阅读旧消息时保留滚动位置，返回最新后能继续跟随输�
   await expect(main.locator('[data-nf-turn]').last().getByRole('button', { name: /已处理/ })).toBeVisible();
   await expect.poll(() => viewport.evaluate(el => el.scrollHeight - el.scrollTop - el.clientHeight)).toBeLessThan(2);
 });
+
+for (const method of ['回车', '附件发送按钮', '语音对话'] as const) {
+  test(`上翻阅读后通过${method}发送，回到当前会话底部并继续跟随回复`, async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 550 });
+    await page.goto('./playground/?example=markdown');
+    const main = page.getByRole('main');
+    const viewport = main.locator('[data-nf-thread-scroll]');
+    const latest = main.getByRole('button', { name: '返回最新消息' });
+    await expect.poll(() => viewport.evaluate(el => el.scrollTop)).toBeGreaterThan(60);
+    await viewport.evaluate(el => { el.scrollTop = 0; });
+    await expect(latest).toBeVisible();
+
+    if (method === '回车') {
+      const input = main.getByRole('textbox', { name: '消息', exact: true });
+      await input.fill('怎样收起侧栏？');
+      await input.press('Shift+Enter');
+      await expect(latest).toBeVisible();
+      await input.press('Enter');
+    } else if (method === '附件发送按钮') {
+      await main.locator('input[type="file"]').setInputFiles({ name: '交接.txt', mimeType: 'text/plain', buffer: Buffer.from('交接') });
+      await expect(latest).toBeVisible();
+      await main.getByRole('button', { name: '发送消息', exact: true }).click();
+    } else {
+      await main.getByRole('button', { name: '语音对话', exact: true }).click();
+      await page.getByRole('menuitem', { name: '怎样收起侧栏？' }).click();
+    }
+
+    const turns = main.locator('[data-nf-turn]');
+    await expect(turns).toHaveCount(2);
+    const distance = () => viewport.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop);
+    await expect.poll(distance).toBeLessThan(2);
+    await expect(latest).toBeHidden();
+    await expect(turns.last().locator('[data-nf-assistant-message]')).toContainText(
+      method === '附件发送按钮' ? '已收到附件' : '刚才的会话');
+    await expect.poll(distance).toBeLessThan(2);
+  });
+}
 
 test('读者展开已结束的过程时，标题保持在点击处', async ({ page }) => {
   await page.setViewportSize({ width: 1100, height: 620 });
@@ -3093,6 +3165,10 @@ test('键盘调宽遵循两端边界，窄屏和单栏展开时让出焦点', as
   await left.press('ArrowRight');
   await expect(left).toHaveAttribute('aria-valuenow', '248');
   await left.press('Tab');
+  for (const name of ['复制消息', '编辑消息']) {
+    await expect(page.getByRole('main').getByRole('button', { name, exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+  }
   await expect(page.getByRole('button', { name: '已处理 4 秒' })).toBeFocused();
   await page.getByRole('main').getByRole('textbox', { name: '消息', exact: true }).press('Tab');
   for (const name of ['添加内容', '权限，完全访问', '模型，GPT-6.2 Astra 极高', '语音输入', '语音对话']) {
@@ -3506,4 +3582,593 @@ test('工作区布局示例支持宽屏拖动分栏和窄屏切换面板', async
   await expect(inline.locator('[data-nf-pane="right"]')).toBeVisible();
   await expect(inline.locator('[data-nf-pane="main"]')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('附件可多选、移除、单独发送，并在右侧复用文档标签', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./playground/');
+  const composer = page.locator('[data-nf-composer]:visible');
+  const strip = composer.getByRole('list', { name: '待发送附件' });
+  await composer.getByRole('button', { name: '添加内容' }).click();
+  const choosing = page.waitForEvent('filechooser');
+  await page.getByRole('menuitem', { name: '添加文件' }).click();
+  const { zipSync, strToU8 } = createRequire(resolve('apps/docs/package.json'))('fflate');
+  await (await choosing).setFiles([
+    { name: '稿件.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      buffer: Buffer.from(zipSync({ 'word/document.xml': strToU8('<w:document xmlns:w="urn:word"><w:p><w:r><w:t>稿件正文</w:t></w:r></w:p></w:document>') })) },
+    { name: '笔记.txt', mimeType: 'text/plain', buffer: Buffer.from('附件阅读位置') },
+  ]);
+  await expect(composer.getByRole('textbox')).toBeFocused();
+  await expect(page.getByRole('tablist', { name: '右侧工作区标签' })).toBeHidden();
+  await strip.getByRole('button', { name: '笔记.txt', exact: true }).click();
+  await expect(page.getByRole('tabpanel').getByText('附件阅读位置')).toBeVisible();
+  const doc = strip.getByRole('button', { name: '稿件.docx', exact: true });
+  await doc.press('Enter');
+  await expect(page.getByRole('tabpanel').getByText('稿件正文')).toBeVisible();
+  await expect(page.getByRole('tab', { name: '稿件.docx' })).toHaveCount(1);
+  await strip.getByRole('button', { name: '笔记.txt', exact: true }).hover();
+  await strip.getByRole('button', { name: '移除 笔记.txt' }).click();
+  await expect(strip.getByRole('listitem')).toHaveCount(1);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  await expect(page.locator('[data-nf-floating-panel]:visible').getByRole('button', { name: '稿件.docx', exact: true })).toBeVisible();
+  await expect(composer.getByRole('button', { name: '发送消息' })).toBeEnabled();
+  await composer.getByRole('textbox').press('Enter');
+  await expect(strip).toHaveCount(0);
+  const sent = page.getByRole('list', { name: '消息附件' });
+  await expect(sent.getByText('DOCX', { exact: true })).toBeVisible();
+  await expect(page.locator('[data-nf-user-message]').filter({ has: sent }).locator('[data-nf-user-message-text]')).toHaveCount(0);
+  await sent.getByRole('button', { name: '稿件.docx' }).click();
+  await expect(page.getByRole('tab', { name: '稿件.docx', selected: true })).toHaveCount(1);
+  await expect(sent.getByRole('button', { name: /移除/ })).toHaveCount(0);
+});
+
+test('粘贴图片和拖入 PDF 在同一排展示，点击查看原文件', async ({ page, browser }) => {
+  await page.goto('./playground/');
+  const composer = page.locator('[data-nf-composer]:visible');
+  const input = composer.getByRole('textbox');
+  await input.fill('请核对附件');
+  await input.evaluate(el => {
+    const data = new DataTransfer();
+    const png = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j4WYAAAAASUVORK5CYII='), char => char.charCodeAt(0));
+    data.items.add(new File([png], '截图.png', { type: 'image/png' }));
+    el.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: data }));
+  });
+  const print = await browser.newPage();
+  await print.setContent('<h1>File preview</h1>');
+  const pdf = await print.pdf();
+  await print.close();
+  await composer.evaluate((el, encoded) => {
+    const data = new DataTransfer();
+    data.items.add(new File([Uint8Array.from(atob(encoded), char => char.charCodeAt(0))], '资料.pdf', { type: 'application/pdf' }));
+    el.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: data }));
+    el.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: data }));
+  }, pdf.toString('base64'));
+  await expect(input).toHaveValue('请核对附件');
+  const strip = composer.getByRole('list');
+  const pdfCard = strip.getByRole('button', { name: '资料.pdf', exact: true });
+  await expect(pdfCard.locator('img')).toBeVisible({ timeout: 15_000 });
+  await pdfCard.click();
+  await expect(page.getByRole('tabpanel').locator('object[type="application/pdf"]')).toHaveAttribute('data', /^blob:/);
+  await strip.getByRole('button', { name: '截图.png', exact: true }).click();
+  await expect(page.getByRole('tabpanel').getByRole('img', { name: '截图.png' })).toBeVisible();
+  await expect(input).toHaveValue('请核对附件');
+});
+
+test('发送图片后缩略图与下方气泡右对齐，键盘可在右侧打开原图', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  const composer = page.locator('[data-nf-composer]:visible');
+  const fileName = '布局截图.png';
+  await composer.locator('input[type=file]').setInputFiles({
+    name: fileName, mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j4WYAAAAASUVORK5CYII=', 'base64'),
+  });
+  await expect(composer.getByRole('listitem')).toHaveCSS('width', '122px');
+  const input = composer.getByRole('textbox');
+  const body = '参考这张截图讨论一下布局，点击图片在右侧打开预览。';
+  await input.fill(body);
+  await expect(composer.getByRole('button', { name: '发送消息' })).toBeEnabled();
+  await input.press('Enter');
+  const message = page.locator('[data-nf-user-message]').filter({ hasText: body });
+  const card = message.getByRole('listitem');
+  const bubble = message.getByText(body, { exact: true });
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(card).toHaveCSS('width', '80px');
+    await expect(card).toHaveCSS('height', '80px');
+    await expect(card.locator('img')).toHaveCSS('object-fit', 'contain');
+    const image = (await card.boundingBox())!;
+    const text = (await bubble.boundingBox())!;
+    expect(image.x + image.width).toBeCloseTo(text.x + text.width, 0);
+    expect(text.y - image.y - image.height).toBeCloseTo(8, 0);
+    await expectNoHorizontalOverflow(page);
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await card.getByRole('button', { name: fileName }).press('Enter');
+  await expect(page.getByRole('tabpanel').getByRole('img', { name: fileName })).toBeVisible();
+});
+
+test('文件可以放在消息、浮窗空白区或输入框，每次只加入当前草稿一次', async ({ page }) => {
+  await page.goto('./playground/');
+  const view = page.locator('[data-nf-conversation-view]:visible');
+  const message = view.locator('[data-nf-user-message]').first();
+  const hint = view.getByText('松开以添加附件', { exact: true });
+  const attachments = view.getByRole('list', { name: '待发送附件' }).getByRole('listitem');
+  const data = await page.evaluateHandle(() => {
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(['内容'], '笔记.txt', { type: 'text/plain' }));
+    return transfer;
+  });
+  const text = await page.evaluateHandle(() => {
+    const transfer = new DataTransfer();
+    transfer.setData('text/plain', '选中的文字');
+    return transfer;
+  });
+  await message.dispatchEvent('dragover', { dataTransfer: text });
+  await expect(view).not.toHaveAttribute('data-file-hover');
+  await expect(hint).toBeHidden();
+  await message.dispatchEvent('dragenter', { dataTransfer: data });
+  await expect(view).toHaveAttribute('data-file-hover', 'true');
+  await expect(hint).toBeVisible();
+  await expect(view).toHaveCSS('outline-style', 'none');
+  await expect(view.getByRole('status').filter({ hasText: '松开以添加附件' })).toHaveCSS('pointer-events', 'none');
+  const offset = await hint.evaluate(el => {
+    const area = el.closest('[data-nf-conversation-view]')!.getBoundingClientRect();
+    const label = el.getBoundingClientRect();
+    return { x: label.x + label.width / 2 - (area.x + area.width / 2),
+      y: label.y + label.height / 2 - (area.y + area.height / 2) };
+  });
+  expect(Math.abs(offset.x)).toBeLessThan(1);
+  expect(Math.abs(offset.y)).toBeLessThan(1);
+  await message.dispatchEvent('dragleave', { dataTransfer: data });
+  await expect(view).not.toHaveAttribute('data-file-hover');
+  await expect(hint).toBeHidden();
+  await expect(attachments).toHaveCount(0);
+
+  await message.dispatchEvent('dragover', { dataTransfer: data });
+  await message.dispatchEvent('drop', { dataTransfer: data });
+  await expect(view).not.toHaveAttribute('data-file-hover');
+  await expect(hint).toBeHidden();
+  await expect(attachments).toHaveCount(1);
+  await expect(view.getByRole('textbox')).toBeFocused();
+  await openPreviewRightPane(page);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  const floating = page.locator('#preview-floating-chat');
+  await floating.locator('[data-nf-thread-scroll]').dispatchEvent('drop', { dataTransfer: data });
+  await expect(attachments).toHaveCount(2);
+  await floating.getByRole('textbox').dispatchEvent('drop', { dataTransfer: data });
+  await expect(attachments).toHaveCount(3);
+});
+
+test('消息操作分侧排列，键盘可复制、评价以及原位重新生成较早的回复', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+  await page.goto('./playground/');
+  await sendPreviewMessage(page, '新的问题');
+  const turns = page.getByRole('main').locator('[data-nf-turn]');
+  const first = turns.first();
+  const user = first.getByRole('group', { name: '用户消息操作' });
+  const reply = first.getByRole('group', { name: '回复操作' });
+  await expect(turns.last().getByRole('group', { name: '回复操作' })).toBeAttached();
+  await page.mouse.move(0, 0);
+  await expect(reply).toHaveCSS('opacity', '0');
+  const copy = reply.getByRole('button', { name: '复制回复' });
+  await copy.focus();
+  await expect(reply).toHaveCSS('opacity', '1');
+  await copy.press('Enter');
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('打开右栏后');
+  await user.getByRole('button', { name: '复制消息' }).press('Enter');
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe('给我一张工作区布局草图');
+  expect((await user.locator('time').boundingBox())!.x).toBeLessThan((await user.getByRole('button').first().boundingBox())!.x);
+  expect((await reply.locator('time').boundingBox())!.x).toBeGreaterThan((await copy.boundingBox())!.x);
+  const feedback = reply.getByRole('button', { name: '评价回复' });
+  await feedback.press('Enter');
+  await page.getByRole('menuitem', { name: '有帮助', exact: true }).press('Enter');
+  await expect(feedback).toBeFocused();
+  await feedback.press('Enter');
+  await expect(page.getByRole('menuitem', { name: '撤销有帮助' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(feedback).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(reply.getByRole('button', { name: '更多回复操作' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('menuitem', { name: '重新生成' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(first.getByRole('status', { name: '正在生成' })).toBeVisible();
+  await expect(first.getByRole('group', { name: '回复操作' })).toBeAttached({ timeout: 10000 });
+  await expect(turns).toHaveCount(2);
+  await expect(turns.last().locator('[data-nf-user-message]')).toHaveText('新的问题');
+});
+
+test('编辑取回原附件，取消和保存都恢复之前的草稿', async ({ page }) => {
+  await page.goto('./playground/');
+  const main = page.getByRole('main');
+  const picker = main.locator('input[type="file"]');
+  const field = main.getByRole('textbox', { name: '消息', exact: true });
+  const files = main.getByRole('list', { name: '待发送附件' });
+  await picker.setInputFiles({ name: '原文.txt', mimeType: 'text/plain', buffer: Buffer.from('原文') });
+  await sendPreviewMessage(page, '帮我核对');
+  const turn = main.locator('[data-nf-turn]').last();
+  const edit = turn.getByRole('button', { name: '编辑消息' });
+  await field.fill('下一条草稿');
+  await picker.setInputFiles({ name: '草稿.txt', mimeType: 'text/plain', buffer: Buffer.from('草稿') });
+  await edit.press('Enter');
+  await expect(field).toBeFocused();
+  await expect(field).toHaveValue('帮我核对');
+  await expect(files.getByRole('button', { name: '原文.txt', exact: true })).toBeVisible();
+  await field.fill('暂时修改');
+  await main.getByRole('button', { name: '取消编辑' }).click();
+  await expect(field).toHaveValue('下一条草稿');
+  await expect(files.getByRole('button', { name: '草稿.txt', exact: true })).toBeVisible();
+  await edit.press('Enter');
+  await field.fill('请核对第二段');
+  await main.getByRole('button', { name: '保存并重新发送' }).click();
+  await expect(turn.locator('[data-nf-user-message-text]')).toHaveText('请核对第二段');
+  await expect(turn.getByRole('list', { name: '消息附件' }).getByRole('button', { name: '原文.txt' })).toBeVisible();
+  await expect(main.locator('[data-nf-turn]')).toHaveCount(2);
+  await expect(field).toHaveValue('下一条草稿');
+  await expect(files.getByRole('button', { name: '草稿.txt', exact: true })).toBeVisible();
+});
+
+test('断网发送保留附件，回复中断保留已收正文，恢复后在原回合重试', async ({ page, context }) => {
+  await page.goto('./playground/');
+  const main = page.getByRole('main');
+  const turns = main.locator('[data-nf-turn]');
+  const last = turns.last();
+  await main.locator('input[type="file"]').setInputFiles({ name: '附件.txt', mimeType: 'text/plain', buffer: Buffer.from('测试') });
+  await expect(main.getByRole('button', { name: '发送消息' })).toBeEnabled();
+  await context.setOffline(true);
+  await sendPreviewMessage(page, '请查收');
+  await expect(last.getByRole('alert')).toContainText('发送失败');
+  await expect(last.getByRole('button', { name: '重新发送' })).toBeDisabled();
+  await expect(last.getByRole('button', { name: '附件.txt' })).toBeVisible();
+  await expect(last.locator('[data-nf-assistant-message]')).toHaveCount(0);
+  await context.setOffline(false);
+  await last.getByRole('button', { name: '重新发送' }).click();
+  await expect(last.locator('[data-nf-assistant-message]')).toHaveText('已收到附件。');
+  await expect(turns).toHaveCount(2);
+  await sendPreviewMessage(page, '如何收起侧栏？');
+  const answer = last.locator('[data-nf-assistant-message] > p');
+  await expect(answer).toContainText('点击窗口');
+  await context.setOffline(true);
+  await expect(last.getByRole('alert')).toContainText('回复中断');
+  await expect(last.getByRole('button', { name: '重试', exact: true })).toBeDisabled();
+  const partial = await answer.innerText();
+  expect(partial.length).toBeGreaterThan(0);
+  await context.setOffline(false);
+  await last.getByRole('button', { name: '重试', exact: true }).press('Enter');
+  await expect(answer).toContainText(partial);
+  await expect(answer).toContainText('刚才的会话。');
+  await expect(last.getByRole('alert')).toHaveCount(0);
+  await expect(turns).toHaveCount(3);
+});
+
+test.describe('触屏消息操作', () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 812 } });
+  test('操作常显，朗读按钮控制当前回复', async ({ page }) => {
+    await page.addInitScript(() => {
+      let reading: SpeechSynthesisUtterance | undefined;
+      Object.defineProperty(window, 'speechSynthesis', { value: {
+        speak(utterance: SpeechSynthesisUtterance) { reading = utterance; },
+        cancel() { reading?.dispatchEvent(new Event('end')); reading = undefined; },
+      } });
+    });
+    await page.goto('./playground/');
+    const turn = page.getByRole('main').locator('[data-nf-turn]').first();
+    const reply = turn.getByRole('group', { name: '回复操作' });
+    await expect(turn.getByRole('group', { name: '用户消息操作' })).toHaveCSS('opacity', '1');
+    await expect(reply).toHaveCSS('opacity', '1');
+    await reply.getByRole('button', { name: '朗读回复' }).tap();
+    const stop = reply.getByRole('button', { name: '停止朗读' });
+    await expect(stop).toHaveAttribute('aria-pressed', 'true');
+    await stop.tap();
+    await expect(reply.getByRole('button', { name: '朗读回复' })).toHaveAttribute('aria-pressed', 'false');
+    await expectNoHorizontalOverflow(page);
+  });
+});
+
+test('Markdown 回复可复制代码，正文引用在同一右栏文档中定位和再次定位', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./playground/?example=markdown');
+  const body = page.getByRole('main').locator('[data-nf-message-markdown]');
+  await expect(body.locator('ol > li')).toHaveCount(2);
+  await expect(body.getByRole('table').getByRole('row')).toHaveCount(4);
+  await body.getByRole('button', { name: '复制代码' }).press('Enter');
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe('<WorkspaceLayout>\n  <MainPane>对话</MainPane>\n  <RightPane resizable>资料</RightPane>\n</WorkspaceLayout>');
+  const tab = page.getByRole('tab', { name: '基础布局组件' });
+  const panel = page.getByRole('tabpanel', { name: '基础布局组件' });
+  const frame = panel.frameLocator('iframe');
+  for (const section of ['调整分栏宽度', '展开与还原', '展开与还原']) {
+    await body.getByRole('link', { name: section }).press('Enter');
+    await expect(tab).toHaveCount(1);
+    await expect(tab).toHaveAttribute('aria-selected', 'true');
+    const heading = frame.getByRole('heading', { name: section, exact: true });
+    await expect.poll(() => heading.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      return rect.top >= 0 && rect.bottom <= window.innerHeight;
+    })).toBe(true);
+    await heading.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  }
+  await expect(page).toHaveURL(/playground\/\?example=markdown$/);
+});
+
+test('审批和画布在后续输出时保留决定、节点名称与输入焦点', async ({ page }) => {
+  await page.goto('./playground/');
+  await sendPreviewMessage(page, '展示审批与画布');
+  const turn = page.getByRole('main').locator('[data-nf-turn]').last();
+  const review = turn.getByRole('region', { name: '流程草案审批' });
+  await review.getByRole('button', { name: '通过', exact: true }).press('Enter');
+  await expect(review.getByRole('status')).toHaveText('已通过');
+  await expect(review.getByRole('button')).toHaveCount(0);
+  await expect(review.locator('footer')).toHaveCount(0);
+  const canvas = turn.getByRole('region', { name: '交接流程画布' });
+  await canvas.getByRole('button', { name: '核对', exact: true }).press('Enter');
+  const name = canvas.getByRole('textbox', { name: '节点名称' });
+  await name.fill('团队复核');
+  await name.press('ArrowLeft');
+  await expect(turn.getByRole('status', { name: '正在生成' })).toBeVisible();
+  await expect(turn.getByText(/每个节点都可以用团队常用的名称。/)).toBeVisible();
+  await expect(name).toBeFocused();
+  expect(await name.evaluate(el => (el as HTMLInputElement).selectionStart)).toBe(3);
+  await expect(canvas.getByRole('button', { name: '团队复核' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(review.getByRole('status')).toHaveText('已通过');
+  await sendPreviewMessage(page, '再展示一次审批');
+  await review.getByRole('button', { name: '退回' }).press('Enter');
+  await expect(review.getByRole('status')).toHaveText('已退回');
+  await expect(page.getByText('已通过', { exact: true })).toBeVisible();
+});
+
+test('窄屏消息示例可查看 Markdown 与卡片并编辑节点', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+  await page.goto('./docs/components/messages/conversation-view/');
+  const demo = page.locator('.docs-prose .component-demo');
+  await demo.getByRole('tab', { name: 'Markdown 正文' }).click();
+  await expect(demo.getByRole('table')).toBeVisible();
+  await expect(demo.getByRole('button', { name: '复制代码' })).toBeVisible();
+  await demo.getByRole('tab', { name: '流内卡片' }).click();
+  const name = demo.getByRole('textbox', { name: '节点名称' });
+  await name.fill('草拟方案');
+  await expect(demo.getByRole('button', { name: '草拟方案' })).toHaveAttribute('aria-pressed', 'true');
+  await expectNoHorizontalOverflow(page);
+});
+
+test('回复动效可在设置中试播，流光笔尖应用到聊天并随停止收起', async ({ page }) => {
+  await page.goto('./playground/');
+  await page.getByRole('button', { name: 'xiaoke 的账户菜单' }).press('Enter');
+  await page.getByRole('menuitem', { name: '设置', exact: true }).press('Enter');
+  const dialog = page.getByRole('dialog', { name: '设置', exact: true });
+  await dialog.getByRole('button', { name: '回复动效，像素显影' }).press('Enter');
+  await page.getByRole('menuitemradio', { name: '流光笔尖' }).press('Enter');
+  await expect(dialog.locator('[data-nf-stream-text="pen"] [data-nf-pen-tip] i')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await sendPreviewMessage(page, '怎样收起侧栏');
+  const main = page.getByRole('main');
+  const stream = main.locator('[data-nf-stream-text="pen"]');
+  await expect(stream.locator('[data-nf-pen-tip] i')).toBeVisible();
+  await expect.poll(() => stream.evaluate(el => {
+    const last = el.querySelector('[data-nf-stream-chunk]:has(+ [data-nf-pen-tip])');
+    if (!last) return false;
+    const textRect = last.getBoundingClientRect();
+    const anchor = el.querySelector('[data-nf-pen-tip]')!.getBoundingClientRect();
+    const ink = el.querySelector('[data-nf-pen-tip] i')!.getBoundingClientRect();
+    return Math.abs(anchor.x - textRect.right) < 1 && ink.bottom > textRect.top && ink.top < textRect.bottom;
+  })).toBe(true);
+  await main.getByRole('button', { name: '停止生成' }).click();
+  await expect(main.locator('[data-nf-pen-tip]')).toHaveCount(0);
+  await expect(main.getByText('已停止生成')).toBeVisible();
+  await expect(main.locator('[data-nf-assistant-message]').last().locator('p')).not.toBeEmpty();
+});
+
+test('默认像素显影追加文字，附件能在流内载入并在右栏打开', async ({ page }) => {
+  await page.goto('./playground/?example=cards');
+  const main = page.getByRole('main');
+  const file = main.getByRole('button', { name: '交接流程图.svg' });
+  await expect(file.locator('canvas[data-loaded]')).toBeAttached();
+  const live = main.locator('[data-nf-stream-text="pixel"]');
+  await expect(live.locator('[data-nf-stream-chunk]').last()).toHaveCSS('animation-name', 'nf-stream-pixel');
+  const size = await file.boundingBox();
+  await file.press('Enter');
+  const tab = page.getByRole('tab', { name: '交接流程图.svg' });
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: '交接流程图.svg' }).frameLocator('iframe').locator('svg')).toBeVisible();
+  await expect(live).toHaveCount(0);
+  expect((await file.boundingBox())!.height).toBeCloseTo(size!.height, 2);
+  await expect(main.locator('[data-nf-stream-chunk]')).toHaveCount(0);
+});
+
+test('窄屏可切换三种出字效果，系统和主题都能关闭视觉动效', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+  await page.goto('./docs/components/messages/conversation-view/');
+  const demo = page.locator('.docs-prose .component-demo');
+  await demo.getByRole('tab', { name: '回复动效' }).click();
+  const play = demo.getByRole('button', { name: '重播示例' });
+  await play.click();
+  const chunk = demo.locator('[data-nf-stream-chunk]').last();
+  await expect(chunk).toHaveCSS('animation-name', 'none');
+  await demo.getByRole('button', { name: '回复动效，像素显影' }).click();
+  await page.getByRole('menuitemradio', { name: '只看文字' }).click();
+  await expect(demo.locator('[data-nf-stream-text="plain"]')).toBeVisible();
+  await expect(demo.locator('[data-nf-pen-tip]')).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await demo.evaluate(el => (el as HTMLElement).style.setProperty('--nf-motion-scale', '0'));
+  await play.click();
+  await expect(chunk).toHaveCSS('animation-duration', '0s');
+  await expectNoHorizontalOverflow(page);
+});
+
+test('Markdown 生成时追加表格行和代码行并保留首行', async ({ page }) => {
+  await page.goto('./playground/');
+  await sendPreviewMessage(page, '展示 Markdown 排版');
+  const message = page.getByRole('main').locator('[data-nf-assistant-message]').last();
+  const rows = message.locator('tbody tr');
+  await expect(rows.first()).toBeVisible();
+  const firstRow = await rows.first().elementHandle();
+  const lines = message.locator('[data-nf-code-line]');
+  await expect(lines.first()).toHaveText(/<WorkspaceLayout>/);
+  const firstLine = await lines.first().elementHandle();
+  await expect(lines).toHaveCount(4);
+  await expect(message).not.toHaveAttribute('data-nf-streaming', 'true');
+  expect(await firstRow!.evaluate(el => el.isConnected)).toBe(true);
+  expect(await firstLine!.evaluate(el => el.isConnected)).toBe(true);
+});
+
+test('回复版本可切回原文，选区引用发送后定位到对应版本', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/?example=chat');
+  const main = page.getByRole('main');
+  const input = main.getByRole('textbox', { name: '消息', exact: true });
+  const turn = main.locator('[data-nf-turn]').last();
+  await turn.getByRole('button', { name: '编辑消息' }).press('Enter');
+  await input.fill('怎样收起侧栏？');
+  await main.getByRole('button', { name: '保存并重新发送' }).click();
+  await expect(turn.getByRole('navigation', { name: '回复版本' })).toContainText('2 / 2');
+  await turn.getByRole('button', { name: '上一版回复' }).press('Enter');
+  await expect(turn.getByRole('button', { name: '上一版回复' })).toBeDisabled();
+  await expect(turn.getByRole('heading', { name: '工作区布局' })).toBeVisible();
+  await turn.getByRole('heading', { name: '工作区布局' }).scrollIntoViewIfNeeded();
+  await turn.getByRole('heading', { name: '工作区布局' }).evaluate(el => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+  });
+  const cite = main.getByRole('button', { name: '引用', exact: true });
+  await expect(cite).toBeVisible();
+  const geometry = await cite.evaluate(button => {
+    const range = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
+    const box = button.getBoundingClientRect();
+    return { centerOffset: Math.abs((range.left + range.right - box.left - box.right) / 2),
+      gap: Math.max(range.top - box.bottom, box.top - range.bottom) };
+  });
+  expect(geometry.centerOffset).toBeLessThan(2);
+  expect(geometry.gap).toBeGreaterThanOrEqual(7);
+  await cite.click();
+  await expect(input).toBeFocused();
+  await expect(main.locator('[data-nf-composer] [data-nf-message-quote]')).toContainText('工作区布局');
+  await expect(main.locator('[data-nf-composer] [data-nf-quote-source]')).toHaveText('助手回复');
+  await turn.getByRole('button', { name: '下一版回复' }).press('Enter');
+  await sendPreviewMessage(page, '这句话是什么意思？');
+  const sent = main.locator('[data-nf-turn]').last();
+  await sent.getByRole('button', { name: '查看原消息：工作区布局' }).click();
+  const original = main.locator('[data-nf-turn]').filter({ has: page.getByRole('heading', { name: '工作区布局' }) });
+  await expect(original.locator('[data-nf-assistant-message]')).toBeFocused();
+  await expect(original.getByRole('heading', { name: '工作区布局' })).toBeInViewport();
+});
+
+test('重新生成增加回复版本，中断后重试仍使用当前版本', async ({ page, context }) => {
+  await page.goto('./playground/');
+  await sendPreviewMessage(page, '怎样收起侧栏？');
+  const turn = page.getByRole('main').locator('[data-nf-turn]').last();
+  await turn.getByRole('button', { name: '更多回复操作' }).press('Enter');
+  await page.getByRole('menuitem', { name: '重新生成' }).press('Enter');
+  await expect(turn.getByRole('status', { name: '正在生成' })).toBeAttached();
+  await context.setOffline(true);
+  await expect(turn.getByRole('alert')).toContainText('回复中断');
+  await context.setOffline(false);
+  await turn.getByRole('button', { name: '重试', exact: true }).click();
+  await expect(turn.getByRole('navigation', { name: '回复版本' })).toContainText('2 / 2');
+  await expect(turn.locator('[data-nf-assistant-message]')).toContainText('更多阅读空间');
+  await turn.getByRole('button', { name: '上一版回复' }).press('Enter');
+  await expect(turn.locator('[data-nf-assistant-message]')).toContainText('刚才的会话');
+});
+
+test('向上分页保留阅读位置，载入最后一页后收起历史入口', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 600 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/?example=chat');
+  const main = page.getByRole('main');
+  const view = main.locator('[data-nf-thread-scroll]');
+  const turns = main.locator('[data-nf-turn]');
+  await expect(turns).toHaveCount(5);
+  const top = await view.evaluate(el => {
+    el.scrollTop = 0;
+    return el.querySelector('[data-revision="history-8"]')!.getBoundingClientRect().top;
+  });
+  await expect(turns).toHaveCount(9);
+  await expect.poll(() => main.locator('[data-revision="history-8"]').evaluate(el => el.getBoundingClientRect().top))
+    .toBeCloseTo(top, 0);
+  await view.evaluate(el => { el.scrollTop = 0; });
+  await expect(turns).toHaveCount(13);
+  await expect(main.getByRole('button', { name: '加载更早消息' })).toHaveCount(0);
+});
+
+test('每个附件可单独取消、离线失败、重试，全部就绪后才能发送', async ({ page, context }) => {
+  await page.goto('./playground/');
+  const main = page.getByRole('main');
+  const composer = main.locator('[data-nf-composer]');
+  await composer.locator('input[type=file]').setInputFiles(['甲.txt', '乙.txt'].map(name =>
+    ({ name, mimeType: 'text/plain', buffer: Buffer.from(name) })));
+  await expect(composer.getByRole('progressbar')).toHaveCount(2);
+  const send = composer.getByRole('button', { name: '发送消息' });
+  await expect(send).toBeDisabled();
+  await composer.getByRole('button', { name: '取消上传 甲.txt' }).click();
+  await context.setOffline(true);
+  await expect(composer.getByRole('status').filter({ hasText: '上传失败' })).toBeVisible();
+  await expect(composer.getByRole('status').filter({ hasText: '已取消' })).toBeVisible();
+  await context.setOffline(false);
+  await composer.getByRole('button', { name: '重新上传 乙.txt' }).click();
+  await expect(composer.getByRole('progressbar', { name: '乙.txt 上传进度' })).toHaveCount(0);
+  await expect(send).toBeDisabled();
+  await composer.getByRole('button', { name: '重新上传 甲.txt' }).click();
+  await send.click();
+  await expect(main.getByRole('list', { name: '消息附件' }).getByRole('listitem')).toHaveCount(2);
+});
+
+test('语音录入可结束、取消、处理权限失败并重试', async ({ page }) => {
+  await page.addInitScript(() => {
+    class Recognition {
+      onstart?: () => void;
+      onresult?: (event: unknown) => void;
+      onerror?: (event: unknown) => void;
+      start() {
+        if (sessionStorage.getItem('denyMic')) this.onerror?.({ error: 'not-allowed' });
+        else this.onstart?.();
+      }
+      stop() { setTimeout(() => this.onresult?.({ results: [[{ transcript: '记录交接进度' }]] }), 120); }
+      abort() {}
+    }
+    Object.defineProperty(window, 'SpeechRecognition', { value: Recognition });
+  });
+  await page.goto('./playground/');
+  const composer = page.locator('[data-nf-composer]:visible');
+  const field = composer.getByRole('textbox');
+  async function record() {
+    await composer.getByRole('button', { name: '语音输入' }).click();
+  }
+  await record();
+  await expect(composer.getByRole('status')).toHaveText('正在录音');
+  await expect(composer.getByRole('timer')).toHaveText('0:01');
+  await composer.getByRole('button', { name: '取消录音' }).click();
+  await expect(field).toHaveValue('');
+  await page.evaluate(() => sessionStorage.setItem('denyMic', '1'));
+  await record();
+  await expect(composer.getByRole('status')).toContainText('麦克风权限被拒绝');
+  await page.evaluate(() => sessionStorage.removeItem('denyMic'));
+  const main = page.getByRole('main');
+  const turns = main.locator('[data-nf-turn]');
+  const initialCount = await turns.count();
+  await turns.last().getByRole('button', { name: '更多回复操作' }).press('Enter');
+  await page.getByRole('menuitem', { name: /引用/ }).press('Enter');
+  const excerpt = composer.locator('[data-nf-quote-excerpt]');
+  const quote = await excerpt.innerText();
+  await expect(field).toHaveAttribute('placeholder', '针对这段回复提问…');
+  await expect(composer.getByRole('button', { name: '发送消息' })).toHaveCount(0);
+  await expect(composer.getByRole('button', { name: '语音对话' })).toHaveCount(0);
+  await record();
+  await composer.getByRole('button', { name: '结束录音' }).click();
+  await expect(composer.getByRole('status')).toHaveText('正在转写');
+  await expect(field).toHaveValue('记录交接进度');
+  await expect(field).toBeFocused();
+  await expect(excerpt).toHaveText(quote);
+  await expect(turns).toHaveCount(initialCount);
+  await field.fill('请补充交接进度');
+  await field.press('Enter');
+  await expect(turns).toHaveCount(initialCount + 1);
+  await expect(turns.last().locator('[data-nf-user-message] [data-nf-quote-excerpt]')).toHaveText(quote);
+  await expect(turns.last().locator('[data-nf-user-message-text]')).toHaveText('请补充交接进度');
 });

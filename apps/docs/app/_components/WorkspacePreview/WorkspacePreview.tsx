@@ -42,11 +42,13 @@ import {
   WorkspaceTabAdd,
   WorkspaceTabList,
   type PaneResizeHandleProps,
+  type StreamingEffect,
   type WorkspacePane,
 } from 'nibferry';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
 import PreviewAccountMenu from '../PreviewAccountMenu/PreviewAccountMenu';
 import PreviewChat from '../PreviewChat/PreviewChat';
+import { FileViewer } from '../PreviewChat/ChatAttachments';
 import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';
 import PreviewSidebarMenu from '../PreviewSidebarMenu/PreviewSidebarMenu';
 import PreviewWorkspaceSearch from '../PreviewWorkspaceSearch/PreviewWorkspaceSearch';
@@ -60,7 +62,19 @@ const sources = [
   layoutSource,
 ];
 const navigationGuide = { title: '项目与会话列表', path: '/docs/conversation-list/' };
-type PreviewPage = { title: string; path?: string };
+type PreviewPage = PreviewSource | { title: string; path?: undefined; file?: undefined; section?: undefined };
+
+function SourceFrame({ page }: { page: PreviewSource }) {
+  const frame = useRef<HTMLIFrameElement>(null);
+  const local = page.path.startsWith('/');
+  const fragment = page.section ? '#' + encodeURIComponent(page.section) : '';
+  useLayoutEffect(() => {
+    // Selecting the same citation again should return to it after reading further.
+    if (local && page.section) frame.current?.contentDocument?.getElementById(page.section)?.scrollIntoView({ block: 'start' });
+  }, [local, page]);
+  return <iframe ref={frame} className="workspace-preview-source" title={page.title}
+    src={(local ? basePath : '') + page.path + fragment} sandbox={local ? undefined : 'allow-scripts allow-same-origin'} />;
+}
 const blankPage: PreviewPage = { title: '新标签页' };
 const firstTab = 'preview-tab-1';
 
@@ -112,6 +126,7 @@ class ChatOutlet extends Component<ChatOutletProps, ChatOutletState, boolean> {
 }
 
 interface WorkspacePreviewProps {
+  effect: StreamingEffect;
   onOpenSettings: () => void;
   toolbarStart?: ReactNode;
   searchEntries: SearchEntry[];
@@ -129,7 +144,7 @@ function usePreviewPaneWidth(globalNavigation: boolean) {
   return [width, changeWidth] as const;
 }
 
-export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation, onOpenSettings }: WorkspacePreviewProps) {
+export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation, onOpenSettings, effect }: WorkspacePreviewProps) {
   const workspace = useRef<HTMLDivElement>(null);
   const titlebar = useRef<HTMLDivElement>(null);
   const leftPane = useRef<HTMLElement>(null);
@@ -190,18 +205,26 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
     restoreTabFocus.current = true;
   }
 
+  function isCompactWorkspace() {
+    return workspace.current!.clientWidth < 768;
+  }
+
   function openSource(selected: PreviewSource) {
+    const narrow = isCompactWorkspace();
     const existing = order.find(id => pages[id].path === selected.path);
-    if (existing === activeId && rightOpen) {
+    if (!selected.section && existing === activeId && (narrow ? compactPane === 'right' : rightMode !== 'closed')) {
       activeButton.current?.focus();
       return;
     }
-    if (existing) setActiveId(existing);
+    if (existing) {
+      setActiveId(existing);
+      if (selected.section) setPages(current => ({ ...current, [existing]: { ...selected } }));
+    }
     else if (activeId && !pages[activeId].path) {
       setPages(current => ({ ...current, [activeId]: selected }));
     } else addTab(selected);
     restoreTabFocus.current = true;
-    if (compact) setCompactPane('right');
+    if (narrow) setCompactPane('right');
     else if (rightMode === 'closed') setRightMode('split');
   }
 
@@ -212,7 +235,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
     const right = rightPane.current!;
     const bar = titlebar.current!;
     const sync = () => {
-      const narrow = node.clientWidth < 768;
+      const narrow = isCompactWorkspace();
       setCompact(narrow);
       // A sliding pane can be partly outside the window.
       const bounds = node.getBoundingClientRect();
@@ -351,7 +374,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
               <WorkspaceTabList aria-label="右侧工作区标签" onReorder={setOrder}>
                 {order.map(id => (
                   <WorkspaceTab key={id} id={id} panelId={id + '-panel'} selected={id === activeId}
-                    ref={id === activeId ? activeButton : undefined} label={pages[id].title} icon={Globe}
+                    ref={id === activeId ? activeButton : undefined} label={pages[id].title} icon={pages[id].file ? File : Globe}
                     onClick={() => setActiveId(id)} onClose={() => closeTab(id)} />
                 ))}
               </WorkspaceTabList>
@@ -420,7 +443,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
           <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={chatVisible} conversationId={conversationId}>
-            {visitedChats.map(id => <PreviewChat key={id} seeded={id === initialProjects[0].conversations[0].id}
+            {visitedChats.map(id => <PreviewChat key={id} effect={effect} seeded={id === initialProjects[0].conversations[0].id}
               hidden={id !== conversationId} onOpenSource={openSource} onReplyComplete={() => {
                 if (id === conversationId && !chatVisible) setUnreadReply(true);
               }} />)}
@@ -456,10 +479,8 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           {Object.entries(pages).map(([id, page]) => (
             <div key={id} id={id + '-panel'} role="tabpanel" aria-labelledby={id}
               className="workspace-preview-tabpanel" hidden={id !== activeId}>
-              {page.path ? (
-                <iframe className="workspace-preview-source" title={page.title}
-                  src={page.path.startsWith('/') ? basePath + page.path : page.path}
-                  sandbox={page.path.startsWith('/') ? undefined : 'allow-scripts allow-same-origin'} />
+              {page.file ? <FileViewer key={page.path} file={page.file} /> : page.path ? (
+                <SourceFrame page={page} />
               ) : (
                 <SummaryGroup label="来源">
                   {sources.map(entry => (

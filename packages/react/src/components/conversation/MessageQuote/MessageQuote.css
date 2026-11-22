@@ -1,0 +1,26 @@
+[data-nf-message-quote] {
+  display: flex;
+  align-items: start;
+  gap: var(--nf-space-sm);
+  box-sizing: border-box;
+  inline-size: fit-content;
+  max-inline-size: min(100%, 32rem);
+  min-inline-size: 0;
+  padding: 6px var(--nf-space-sm);
+  border-radius: 8px;
+  color: var(--nf-secondary);
+  background: var(--nf-subtle);
+  font-size: .8125rem;
+  line-height: 1.45;
+}
+[data-nf-message-quote] > :first-child { min-inline-size: 0; }
+[data-nf-message-quote] > button:first-child {
+  border: 0; background: transparent; padding: 0; color: inherit; font: inherit; text-align: start; cursor: pointer;
+}
+[data-nf-message-quote] > button:first-child:hover { color: var(--nf-ink); }
+[data-nf-quote-source] { display: flex; align-items: center; gap: 4px; margin-block-end: 2px; font-size: .75rem; }
+[data-nf-quote-excerpt] {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; overflow-wrap: anywhere; white-space: pre-wrap; color: var(--nf-ink);
+}
+[data-nf-message-quote] > [data-nf-pane-button] { flex: none; }

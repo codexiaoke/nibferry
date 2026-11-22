@@ -1,0 +1,51 @@
+.chat-file-thumb-text {
+  box-sizing: border-box;
+  align-self: stretch;
+  justify-self: stretch;
+  padding: 10px 8px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 5px/1.6 system-ui, sans-serif;
+  text-align: start;
+  color: var(--nf-ink);
+  background: var(--nf-canvas);
+}
+.chat-file-thumb-pdf { object-position: top; }
+.chat-file-placeholder { color: var(--nf-muted); }
+.chat-file-icon-pdf { color: var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))); }
+.chat-file-icon-docx { color: var(--nf-accent-text); }
+.chat-file-format { flex: none; max-inline-size: 45%; overflow: hidden; text-overflow: ellipsis; font-size: .6875rem; font-weight: 600; }
+.chat-file-image, .chat-file-pdf {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  border: 0;
+}
+.chat-file-text, .chat-file-unavailable {
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--nf-space-md);
+}
+.chat-file-scroll { block-size: 100%; }
+.chat-file-text { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.65; }
+.component-demo.chat-file-demo { padding: 0; }
+.chat-file-demo > [data-nf-conversation-view] { width: 100%; min-height: 10rem; }
+.chat-file-demo:has(.chat-file-demo-preview) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); }
+.chat-file-demo-preview {
+  justify-self: stretch;
+  min-inline-size: 0;
+  block-size: 16rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-inline-start: 1px solid var(--nf-line);
+}
+.chat-file-demo-preview header { display: flex; gap: 4px; align-items: center; padding: 4px 8px; }
+.chat-file-demo-preview strong { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-file-demo-preview button { font: inherit; color: var(--nf-secondary); background: transparent; border: 0; cursor: pointer; }
+@media (max-width: 600px) {
+  .chat-file-demo:has(.chat-file-demo-preview) { grid-template-columns: minmax(0, 1fr); }
+  .chat-file-demo:has(.chat-file-demo-preview) > .example-column { display: none; }
+  .chat-file-demo-preview { border: 0; }
+}

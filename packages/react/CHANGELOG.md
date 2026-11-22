@@ -1,5 +1,18 @@
 # nibferry
 
+## 0.4.0
+
+### Minor Changes
+
+- 2b321ca: 会话视图支持选区引用和向上加载历史。新增可标注来源的 MessageQuote，ConversationComposer 可在输入区上方放置引用和听写状态。附件卡支持上传进度、取消和重试，分页按钮支持自定义版本标签。
+- 2b321ca: ConversationComposer 支持在文字上方放置附件，并通过 onFilesAdd 接收拖入或粘贴的文件。放在 ConversationView 中时，整个聊天区都可以接收拖入的文件。AttachmentList 新增横向卡片布局，AttachmentItem 支持自定义缩略图和纯图片卡片。
+
+  UserMessage 支持通过 attachments 展示已发送的文件，图片缩略图与下方的文字气泡右对齐。
+- 2b321ca: 新增 MessageMarkdown、MessageCard 和 CopyButton，支持 Markdown 回复排版、代码复制、正文引用回调和流内交互卡片。
+- 2b321ca: UserMessage 和 AssistantMessage 支持 actions 插槽。新增 MessageActions，用于组合消息时间、操作按钮和菜单，并适配悬停、键盘和触屏。
+- 2b321ca: 在会话输入框中发送消息会回到底部并恢复跟随回复。自定义输入区可使用 useConversationScrollToLatest 接入相同行为。
+- 2b321ca: 新增 StreamingText 的像素显影、流光笔尖和轻量文字动效，支持助手回复中的卡片和 Markdown 行入场、附件缩略图清晰过渡。
+
 ## 0.3.0
 
 ### Minor Changes

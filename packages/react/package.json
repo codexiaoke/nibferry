@@ -1,6 +1,6 @@
 {
   "name": "nibferry",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Nibferry React UI library and design tokens",
   "type": "module",
   "homepage": "https://codexiaoke.github.io/nibferry/",
@@ -53,7 +53,9 @@
     "@radix-ui/react-presence": "1.1.11",
     "@radix-ui/react-scroll-area": "1.4.0",
     "@radix-ui/react-slot": "1.5.0",
-    "@radix-ui/react-tooltip": "1.4.1"
+    "@radix-ui/react-tooltip": "1.4.1",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
   },
   "devDependencies": {
     "@hugeicons/core-free-icons": "4.4.0",

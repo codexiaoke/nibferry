@@ -1,0 +1,7 @@
+:where([data-nf-message-card]:not([hidden])) {
+  display: grid; gap: var(--nf-space-md); padding: var(--nf-space-md); min-inline-size: 0;
+  border: 1px solid var(--nf-line); border-radius: 14px; color: var(--nf-ink); background: var(--nf-canvas);
+}
+:where([data-nf-message-card]) > :is(header, footer) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nf-space-sm); }
+:where([data-nf-message-card]) > header > strong { margin-inline-end: auto; font-weight: 600; }
+:where([data-nf-message-card]) > p { margin: 0; }

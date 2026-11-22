@@ -36,6 +36,13 @@ const stylePaths = [
   new URL('./src/components/feedback/EmptyState/EmptyState.css', import.meta.url),
   new URL('./src/components/layout/ScrollArea/ScrollArea.css', import.meta.url),
   new URL('./src/components/conversation/ConversationView/ConversationView.css', import.meta.url),
+  new URL('./src/components/conversation/MessageQuote/MessageQuote.css', import.meta.url),
+  new URL('./src/components/conversation/MessageActions/MessageActions.css', import.meta.url),
+  new URL('./src/components/input/CopyButton/CopyButton.css', import.meta.url),
+  new URL('./src/components/conversation/MessageMarkdown/MessageMarkdown.css', import.meta.url),
+  new URL('./src/components/conversation/MessageCard/MessageCard.css', import.meta.url),
+  new URL('./src/components/conversation/StreamingText/StreamingText.css', import.meta.url),
+  new URL('./src/components/display/AttachmentThumbnail/AttachmentThumbnail.css', import.meta.url),
   new URL('./src/components/conversation/ComposerModelSelect/ComposerModelSelect.css', import.meta.url),
   new URL('./src/components/feedback/ContextUsage/ContextUsage.css', import.meta.url),
   new URL('./src/components/layout/WorkspaceLayout/WorkspaceLayout.css', import.meta.url),
@@ -93,13 +100,17 @@ export default defineConfig({
     rollupOptions: {
       // Shared icon data must stay outside client entries that are also imported by the server.
       output: { codeSplitting: { groups: [{ name: 'icons', test: /@hugeicons\/core-free-icons/ }] } },
-      external: ['react', 'react/jsx-runtime', 'react-dom', '@radix-ui/react-presence', '@radix-ui/react-slot', '@hugeicons/react', '@floating-ui/dom', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-scroll-area', '@radix-ui/react-tooltip'],
+      external: ['react-markdown', 'remark-gfm', 'react', 'react/jsx-runtime', 'react-dom', '@radix-ui/react-presence', '@radix-ui/react-slot', '@hugeicons/react', '@floating-ui/dom', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover', '@radix-ui/react-scroll-area', '@radix-ui/react-tooltip'],
     },
     lib: {
       entry: {
         index: 'src/index.ts',
         theme: 'src/theme/tokens.ts',
         // Separate client entries retain their directives in the published ESM.
+        'copy-button': 'src/components/input/CopyButton/CopyButton.tsx',
+        'message-markdown': 'src/components/conversation/MessageMarkdown/MessageMarkdown.tsx',
+        'streaming-text': 'src/components/conversation/StreamingText/StreamingText.tsx',
+        'attachment-thumbnail': 'src/components/display/AttachmentThumbnail/AttachmentThumbnail.tsx',
         'popover': 'src/components/overlay/Popover/Popover.tsx',
         'pagination': 'src/components/navigation/Pagination/Pagination.tsx',
         'alert-dialog': 'src/components/overlay/AlertDialog/AlertDialog.tsx',

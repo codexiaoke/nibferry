@@ -1,0 +1,29 @@
+:where([data-nf-message-group]:not([hidden])) { display: contents; }
+:where([data-nf-message-group][data-has-actions]:not([hidden])) {
+  display: grid;
+  min-inline-size: 0;
+  gap: calc(var(--nf-space-sm) / 2);
+}
+:where([data-nf-message-group='user']) { justify-items: end; }
+:where([data-nf-message-actions]:not([hidden])) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  color: var(--nf-muted);
+  font-size: .75rem;
+  line-height: 1.4;
+}
+:where([data-nf-message-time]) { padding-inline: var(--nf-space-sm); font-variant-numeric: tabular-nums; }
+:where([data-nf-message-group='user'] [data-nf-message-time]) { order: -1; }
+@media (hover: hover) and (pointer: fine) {
+  :where([data-nf-message-group]:not(:hover, :focus-within, :has([data-nf-message-actions] [aria-expanded='true']))) > [data-nf-message-actions] {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-nf-message-actions]) {
+    transition: opacity calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+}
