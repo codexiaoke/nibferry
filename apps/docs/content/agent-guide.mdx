@@ -1,0 +1,98 @@
+---
+title: Agent 组件使用指南
+description: 把产品需求交给编码 Agent，用 Nibferry 搭建侧边助手、对话工作台和回复内审批。
+---
+
+import HandbookPage from '../../../packages/react/skills/nibferry-ui/assets/HandbookPage';
+import ChatWorkspace from '../../../packages/react/skills/nibferry-ui/assets/ChatWorkspace';
+import DraftApproval from '../../../packages/react/skills/nibferry-ui/assets/DraftApproval';
+
+## 把需求交给 Agent
+
+在 React 19 项目里，把下面这句话发给编码 Agent，将最后一句换成自己的需求。安装条件和样式入口见[接入项目](/docs/installation)。
+
+```text
+请在这个项目中使用 nibferry，尚未安装时先接入。读取 node_modules/nibferry/skills/nibferry-ui/SKILL.md，按其中的组件组合和视觉约定实现界面。我的需求是：给现有知识库加一个侧边助手，让我能提问并打开回答引用的文档。
+```
+
+使用支持项目技能的 Codex 时，把包内的 `skills/nibferry-ui` 整个目录复制到项目的 `.agents/skills/nibferry-ui`，之后可以直接说「用 $nibferry-ui 给回复加上通过和退回」。升级组件库后同步这份技能目录，组件名与参数以项目安装版本的类型声明为准。
+
+## 从用户动作选组件
+
+| 用户要做什么 | 优先使用的组合 |
+| --- | --- |
+| 提问并查看资料来源 | `ConversationView` 组织消息和输入器，`MessageMarkdown` 排正文和引用链接。宿主已有阅读器时，可用 `onOpenLink` 接管打开位置。 |
+| 在不同会话之间继续工作 | `WorkspaceLayout` 组织列表和主体，`ConversationList`、`ConversationItem` 展示历史。需要并排阅读文档时再加 `RightPane`。 |
+| 确认助手提出的草案 | `MessageCard` 放决策内容，`actions` 放按钮，`status` 放结果。一条普通文字回复直接用 `AssistantMessage`。 |
+| 展开正在执行的工具步骤 | `TurnProcess` 组织一次执行，`ActionRow` 放单步，`ActionResult` 放详情。 |
+| 编辑设置或查看多行记录 | 分类设置用 `SettingsDialog`；字段用 `Field` 搭配 `Input`、`Select` 或 `Switch`；同列记录用 `Table`。 |
+
+组件从 `nibferry` 导入，入口加载一次 `nibferry/styles.css`。可见控件、面板和卡片用公开组件，业务代码负责数据、权限和回调。标题、段落、链接可以用语义 HTML。宿主提供尺寸，控件沿用主题；横向和纵向间距用 `Inline`、`Stack`。从[组件目录](/docs/components)可以查到部件的插槽、父组件和键盘操作。
+
+下面的预览都可直接操作，数据保存在当前页面。展开源码可复制对应文件。
+
+## 给已有页面加侧边助手
+
+“让我在知识库旁边提问，点回答里的来源能读到原文。”
+
+把对话放进已有侧栏，给父容器明确的高度。消息区和底部输入器共用 `ConversationView`，页面的原有导航继续使用。试着问「样式在哪里加载？」并打开来源。示例从两条本地摘录中取答案，产品接入时在发送回调中读取真实回复。
+
+<div className="component-demo agent-guide-stage" role="region" aria-label="侧边助手示例">
+  <div className="agent-guide-workspace"><HandbookPage /></div>
+</div>
+
+<details>
+<summary>查看 DocumentAssistant.tsx 和宿主接入示例</summary>
+
+<include>../../../packages/react/skills/nibferry-ui/assets/DocumentAssistant.tsx</include>
+
+宿主示例 `HandbookPage.tsx` 演示如何把来源交给页面阅读区，窄屏返回后可以继续编辑草稿。
+
+<include>../../../packages/react/skills/nibferry-ui/assets/HandbookPage.tsx</include>
+
+</details>
+
+## 搭一个独立对话工作台
+
+“我需要一个独立工作台，切去另一条会话，再回来继续写刚才的问题。”
+
+左栏放历史，主体复用上一个示例的对话。两个示例会话分别保留消息和草稿。窄屏点「切换会话」后列表占满当前区域，选中会话即回到正文。把以下两个文件与 `DocumentAssistant.tsx` 放在同一目录，给工作台父容器设置高度。
+
+<div className="component-demo agent-guide-stage" role="region" aria-label="对话工作台示例">
+  <div className="agent-guide-workspace"><ChatWorkspace /></div>
+</div>
+
+<details>
+<summary>查看 ChatWorkspace.tsx 和布局样式</summary>
+
+<include>../../../packages/react/skills/nibferry-ui/assets/ChatWorkspace.tsx</include>
+
+`ChatWorkspace.css`
+
+<include>../../../packages/react/skills/nibferry-ui/assets/ChatWorkspace.css</include>
+
+</details>
+
+## 在回复里通过或退回草案
+
+“助手列好交接安排后，我想在这条回复里决定是否采用。”
+
+安排写在正文里，需要决定的部分放进一张 `MessageCard`。通过或退回后，按钮收起，焦点移至原卡上的结果。示例在本地记录选择；接上审批服务时，按草案 ID 提交，成功后更新状态，失败时保留可操作的草案并显示原因。
+
+<div className="component-demo" role="region" aria-label="回复内审批示例">
+  <div className="example-column"><DraftApproval /></div>
+</div>
+
+<details>
+<summary>查看 DraftApproval.tsx</summary>
+
+<include>../../../packages/react/skills/nibferry-ui/assets/DraftApproval.tsx</include>
+
+</details>
+
+## 交付前看一遍界面
+
+- 对照最接近的示例，看阅读顺序、主要动作和间距。普通正文直接排列；有独立动作或结构化结果时再加卡片。只提供已经接入的工具和按钮。
+- 用键盘完成一次用户要求的操作，检查状态和焦点。涉及工作区时，缩窄容器并切回原会话，核对消息和草稿。
+- 连读标题、说明和按钮。删去重复副标题、装饰英文和没有依据的状态，保留必要的标签、错误原因和操作后果。
+- 需求超出现有组件时，先查公开组合，再说明具体缺少的交互，交给产品决定是否扩充组件。

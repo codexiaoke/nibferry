@@ -5,11 +5,11 @@
 按顺序横向排列直接子项，可用于工具栏和操作组。可独立使用。
 
 ```tsx
-import { Inline } from 'nibferry';
+import { Button, Inline } from 'nibferry';
 
 <Inline gap="sm" wrap>
-  <button type="button">文件</button>
-  <button type="button">链接</button>
+  <Button onClick={chooseFile}>文件</Button>
+  <Button onClick={addLink}>链接</Button>
 </Inline>
 ```
 

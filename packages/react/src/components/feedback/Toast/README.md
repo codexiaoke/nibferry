@@ -6,11 +6,11 @@
 
 ```tsx
 import { useState } from 'react';
-import { Toast } from 'nibferry';
+import { Button, Toast } from 'nibferry';
 
 function Example() {
   const [message, setMessage] = useState('');
-  return <><button onClick={() => setMessage('已保存')}>保存</button>
+  return <><Button onClick={() => setMessage('已保存')}>保存</Button>
     <Toast message={message} onDismiss={() => setMessage('')} /></>;
 }
 ```

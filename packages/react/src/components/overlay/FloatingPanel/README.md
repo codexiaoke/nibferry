@@ -5,10 +5,10 @@
 在工作区内显示非模态浮窗。内容和标题栏由接入方提供，收起后保留子元素和草稿状态。
 
 ```tsx
-import { FloatingPanel, PaneHeader } from 'nibferry';
+import { Button, FloatingPanel, PaneHeader } from 'nibferry';
 
 <FloatingPanel movable id="chat" open={open} aria-label="当前会话"
-  header={<PaneHeader actions={<button onClick={() => setOpen(false)}>收起</button>}>当前会话</PaneHeader>}>
+  header={<PaneHeader actions={<Button variant="ghost" onClick={() => setOpen(false)}>收起</Button>}>当前会话</PaneHeader>}>
   {conversation}
 </FloatingPanel>
 ```

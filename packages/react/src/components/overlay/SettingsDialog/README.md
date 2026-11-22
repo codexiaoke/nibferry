@@ -6,13 +6,13 @@
 
 ```tsx
 import { useState } from 'react';
-import { SettingsDialog } from 'nibferry';
+import { Button, SettingsDialog } from 'nibferry';
 
 function Settings() {
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState('general');
   return <>
-    <button onClick={() => setOpen(true)}>打开设置</button>
+    <Button onClick={() => setOpen(true)}>打开设置</Button>
     <SettingsDialog open={open} onOpenChange={setOpen} value={category} onValueChange={setCategory}
       sections={[
         { id: 'general', label: '通用', content: <GeneralPreferences /> },

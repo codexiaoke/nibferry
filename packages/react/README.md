@@ -29,4 +29,12 @@ export function Conversation() {
 }
 ```
 
+## 交给 Agent 实现
+
+把下面这句话交给编码 Agent，最后补上你的需求。
+
+> 请读取 `node_modules/nibferry/skills/nibferry-ui/SKILL.md`，按其中的组件组合和视觉约定实现界面。
+
+[Agent 组件使用指南](https://codexiaoke.github.io/nibferry/docs/agent-guide/)包含技能安装方式和三个可运行示例。
+
 [组件总览](https://codexiaoke.github.io/nibferry/docs/components/) · [主题配置](https://codexiaoke.github.io/nibferry/docs/theme/) · [交互示例](https://codexiaoke.github.io/nibferry/playground/)

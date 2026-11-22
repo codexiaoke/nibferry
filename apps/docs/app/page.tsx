@@ -133,6 +133,10 @@ export default function Home() {
               接入指南
               <HugeiconsIcon icon={Arrow} size={16} aria-hidden="true" />
             </Link>
+            <Link className="text-link" href="/docs/agent-guide">
+              Agent 组件使用指南
+              <HugeiconsIcon icon={Arrow} size={16} aria-hidden="true" />
+            </Link>
           </div>
         </section>
       </main>
