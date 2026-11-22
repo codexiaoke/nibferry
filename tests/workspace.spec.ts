@@ -46,6 +46,22 @@ test.describe('公开组件接入', () => {
     await page.addStyleTag({ path: resolve('apps/docs/local-preview/preview.css') });
   }
 
+  test('空会话可请求首批历史消息，失败后通过键盘重试', async ({ page }) => {
+    await mount(page, 'history');
+    await page.getByRole('button', { name: '加载更早消息' }).press('Enter');
+    await page.getByRole('button', { name: '重试加载历史消息' }).press('Enter');
+    await expect(page.getByRole('article')).toHaveText('第一条消息');
+    await expect(page.getByRole('button', { name: /加载历史消息/ })).toHaveCount(0);
+  });
+
+  test('接入方可覆盖 Markdown 标题并接管引用链接', async ({ page }) => {
+    await mount(page, 'markdown');
+    await expect(page.getByRole('heading', { level: 3, name: '项目资料' })).toBeVisible();
+    await expect(page.locator('em')).toHaveCount(0);
+    await page.getByRole('link', { name: '布局文档' }).press('Enter');
+    await expect(page.locator('output')).toHaveText('/docs/layout/');
+  });
+
   test('字段关联错误说明，按钮保存后更新头像并短暂提示', async ({ page }) => {
     await mountGallery(page);
     const name = page.getByRole('textbox', { name: '工作区名称' });
@@ -931,6 +947,19 @@ test('输入框可单独提供右侧工具，省略空草稿操作时显示默�
   const right = page.locator('[data-nf-composer-tools="end"]');
   await expect(right.getByRole('button', { name: '选择模型' })).toBeVisible();
   await expect(right.getByRole('button', { name: '发送消息' })).toBeDisabled();
+});
+
+test('附件还在上传时保留禁用的发送按钮', async ({ page }) => {
+  const fromDocs = createRequire(resolve('apps/docs/package.json'));
+  const { createElement: h } = fromDocs('react');
+  const { renderToStaticMarkup } = fromDocs('react-dom/server');
+  const { ConversationComposer } = await import('../packages/react/dist/index.js');
+  await page.setContent(renderToStaticMarkup(h(ConversationComposer, {
+    value: '', onValueChange() {}, onSend() {}, canSend: false,
+    attachments: h('span', null, '上传中'), emptyAction: h('button', null, '语音对话'),
+  })));
+  await expect(page.getByRole('button', { name: '发送消息' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '语音对话' })).toHaveCount(0);
 });
 
 test('普通回复逐段显示，输入框支持换行、输入法和停止生成', async ({ page }) => {

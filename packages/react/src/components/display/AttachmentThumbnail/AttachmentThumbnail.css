@@ -1,0 +1,10 @@
+[data-nf-attachment-thumbnail] { position: relative; display: grid; width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+[data-nf-attachment-thumbnail] img { display: block; width: 100%; height: 100%; object-fit: cover; }
+[data-nf-attachment-thumbnail] canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-attachment-thumbnail] canvas[data-loaded] { animation: nf-thumbnail-clear calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1)) ease-out; }
+  @keyframes nf-thumbnail-clear { from { opacity: 1; } to { opacity: 0; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-nf-attachment-thumbnail] canvas { display: none; }
+}

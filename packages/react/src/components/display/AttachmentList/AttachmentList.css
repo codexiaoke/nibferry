@@ -1,2 +1,19 @@
 [data-nf-attachment-list] { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
 [data-nf-attachment-list][hidden] { display: none; }
+[data-nf-attachment-list='strip']:not([hidden]) {
+  display: flex;
+  align-items: stretch;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  gap: var(--nf-space-sm);
+  padding: 4px;
+}
+[data-nf-attachment-list='strip']::-webkit-scrollbar { display: none; }
+[data-nf-user-message] [data-nf-attachment-list='strip']:not([hidden]) {
+  padding: 0;
+  align-items: end;
+  justify-content: safe end;
+}

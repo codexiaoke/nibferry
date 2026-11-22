@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
 import {
-  ActivitySequence, ComposerActionMenu, ComposerModelSelect, ComposerSelect, ConversationComposer,
-  ConversationGroup, Dialog, MenuItem, SearchDialog, SummaryGroup,
+  ActivitySequence, ComposerActionMenu, ComposerModelSelect, ComposerSelect, ConversationComposer, ConversationView,
+  ConversationGroup, Dialog, MenuItem, MessageMarkdown, SearchDialog, SummaryGroup,
 } from 'nibferry';
 import { themeVariables } from 'nibferry/theme';
 
@@ -66,7 +66,29 @@ function HeaderSlots() {
       onToggle={() => setExpanded(value => !value)}>项目内容</ConversationGroup></>;
 }
 
-const fixtures = { foundation: Gallery, stream: GroupedStream, dialog: DialogSelectors, menus: SymbolMenus, attachment: AttachmentComposer,
-  search: RemoteSearch, headings: HeaderSlots };
+function MarkdownReply() {
+  const [opened, setOpened] = useState('');
+  return <><MessageMarkdown onOpenLink={setOpened}
+    components={{ h2: ({ children }) => <h3>{children}</h3> }}>
+    {'## 项目资料\n\n[布局文档](/docs/layout/)\n\n<em>补充说明</em>'}
+  </MessageMarkdown><output>{opened}</output></>;
+}
+
+function EarlierMessages() {
+  const [attempts, setAttempts] = useState(0);
+  const [messages, setMessages] = useState<string[]>([]);
+  async function load() {
+    setAttempts(attempts + 1);
+    await Promise.resolve();
+    if (!attempts) throw new Error('offline');
+    setMessages(['第一条消息']);
+  }
+  return <ConversationView style={{ height: 300 }} onLoadEarlier={messages.length ? undefined : load}>
+    {messages.map(text => <article key={text}>{text}</article>)}
+  </ConversationView>;
+}
+
+const fixtures = { history: EarlierMessages, foundation: Gallery, stream: GroupedStream, dialog: DialogSelectors, menus: SymbolMenus, attachment: AttachmentComposer,
+  search: RemoteSearch, headings: HeaderSlots, markdown: MarkdownReply };
 const Fixture = fixtures[document.body.dataset.fixture as keyof typeof fixtures];
 createRoot(document.getElementById('root')!).render(<Fixture />);

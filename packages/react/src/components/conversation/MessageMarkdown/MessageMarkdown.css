@@ -1,0 +1,19 @@
+:where([data-nf-message-markdown]) { min-inline-size: 0; color: var(--nf-ink); line-height: 1.65; overflow-wrap: anywhere; }
+:where([data-nf-message-markdown]) > * { margin-block: 0; }
+:where([data-nf-message-markdown]) > * + * { margin-block-start: var(--nf-space-md); }
+:where([data-nf-message-markdown]) :is(ul, ol) { padding-inline-start: 1.5em; }
+:where([data-nf-message-markdown]) :is(h1, h2, h3, h4) { line-height: 1.4; font-size: 1.08em; font-weight: 600; }
+:where([data-nf-message-markdown]) a { color: var(--nf-accent-text); text-underline-offset: .18em; }
+:where([data-nf-message-markdown]) img { max-inline-size: 100%; }
+:where([data-nf-message-markdown]) :not(pre) > code {
+  border-radius: 4px; padding: .08em .3em; background: var(--nf-subtle); font-size: .9em;
+}
+:where([data-nf-message-code]) {
+  min-inline-size: 0; overflow: hidden; border: 1px solid var(--nf-line); border-radius: 10px; background: var(--nf-subtle);
+}
+:where([data-nf-code-toolbar]) {
+  display: flex; align-items: center; gap: var(--nf-space-sm); padding: 3px var(--nf-space-sm) 3px var(--nf-space-md);
+  color: var(--nf-secondary); font-size: .8rem;
+}
+:where([data-nf-code-toolbar]) > :first-child { margin-inline-end: auto; }
+:where([data-nf-message-code]) pre { margin: 0; padding: var(--nf-space-sm) var(--nf-space-md) var(--nf-space-md); font-size: .88em; line-height: 1.6; white-space: pre; }

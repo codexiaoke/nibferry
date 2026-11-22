@@ -1,0 +1,36 @@
+[data-nf-pen-tip] { position: relative; pointer-events: none; }
+[data-nf-pen-tip] i { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-stream-chunk] {
+    animation: nf-stream-fade calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) ease-out;
+  }
+  [data-nf-stream-text='pixel'] > [data-nf-stream-chunk] {
+    animation-name: nf-stream-pixel;
+    animation-duration: calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1));
+  }
+  [data-nf-stream-text='pen'] > [data-nf-stream-chunk] { animation-name: nf-stream-ink; }
+  [data-nf-pen-tip] i {
+    position: absolute; display: block; inset-inline-start: 1px; bottom: .05em; width: 2px; height: .88em; border-radius: 2px;
+    opacity: var(--nf-motion-scale, 1); background: var(--nf-stream-ink, var(--nf-accent));
+    transition: translate calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+  [data-nf-pen-tip] i::before {
+    content: ''; position: absolute; right: 0; bottom: 0; width: 1.15em; height: 2px; border-radius: 100%;
+    background: linear-gradient(90deg, transparent, var(--nf-stream-trail, color-mix(in oklab, var(--nf-accent), orchid 55%)), var(--nf-stream-ink, var(--nf-accent)));
+  }
+  @keyframes nf-stream-fade { from { opacity: .5; } }
+  @keyframes nf-stream-ink { from { color: var(--nf-stream-ink, var(--nf-accent)); opacity: .65; } }
+  /* The grid only samples the ink in the incoming glyphs. */
+  @keyframes nf-stream-pixel {
+    0%, 28% {
+      color: var(--nf-stream-pixel, color-mix(in oklab, var(--nf-secondary) 76%, teal));
+      mask-image: repeating-conic-gradient(#000 0 25%, #0006 0 50%, #000c 0 75%, #0004 0);
+      mask-size: .28em .28em;
+    }
+    64% {
+      mask-image: repeating-conic-gradient(#000 0 25%, #000a 0 50%, #000e 0 75%, #000b 0);
+      mask-size: .14em .14em;
+    }
+    to { mask-image: none; color: inherit; }
+  }
+}
