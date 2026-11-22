@@ -51,6 +51,7 @@ const categories: {
     { title: '图标导航栏', parts: {
       NavigationRail: '图标导航栏',
       NavigationRailItem: '图标导航项',
+      NavigationRailAccount: '导航栏账户菜单',
       SidebarMenu: '侧栏菜单',
       CountBadge: '计数徽标',
     } },
@@ -99,6 +100,7 @@ const categories: {
     } },
     { title: '模态弹框', parts: {
       Dialog: '模态弹框',
+      SettingsDialog: '设置弹框',
     } },
     { title: '悬浮面板', parts: {
       FloatingPanel: '悬浮面板',
@@ -119,6 +121,18 @@ const categories: {
     { title: '悬浮滚动条', parts: {
       ScrollArea: '悬浮滚动条',
     } },
+  ] },
+  { title: '基础控件', slug: 'foundation', pages: [
+    { title: '表单与按钮', parts: { Field: '表单字段', Input: '文本输入框', Button: '按钮' } },
+    { title: '选择控件', parts: { RadioGroup: '单选组', Checkbox: '复选框', Switch: '开关', Select: '下拉选择器' } },
+    { title: '内容编辑与切换', parts: { Tabs: '内容标签页', Textarea: '多行输入框', Disclosure: '折叠面板' } },
+    { title: '数值与进度', parts: { Slider: '滑杆', Progress: '进度指示' } },
+    { title: '浮层与搜索选择', parts: { Popover: '锚定浮层', Combobox: '可搜索选择器' } },
+    { title: '附件与移除确认', parts: { AttachmentList: '附件列表', AttachmentItem: '附件项', AlertDialog: '确认弹框' } },
+    { title: '表格与加载', parts: { Table: '数据表格', Pagination: '分页', NumberField: '数字输入框', Spinner: '加载指示' } },
+    { title: '骨架屏', parts: { Skeleton: '骨架屏' } },
+    { title: '头像与标签', parts: { Avatar: '头像', Tag: '状态标签' } },
+    { title: '提示与反馈', parts: { Alert: '行内提示', Tooltip: '悬停提示', Toast: '短暂提示', EmptyState: '空状态' } },
   ] },
 ];
 

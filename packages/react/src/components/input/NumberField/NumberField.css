@@ -1,0 +1,5 @@
+[data-nf-number-field]:not([hidden]) { display: flex; align-items: center; min-width: 0; padding-inline-end: 3px;
+  background: var(--nf-canvas); border: 1px solid var(--nf-line); border-radius: 9px; }
+[data-nf-number-field] > input { appearance: textfield; border: 0; flex: 1; width: 0; min-height: 34px; }
+[data-nf-number-field] > input::-webkit-inner-spin-button, [data-nf-number-field] > input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+[data-nf-number-field] > button { flex: none; inline-size: 28px; min-block-size: 28px; padding: 0; }

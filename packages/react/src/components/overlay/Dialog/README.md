@@ -28,3 +28,5 @@ function Editor() {
 弹框使用宿主的颜色和动效 Token，可通过 `className` 设置尺寸，用 `--nf-dialog-shadow` 和 `--nf-dialog-backdrop` 设置投影和遮罩色。开启减少动态效果后会直接显示。
 
 嵌套的 Nibferry 菜单、子菜单和模型选择器默认挂载在当前弹框内，沿用弹框的主题和键盘焦点范围。
+
+设置 `unmountOnClose` 可在退出动画结束后卸载内容。模态焦点在请求关闭时释放，减少动效时内容立即卸载。

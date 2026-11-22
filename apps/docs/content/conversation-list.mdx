@@ -9,6 +9,8 @@ import { SidebarDemo, ProjectListDemo } from '../app/_components/ComponentDemos/
 
 <SidebarDemo />
 
+普通项目侧栏底部显示头像和用户名，点击账户行向上打开菜单。收起侧栏后，底部的头像向右打开同一菜单。启用常驻导航栏时，账户入口移到导航栏的 `footer`。两种布局共用 `NavigationRailAccount`，展开的项目侧栏使用 `variant="sidebar"`。
+
 展开时项目侧栏贴齐窗口左边。收起后，预览通过 `LeftPane.collapsedContent` 显示搜索、待办、消息通知和会话入口。「会话」在按钮旁打开相同的项目列表，保留文件夹、会话缩进、当前项和行尾操作。选择会话后浮层关闭，侧栏保持收起。「新聊天」位于标题栏。桌面预览右上方的「常驻导航栏」按钮可以切换到另一种布局，在项目侧栏旁显示独立的 `NavigationRail`。
 
 ```tsx

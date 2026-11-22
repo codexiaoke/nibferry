@@ -1,0 +1,33 @@
+[data-nf-slider] {
+  --nf-slider-thumb: var(--nf-slider-thumb-size, 18px);
+  position: relative; min-inline-size: 0; height: max(28px, var(--nf-slider-thumb)); border-radius: 99px;
+}
+[data-nf-slider-track] {
+  position: absolute; inset-inline: 0; top: 50%; height: var(--nf-slider-track-size, 5px); transform: translateY(-50%);
+  pointer-events: none; border-radius: 99px; background: color-mix(in srgb, var(--nf-ink) 10%, var(--nf-canvas));
+}
+[data-nf-slider-stops] { position: absolute; inset: 0 calc(var(--nf-slider-thumb) / 2); }
+[data-nf-slider-fill] {
+  position: absolute; inset-block: 0; inset-inline-start: calc(var(--nf-slider-thumb) / -2);
+  box-sizing: content-box; padding-inline-start: calc(var(--nf-slider-thumb) / 2); background: var(--nf-ink);
+  border-start-start-radius: 99px; border-end-start-radius: 99px;
+}
+[data-nf-slider-thumb] {
+  position: absolute; z-index: 1; top: 50%; inset-inline-end: calc(var(--nf-slider-thumb) / -2);
+  box-sizing: border-box; width: var(--nf-slider-thumb); height: var(--nf-slider-thumb); transform: translateY(-50%);
+  border-radius: 50%; background: var(--nf-canvas); border: 1px solid var(--nf-line); box-shadow: 0 1px 3px var(--nf-shadow);
+}
+[data-nf-slider-stops] i { position: absolute; top: 50%; }
+[data-nf-slider-stops] i::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--nf-muted); opacity: .55; }
+[data-nf-slider] input {
+  position: relative; display: block; box-sizing: border-box; appearance: none; width: 100%; height: 100%;
+  margin: 0; border: 0; padding: 0; border-radius: inherit; opacity: 0; background: transparent; cursor: pointer; touch-action: pan-y;
+}
+[data-nf-slider] input::-webkit-slider-thumb { appearance: none; width: var(--nf-slider-thumb); height: var(--nf-slider-thumb); }
+[data-nf-slider] input::-moz-range-thumb { width: var(--nf-slider-thumb); height: var(--nf-slider-thumb); border: 0; }
+[data-nf-slider]:has(:focus-visible) { outline: 2px solid var(--nf-accent-text); outline-offset: 1px; }
+[data-nf-slider]:has(:disabled) { opacity: .45; }
+[data-nf-slider] input:disabled { cursor: default; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-slider]:not([data-dragging]) [data-nf-slider-fill] { transition: width calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+}

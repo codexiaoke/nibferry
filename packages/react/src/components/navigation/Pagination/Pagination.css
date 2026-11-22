@@ -1,0 +1,3 @@
+[data-nf-pagination]:not([hidden]) { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 13px; color: var(--nf-secondary); font-variant-numeric: tabular-nums; }
+[data-nf-pagination] button { min-block-size: 30px; inline-size: 30px; padding: 0; }
+[data-nf-pagination]:dir(rtl) svg { transform: rotate(180deg); }

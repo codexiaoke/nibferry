@@ -4,8 +4,8 @@
   block-size: 504px;
   overflow: hidden;
 }
-[data-nf-search-dialog][open] {
-  display: grid;
+[data-nf-search-dialog][open] { display: grid; }
+[data-nf-search-dialog] {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 [data-nf-search-dialog] > input {
@@ -38,7 +38,7 @@
   font-size: 12px;
   line-height: 18px;
 }
-[data-nf-search-empty] { padding: var(--nf-space-md) 12px; }
+[data-nf-search-empty] { justify-items: start; text-align: start; padding: var(--nf-space-md) 12px; }
 [data-nf-search-dialog] [role='option'] {
   display: flex;
   align-items: center;

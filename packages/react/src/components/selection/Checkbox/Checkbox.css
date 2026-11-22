@@ -1,0 +1,19 @@
+[data-nf-check-box] { position: relative; display: inline-grid; place-items: center; flex: none; vertical-align: middle; }
+[data-nf-check-box] > input {
+  appearance: none; grid-area: 1 / 1; width: 17px; height: 17px; margin: 0; box-sizing: border-box;
+  background: var(--nf-canvas); border: 1px solid var(--nf-muted); border-radius: 5px; cursor: pointer;
+}
+[data-nf-check-box] > svg { grid-area: 1 / 1; opacity: 0; transform: scale(.72); pointer-events: none; color: var(--nf-on-primary); }
+[data-nf-check-box] > :checked { background: var(--nf-primary); border-color: var(--nf-primary); }
+[data-nf-check-box] > :checked + svg { opacity: 1; transform: scale(1); }
+[data-nf-check-box] > input:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 2px; }
+[data-nf-check-box]:has(:disabled) { opacity: .45; }
+[data-nf-check-box] > input:disabled { cursor: default; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-check-box] > input, [data-nf-check-box] > svg {
+    transition-property: background-color, border-color, opacity, transform;
+    transition-duration: calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1));
+    transition-timing-function: var(--nf-ease);
+  }
+}

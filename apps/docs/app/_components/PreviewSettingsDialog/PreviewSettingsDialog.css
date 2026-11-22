@@ -1,0 +1,54 @@
+.preview-settings {
+  --nf-canvas: var(--site-bg);
+  --nf-subtle: var(--site-soft);
+  --nf-line: var(--site-line);
+  --nf-muted: var(--site-muted);
+  --nf-secondary: var(--site-muted);
+  --nf-ink: var(--site-ink);
+  --nf-dialog-shadow: 0 12px 48px rgb(0 0 0 / 10%);
+  font-size: 14px;
+}
+.preview-settings-layout { margin-block-end: var(--nf-space-lg); }
+.preview-settings-diagram {
+  display: flex;
+  overflow: hidden;
+  block-size: 56px;
+  border: 1px solid var(--nf-line);
+  border-radius: 5px;
+  background: var(--nf-canvas);
+}
+.preview-settings-mini-rail, .preview-settings-mini-sidebar {
+  display: block;
+  border-inline-end: 1px solid var(--nf-line);
+  background: var(--nf-subtle);
+}
+.preview-settings-mini-rail { width: 12%; background: color-mix(in srgb, var(--nf-ink) 11%, var(--nf-canvas)); }
+.preview-settings-mini-sidebar { width: 27%; }
+.preview-settings-mini-sidebar::before, .preview-settings-mini-page::before, .preview-settings-mini-page::after {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: 8px 10%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--nf-ink) 13%, var(--nf-canvas));
+}
+.preview-settings-mini-sidebar::before { width: 56%; box-shadow: 0 7px var(--nf-line); }
+.preview-settings-mini-page { flex: 1; border-block-start: 8px solid var(--nf-subtle); }
+.preview-settings-mini-page::before { width: 31%; margin-inline-start: auto; }
+.preview-settings-mini-page::after { width: 50%; background: var(--nf-line); }
+.preview-settings-details { margin: 0; }
+.preview-settings-details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--nf-space-sm);
+  padding-block: 14px;
+  border-block-end: 1px solid var(--nf-line);
+}
+.preview-settings-details > div:first-child { padding-block-start: 0; }
+.preview-settings-layout + .preview-settings-details { padding-block-start: 16px; border-block-start: 1px solid var(--nf-line); }
+.preview-settings-details > div:last-child { border-block-end: 0; }
+.preview-settings-details dd { margin: 0; color: var(--nf-muted); overflow-wrap: anywhere; }
+@container (max-width: 500px) {
+  .preview-settings-layout [data-nf-radio-options] { grid-template-columns: minmax(0, 1fr); }
+}

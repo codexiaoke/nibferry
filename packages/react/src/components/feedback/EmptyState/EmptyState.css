@@ -1,0 +1,6 @@
+:where([data-nf-empty-state]) {
+  display: grid; justify-items: center; gap: 6px; padding: var(--nf-space-lg);
+  text-align: center; color: var(--nf-secondary); font-size: 14px;
+}
+:where([data-nf-empty-state]) > small { color: var(--nf-muted); font-size: 12px; }
+:where([data-nf-empty-state]) > button { margin-block-start: 4px; }

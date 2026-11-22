@@ -85,49 +85,7 @@
 }
 .nf-model-switch strong { font-weight: 600; }
 .nf-model-switch span { display: flex; align-items: center; max-width: 100%; color: var(--nf-muted); font-size: 12px; }
-.nf-model-slider { --thumb-size: 28px; position: relative; height: var(--thumb-size); margin-top: 8px; border-radius: 99px; }
-.nf-model-track {
-  position: absolute;
-  inset: 2px 0;
-  pointer-events: none;
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--nf-ink) 10%, var(--nf-canvas));
-}
-.nf-model-stops { position: absolute; inset: 0 calc(var(--thumb-size) / 2); display: flex; justify-content: space-between; align-items: center; }
-.nf-model-fill {
-  position: absolute; inset-block: 0; inset-inline-start: calc(var(--thumb-size) / -2);
-  box-sizing: content-box; padding-inline-start: calc(var(--thumb-size) / 2); background: var(--nf-ink);
-  border-start-start-radius: 99px; border-end-start-radius: 99px;
-}
-.nf-model-thumb {
-  position: absolute; z-index: 1; top: 50%; inset-inline-end: calc(var(--thumb-size) / -2);
-  box-sizing: border-box; width: var(--thumb-size); height: var(--thumb-size); transform: translateY(-50%);
-  border-radius: 50%; background: var(--nf-canvas); border: 1px solid var(--nf-line); box-shadow: 0 1px 3px var(--nf-shadow);
-}
-.nf-model-stops i { position: relative; flex: none; width: 0; height: 0; }
-.nf-model-stops i:only-of-type { margin-inline: auto; }
-.nf-model-stops i::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--nf-muted); opacity: .55; }
-.nf-model-slider input {
-  position: relative;
-  display: block;
-  appearance: none;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  border-radius: 99px;
-  opacity: 0;
-  background: transparent;
-  cursor: pointer;
-  touch-action: pan-y;
-}
-.nf-model-slider input::-webkit-slider-thumb {
-  appearance: none; width: var(--thumb-size); height: var(--thumb-size);
-}
-.nf-model-slider input::-moz-range-thumb {
-  width: var(--thumb-size); height: var(--thumb-size); border: 0;
-}
+.nf-model-level [data-nf-slider] { --nf-slider-thumb-size: 28px; --nf-slider-track-size: 24px; margin-top: 8px; }
 
 .nf-model-options { max-height: min(320px, calc(var(--radix-popover-content-available-height) - 2px)); border-radius: inherit; overflow: hidden; }
 .nf-model-list { padding: 4px; }
@@ -147,10 +105,9 @@
 }
 .nf-model-list small { display: block; font-size: 12px; color: var(--nf-muted); }
 .nf-model-list svg { color: var(--nf-secondary); flex: none; }
-.nf-model-panel button:focus-visible, .nf-model-slider:has(input:focus-visible), .nf-model-trigger:focus-visible { outline: 2px solid var(--nf-accent-text); outline-offset: 1px; }
+.nf-model-panel button:focus-visible, .nf-model-trigger:focus-visible { outline: 2px solid var(--nf-accent-text); outline-offset: 1px; }
 .nf-model-list button:focus-visible { outline-offset: -2px; }
 @media (prefers-reduced-motion: no-preference) {
-  .nf-model-slider:not([data-dragging]) .nf-model-fill { transition: width calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
   .nf-model-panel[data-state='open'], .nf-model-tip { animation: nf-menu-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
   .nf-model-tip { animation-name: nf-model-tip-in; }
   @keyframes nf-model-tip-in { from { opacity: 0; } to { opacity: 1; } }

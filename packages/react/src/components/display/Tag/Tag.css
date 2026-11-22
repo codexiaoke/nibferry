@@ -1,0 +1,5 @@
+[data-nf-tag] {
+  display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 2px 8px; border-radius: 999px;
+  background: var(--nf-subtle); color: var(--nf-secondary); font-size: 12px; font-weight: 500; line-height: 1.5;
+}
+[data-nf-tag='accent'] { background: color-mix(in srgb, var(--nf-accent) 11%, var(--nf-canvas)); color: var(--nf-accent-text); }

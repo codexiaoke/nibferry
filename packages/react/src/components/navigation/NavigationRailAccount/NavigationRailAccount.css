@@ -1,0 +1,65 @@
+[data-nf-account-trigger] {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+[data-nf-account-trigger]:hover {
+  background: color-mix(in srgb, var(--nf-muted) 12%, transparent);
+}
+[data-nf-account-trigger='sidebar'] {
+  display: flex;
+  align-items: center;
+  gap: var(--nf-space-sm);
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding-inline: var(--nf-space-sm);
+  box-sizing: border-box;
+  border-radius: 10px;
+  color: var(--nf-ink);
+  font-size: 14px;
+  text-align: start;
+}
+[data-nf-account-trigger='sidebar'] > [data-nf-account-avatar] {
+  inline-size: 28px;
+  block-size: 28px;
+  font-size: 11px;
+}
+[data-nf-account-name] {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+[data-nf-account-trigger='sidebar'] > svg { flex: none; color: var(--nf-muted); }
+[data-nf-account-avatar] {
+  --nf-avatar-size: 24px;
+  --nf-avatar-bg: var(--nf-account-avatar-bg, #b49255);
+  --nf-avatar-ink: var(--nf-account-avatar-ink, #fff);
+  font-size: 10px;
+}
+[data-nf-account-menu] {
+  width: 230px;
+  box-shadow: var(--nf-menu-shadow, 0 6px 18px var(--nf-shadow));
+}
+[data-nf-account-menu='sidebar'] { width: clamp(200px, var(--radix-dropdown-menu-trigger-width), 320px); }
+[data-nf-account-identity] {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  line-height: 17px;
+}
+[data-nf-account-identity] [data-nf-account-avatar] {
+  inline-size: 20px;
+  block-size: 20px;
+  font-size: 8px;
+}
+[data-nf-account-info] { min-width: 0; }
+[data-nf-account-info] > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+[data-nf-account-detail] { color: var(--nf-muted); font-size: 12px; }

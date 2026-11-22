@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
 import Chevron from '@hugeicons/core-free-icons/ArrowDown01Icon';
 import Share from '@hugeicons/core-free-icons/Upload01Icon';
-import { PaneButton, PaneHeader, SummaryToggle } from 'nibferry';
+import { Toast, Tooltip, PaneButton, PaneHeader, SummaryToggle } from 'nibferry';
 import PreviewConversationMenu from '../PreviewConversationMenu/PreviewConversationMenu';
 import './PreviewConversationHeader.css';
 
@@ -21,12 +21,10 @@ interface Props {
 export default function PreviewConversationHeader({
   title, project, active, summaryId, summaryOpen, onToggleSummary,
 }: Props) {
-  const [status, setStatus] = useState('');
-  useEffect(() => {
-    if (!status) return;
-    const timeout = setTimeout(() => setStatus(''), 2200);
-    return () => clearTimeout(timeout);
-  }, [status]);
+  const [notice, setNotice] = useState({ id: 0, message: '' });
+  function setStatus(message: string) {
+    setNotice(previous => ({ id: previous.id + 1, message }));
+  }
 
   async function copy(value: string, success: string, failure: string) {
     try {
@@ -46,7 +44,7 @@ export default function PreviewConversationHeader({
       aria-hidden={!active}
       actions={active && (
         <>
-          <PaneButton icon={Share} aria-label="复制预览链接" title="复制预览链接" onClick={share} />
+          <Tooltip content="复制预览链接"><PaneButton icon={Share} aria-label="复制预览链接" onClick={share} /></Tooltip>
           <SummaryToggle
             paneId={summaryId}
             expanded={summaryOpen}
@@ -72,7 +70,7 @@ export default function PreviewConversationHeader({
               title={title}
             />
           </PreviewConversationMenu>
-          <span className="preview-share-status" role="status">{status}</span>
+          <Toast notificationId={notice.id} className="preview-share-status" message={notice.message} duration={2200} onDismiss={() => setStatus('')} />
         </>
       )}
     </PaneHeader>

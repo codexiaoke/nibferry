@@ -1,0 +1,7 @@
+[data-nf-disclosure-panel] { min-inline-size: 0; border-block: 1px solid var(--nf-line); color: var(--nf-ink); }
+[data-nf-disclosure-panel] > [data-nf-activity-trigger] {
+  inline-size: 100%; min-block-size: 38px; justify-content: space-between; text-align: start;
+}
+[data-nf-disclosure-panel] > [data-nf-activity-trigger] > svg:last-child { flex: none; opacity: 1; color: var(--nf-muted); }
+[data-nf-disclosure-panel] > [data-nf-activity-body] > div > :first-child { margin-block-start: 0; }
+[data-nf-disclosure-panel] > [data-nf-activity-body] > div > :last-child { margin-block-end: var(--nf-space-sm); }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
@@ -166,8 +166,8 @@ function PreviewTurn({ turn, onOpenSource }: { turn: Turn; onOpenSource: OpenSou
   </ConversationTurn>;
 }
 
-export default function PreviewChat({ seeded, hidden, onOpenSource }: {
-  seeded: boolean; hidden: boolean; onOpenSource: OpenSource;
+export default function PreviewChat({ seeded, hidden, onOpenSource, onReplyComplete }: {
+  seeded: boolean; hidden: boolean; onOpenSource: OpenSource; onReplyComplete: () => void;
 }) {
   const [draft, setDraft] = useState('');
   const [permission, setPermission] = useState('full');
@@ -180,6 +180,7 @@ export default function PreviewChat({ seeded, hidden, onOpenSource }: {
   }] : []);
   const current = turns.at(-1);
   const running = current?.state === 'running';
+  const notifyReplyComplete = useEffectEvent(onReplyComplete);
   useEffect(() => {
     if (!current || current.state !== 'running') return;
     const timer = setTimeout(() => {
@@ -188,6 +189,7 @@ export default function PreviewChat({ seeded, hidden, onOpenSource }: {
       setTurns(all => all.map(turn => turn === current ? {
         ...turn, step, state: done ? 'done' : 'running', seconds: Math.round((Date.now() - turn.started) / 1000),
       } : turn));
+      if (done) notifyReplyComplete();
     }, current.example === 'plain' ? 32 : 550);
     return () => clearTimeout(timer);
   }, [current]);

@@ -17,12 +17,24 @@
   background: var(--nf-dialog-backdrop, rgb(0 0 0 / 16%));
 }
 @media (prefers-reduced-motion: no-preference) {
+  :where([data-nf-dialog]) {
+    opacity: 0; transform: translateY(3px) scale(.99);
+    --nf-dialog-time: calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1));
+    transition: opacity var(--nf-dialog-time) var(--nf-ease), transform var(--nf-dialog-time) var(--nf-ease),
+      display var(--nf-dialog-time) allow-discrete, overlay var(--nf-dialog-time) allow-discrete;
+  }
   :where([data-nf-dialog][open]) {
-    animation: nf-dialog-in calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1)) var(--nf-ease);
+    --nf-dialog-time: calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1));
+    opacity: 1; transform: none;
   }
-  :where([data-nf-dialog][open])::backdrop {
-    animation: nf-dialog-dim calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  :where([data-nf-dialog])::backdrop {
+    opacity: 0; transition: opacity var(--nf-dialog-time) var(--nf-ease),
+      display var(--nf-dialog-time) allow-discrete, overlay var(--nf-dialog-time) allow-discrete;
   }
-  @keyframes nf-dialog-in { from { opacity: 0; transform: translateY(4px) scale(.99); } }
-  @keyframes nf-dialog-dim { from { opacity: 0; } }
+  :where([data-nf-dialog][open])::backdrop { opacity: 1; }
+  :where([data-nf-dialog]:not([open])), :where([data-nf-dialog]:not([open]))::backdrop { pointer-events: none; }
+  @starting-style {
+    :where([data-nf-dialog][open]) { opacity: 0; transform: translateY(4px) scale(.99); }
+    :where([data-nf-dialog][open])::backdrop { opacity: 0; }
+  }
 }

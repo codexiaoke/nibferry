@@ -6,6 +6,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "preview:components": "pnpm --filter nibferry build && pnpm --filter nibferry exec vite ../../apps/docs/local-preview --host 127.0.0.1 --port 3320 --strictPort",
     "dev": "pnpm --filter nibferry build && pnpm -r --parallel run '/^dev:.+$/'",
     "build": "pnpm -r run build",
     "typecheck": "pnpm --filter nibferry build && pnpm -r run typecheck",

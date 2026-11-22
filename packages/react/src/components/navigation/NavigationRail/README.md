@@ -16,3 +16,5 @@ import { NavigationRail, NavigationRailItem } from 'nibferry';
 ## 参数与交互
 
 `label` 提供导航区的无障碍名称。`children` 接受导航项、菜单触发器和用于视觉分组的 `<hr aria-hidden="true" />`。其余属性、事件和 ref 传给原生 nav。接入方控制入口顺序、选中项和侧栏显隐。
+
+`footer` 固定在导航栏底部，可放置 `NavigationRailAccount`。高度不足时，上方入口独立滚动，底部仍可操作。

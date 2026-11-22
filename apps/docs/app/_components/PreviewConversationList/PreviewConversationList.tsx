@@ -8,7 +8,7 @@ import Pin from '@hugeicons/core-free-icons/PinIcon';
 import PinOff from '@hugeicons/core-free-icons/PinOffIcon';
 import Archive from '@hugeicons/core-free-icons/ArchiveIcon';
 import {
-  ConversationGroup, ConversationItem, ConversationList, Dialog, DropdownMenu, MenuContent, MenuItem,
+  Button, Field, Input, ConversationGroup, ConversationItem, ConversationList, Dialog, DropdownMenu, MenuContent, MenuItem,
   MenuTrigger, PaneButton, ProjectInfo,
 } from 'nibferry';
 import './PreviewConversationList.css';
@@ -134,10 +134,10 @@ export default function PreviewConversationList({ projects, onProjectChange, cur
             onProjectChange({ ...editing, name });
             closeEditor();
           }}>
-            <label>项目名称<input name="name" defaultValue={editing.name} autoFocus required pattern=".*\S.*" /></label>
+            <Field label="项目名称"><Input name="name" defaultValue={editing.name} autoFocus required pattern=".*\S.*" /></Field>
             <footer>
-              <button type="button" onClick={closeEditor}>取消</button>
-              <button type="submit">保存</button>
+              <Button onClick={closeEditor}>取消</Button>
+              <Button type="submit" variant="primary">保存</Button>
             </footer>
           </form>
         </Dialog>

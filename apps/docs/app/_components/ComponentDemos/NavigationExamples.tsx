@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ConversationGroup, ConversationItem, ConversationList, CountBadge, NavigationRail,
   NavigationRailItem, PaneButton, ProjectInfo, SidebarMenu, WorkspaceTab, WorkspaceTabAdd, WorkspaceTabList,
@@ -8,6 +9,9 @@ import {
 import Chat from '@hugeicons/core-free-icons/BubbleChatIcon';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
+import Layout from '@hugeicons/core-free-icons/LayoutLeftIcon';
+import PreviewAccountMenu from '../PreviewAccountMenu/PreviewAccountMenu';
+import PreviewSettingsDialog from '../PreviewSettingsDialog/PreviewSettingsDialog';
 
 const sections = [
   { label: '会话', icon: Chat, items: ['工作区布局', '输入框设计'] },
@@ -15,22 +19,32 @@ const sections = [
 ];
 
 export function SidebarDemo() {
+  const router = useRouter();
+  const [showRail, setShowRail] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const account = <PreviewAccountMenu variant={showRail ? 'rail' : 'sidebar'}
+    onOpenPage={page => router.push(page.path)} onOpenSettings={() => setSettingsOpen(true)} />;
   const [section, setSection] = useState(sections[0]);
   const [selected, setSelected] = useState(sections[0].items[0]);
   return (
     <div className="component-demo">
+      <PaneButton icon={Layout} text="常驻导航栏" aria-pressed={showRail} onClick={() => setShowRail(!showRail)} />
       <div className="example-sidebar">
-        <NavigationRail label="切换侧栏">
+        {showRail && <NavigationRail label="切换侧栏" footer={account}>
           {sections.map(item =>
             <NavigationRailItem key={item.label} icon={item.icon} label={item.label}
               current={section === item} onClick={() => { setSection(item); setSelected(item.items[0]); }} />)}
-        </NavigationRail>
-        <SidebarMenu label={section.label} actions={<CountBadge count={section.items.length} />}>
-          {section.items.map(label =>
-            <PaneButton key={label} icon={section.icon} text={label} aria-pressed={selected === label}
-              onClick={() => setSelected(label)} />)}
-        </SidebarMenu>
+        </NavigationRail>}
+        <div className="example-sidebar-body">
+          <SidebarMenu label={section.label} actions={<CountBadge count={section.items.length} />}>
+            {section.items.map(label =>
+              <PaneButton key={label} icon={section.icon} text={label} aria-pressed={selected === label}
+                onClick={() => setSelected(label)} />)}
+          </SidebarMenu>
+          {!showRail && <div className="preview-sidebar-account">{account}</div>}
+        </div>
       </div>
+      <PreviewSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} showRail={showRail} onRailChange={setShowRail} />
     </div>
   );
 }

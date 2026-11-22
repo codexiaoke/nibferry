@@ -1,0 +1,8 @@
+[data-nf-tooltip] {
+  z-index: var(--nf-tooltip-layer, 30); max-inline-size: min(280px, var(--radix-tooltip-content-available-width));
+  padding: 5px 9px; border-radius: 8px; background: var(--nf-primary); color: var(--nf-on-primary);
+  font-size: 12px; line-height: 1.5; overflow-wrap: anywhere;
+  animation: nf-tooltip-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+}
+@keyframes nf-tooltip-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { [data-nf-tooltip] { animation: none; } }

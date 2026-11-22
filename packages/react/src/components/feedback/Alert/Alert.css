@@ -1,0 +1,12 @@
+[data-nf-alert] {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--nf-space-sm);
+  padding: 12px 14px; border: 1px solid var(--nf-line); border-radius: 11px;
+  background: var(--nf-subtle); color: var(--nf-ink); font-size: 14px;
+}
+[data-nf-alert] strong { font-weight: 550; }
+[data-nf-alert='danger'] {
+  border-color: color-mix(in srgb, var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))) 30%, var(--nf-line));
+  background: color-mix(in srgb, var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))) 5%, var(--nf-canvas));
+}
+[data-nf-alert='danger'] strong { color: var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))); }
+[data-nf-alert-body] { margin-block-start: 3px; color: var(--nf-secondary); font-size: 13px; line-height: 1.55; }

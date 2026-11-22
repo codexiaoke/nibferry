@@ -33,6 +33,7 @@ import {
   RightPane,
   RightPaneFullscreenToggle,
   RightPaneToggle,
+  ScrollArea,
   SummaryCard,
   SummaryGroup,
   SummaryItem,
@@ -44,6 +45,7 @@ import {
   type WorkspacePane,
 } from 'nibferry';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
+import PreviewAccountMenu from '../PreviewAccountMenu/PreviewAccountMenu';
 import PreviewChat from '../PreviewChat/PreviewChat';
 import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';
 import PreviewSidebarMenu from '../PreviewSidebarMenu/PreviewSidebarMenu';
@@ -110,6 +112,7 @@ class ChatOutlet extends Component<ChatOutletProps, ChatOutletState, boolean> {
 }
 
 interface WorkspacePreviewProps {
+  onOpenSettings: () => void;
   toolbarStart?: ReactNode;
   searchEntries: SearchEntry[];
   globalNavigation: boolean;
@@ -126,7 +129,7 @@ function usePreviewPaneWidth(globalNavigation: boolean) {
   return [width, changeWidth] as const;
 }
 
-export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation }: WorkspacePreviewProps) {
+export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation, onOpenSettings }: WorkspacePreviewProps) {
   const workspace = useRef<HTMLDivElement>(null);
   const titlebar = useRef<HTMLDivElement>(null);
   const leftPane = useRef<HTMLElement>(null);
@@ -137,6 +140,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
   const floatingToggle = useRef<HTMLButtonElement>(null);
   const floatingPanel = useRef<HTMLElement>(null);
   const [floatingOpen, setFloatingOpen] = useState(true);
+  const [unreadReply, setUnreadReply] = useState(false);
   const focusAfterToggle = useRef(false);
   const leftToggle = useRef<HTMLButtonElement>(null);
   const [projects, setProjects] = useState(initialProjects);
@@ -234,6 +238,11 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
   const leftOpen = compact ? compactPane === 'left' : !desktopCollapsed;
   const rightOpen = compact ? compactPane === 'right' : rightMode !== 'closed';
   const fullscreen = !compact && rightMode === 'fullscreen';
+  const chatVisible = fullscreen ? floatingOpen : !compact || compactPane === 'main';
+
+  useLayoutEffect(() => {
+    if (chatVisible) setUnreadReply(false);
+  }, [chatVisible]);
 
   useLayoutEffect(() => {
     if (fullscreen && focusAfterToggle.current) {
@@ -351,7 +360,8 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           )}
         </PaneHeader>
       </div>
-      {globalNavigation && <NavigationRail label="主导航" className="workspace-preview-rail">
+      {globalNavigation && <NavigationRail label="主导航" className="workspace-preview-rail"
+        footer={<PreviewAccountMenu onOpenPage={openSource} onOpenSettings={onOpenSettings} />}>
         <NavigationRailItem label="首页" icon={Home} className="workspace-preview-home" current={!currentPath}
           onClick={() => {
             setDesktopCollapsed(false);
@@ -394,16 +404,26 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           width={leftWidth ?? 'var(--nf-layout-left-pane-width)'}
           onWidthChange={setLeftWidth}
           collapsed={compact ? undefined : desktopCollapsed}
-          collapsedContent={globalNavigation ? undefined : <PreviewSidebarMenu {...menuProps} collapsedProjects={projectListProps} />}
+          collapsedContent={globalNavigation ? undefined : <PreviewSidebarMenu {...menuProps} collapsedProjects={projectListProps}
+            footer={desktopCollapsed ? <PreviewAccountMenu onOpenPage={openSource} onOpenSettings={onOpenSettings} /> : undefined} />}
           aria-label="左侧"
         >
-          {(!compact || leftOpen) && <PreviewSidebarMenu {...menuProps} />}
-          <PreviewConversationList {...projectListProps} />
+          <div className="preview-project-sidebar">
+            <ScrollArea viewportProps={{ tabIndex: -1 }}>
+              {(!compact || leftOpen) && <PreviewSidebarMenu {...menuProps} />}
+              <PreviewConversationList {...projectListProps} />
+            </ScrollArea>
+            {!globalNavigation && leftOpen && <div className="preview-sidebar-account">
+              <PreviewAccountMenu variant="sidebar" onOpenPage={openSource} onOpenSettings={onOpenSettings} />
+            </div>}
+          </div>
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
-          <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={fullscreen ? floatingOpen : !compact || compactPane === 'main'} conversationId={conversationId}>
+          <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={chatVisible} conversationId={conversationId}>
             {visitedChats.map(id => <PreviewChat key={id} seeded={id === initialProjects[0].conversations[0].id}
-              hidden={id !== conversationId} onOpenSource={openSource} />)}
+              hidden={id !== conversationId} onOpenSource={openSource} onReplyComplete={() => {
+                if (id === conversationId && !chatVisible) setUnreadReply(true);
+              }} />)}
           </ChatOutlet>
           <SummaryCard id="preview-summary" className="workspace-preview-summary" aria-label="会话摘要" hidden={!summaryOpen}>
             <SummaryGroup label={project.name}>
@@ -451,7 +471,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           ))}
         </RightPane>
         <div className="preview-floating-area" hidden={!fullscreen}>
-          <FloatingPanel ref={floatingPanel} id="preview-floating-chat" aria-label={conversation.title}
+          <FloatingPanel movable ref={floatingPanel} id="preview-floating-chat" aria-label={conversation.title}
             open={fullscreen && floatingOpen} header={<PaneHeader>
               <FloatingPanelTrigger paneId="preview-floating-chat" expanded icon={Minus} onClick={toggleFloating} />
               <HugeiconsIcon icon={Folder} size={16} aria-hidden="true" />
@@ -459,7 +479,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
             </PaneHeader>}>
             <div ref={floatingBody} className="preview-floating-chat-body" />
           </FloatingPanel>
-          <FloatingPanelTrigger ref={floatingToggle} paneId="preview-floating-chat" expanded={floatingOpen}
+          <FloatingPanelTrigger ref={floatingToggle} paneId="preview-floating-chat" expanded={floatingOpen} unread={unreadReply}
             hidden={floatingOpen} aria-label="恢复浮动对话" onClick={toggleFloating} />
         </div>
       </WorkspaceLayout>

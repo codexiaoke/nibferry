@@ -1,0 +1,16 @@
+[data-nf-popover] {
+  box-sizing: border-box; inline-size: min(280px, var(--radix-popover-content-available-width));
+  max-block-size: var(--radix-popover-content-available-height); overflow: auto;
+  padding: 12px; border: 1px solid var(--nf-line); border-radius: 12px;
+  background: var(--nf-canvas); color: var(--nf-ink); font: inherit;
+  z-index: var(--nf-menu-layer, 10); box-shadow: var(--nf-menu-shadow, none);
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-popover][data-state='open'] { animation: nf-menu-in calc(var(--nf-motion-surface) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+  [data-nf-popover][data-state='closed'] {
+    pointer-events: none;
+    animation: nf-menu-out calc(var(--nf-motion-feedback) * .75 * var(--nf-motion-scale, 1)) ease-out;
+  }
+  @keyframes nf-menu-out { to { opacity: 0; transform: scale(.98); } }
+}

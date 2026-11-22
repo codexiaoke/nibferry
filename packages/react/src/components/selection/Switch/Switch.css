@@ -1,0 +1,16 @@
+[data-nf-switch] {
+  appearance: none; display: inline-grid; align-items: center; flex: none; box-sizing: border-box;
+  width: 32px; height: 20px; margin: 0; padding: 2px; border: 1px solid var(--nf-muted); border-radius: 12px;
+  background: var(--nf-subtle); cursor: pointer;
+  transition: background-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+}
+[data-nf-switch]::before {
+  content: ''; display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--nf-muted);
+  transition: transform calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+}
+[data-nf-switch]:checked { background: var(--nf-primary); border-color: var(--nf-primary); }
+[data-nf-switch]:checked::before { background: var(--nf-on-primary); transform: translateX(12px); }
+[data-nf-switch]:dir(rtl):checked::before { transform: translateX(-12px); }
+[data-nf-switch]:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 2px; }
+[data-nf-switch]:disabled { opacity: .45; cursor: default; }
+@media (prefers-reduced-motion: reduce) { [data-nf-switch], [data-nf-switch]::before { transition: none; } }

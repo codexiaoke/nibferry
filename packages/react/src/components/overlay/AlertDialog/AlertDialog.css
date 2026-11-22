@@ -1,0 +1,5 @@
+[data-nf-alert-dialog] { width: min(380px, calc(100% - 32px)); padding: 20px; }
+[data-nf-alert-dialog] h2 { margin: 0; font-size: 17px; font-weight: 600; }
+[data-nf-alert-dialog] p { margin: 8px 0 20px; color: var(--nf-secondary); line-height: 1.6; }
+[data-nf-alert-actions] { display: flex; justify-content: flex-end; gap: var(--nf-space-sm); }
+[data-nf-alert-actions] [data-nf-button='danger'] { border-color: var(--nf-line); }

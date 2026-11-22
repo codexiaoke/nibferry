@@ -1,0 +1,27 @@
+:where([data-nf-floating-trigger]) { border: 1px solid var(--nf-line); border-radius: 50%; background: var(--nf-canvas); }
+[data-nf-floating-trigger]:where([aria-expanded="false"]) {
+  position: relative;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--nf-on-primary);
+  background: var(--nf-primary);
+  box-shadow: 0 2px 8px var(--nf-shadow);
+}
+[data-nf-floating-trigger]:where([aria-expanded="false"]) > svg { width: 20px; height: 20px; }
+[data-nf-floating-trigger]:where([aria-expanded="false"]):enabled:is(:hover, :active) {
+  background: color-mix(in srgb, var(--nf-primary) 88%, var(--nf-on-primary));
+}
+[data-nf-floating-trigger][data-nf-unread]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  box-sizing: content-box;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--nf-canvas);
+  border-radius: 50%;
+  background: var(--nf-floating-unread, #dc3545);
+  pointer-events: none;
+}

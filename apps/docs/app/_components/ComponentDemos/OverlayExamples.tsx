@@ -2,11 +2,13 @@
 
 import { useId, useState } from 'react';
 import {
-  ContextMenu, Dialog, FloatingPanel, FloatingPanelTrigger, MenuContent, MenuItem,
+  Button, Field, Input, ContextMenu, Dialog, FloatingPanel, FloatingPanelTrigger, MenuContent, MenuItem,
   PaneButton, PaneHeader, SearchDialog,
 } from 'nibferry';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
+import Settings from '@hugeicons/core-free-icons/Settings01Icon';
+import PreviewSettingsDialog from '../PreviewSettingsDialog/PreviewSettingsDialog';
 
 export function ContextMenuDemo() {
   const [pinned, setPinned] = useState(false);
@@ -46,6 +48,8 @@ export function DialogDemo() {
   const [name, setName] = useState('组件指南');
   const [draft, setDraft] = useState(name);
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showRail, setShowRail] = useState(false);
   return (
     <div className="component-demo">
       <div className="example-document">
@@ -58,25 +62,34 @@ export function DialogDemo() {
           event.preventDefault();
           if (draft.trim()) { setName(draft.trim()); setOpen(false); }
         }}>
-          <label>文档名称<input value={draft} onChange={e => setDraft(e.target.value)} /></label>
-          <div>
-            <button type="button" className="example-button" onClick={() => setOpen(false)}>取消</button>
-            <button type="submit" className="example-button" disabled={!draft.trim()}>保存</button>
-          </div>
+          <Field label="文档名称"><Input value={draft} onChange={e => setDraft(e.target.value)} /></Field>
+          <footer>
+            <Button onClick={() => setOpen(false)}>取消</Button>
+            <Button type="submit" variant="primary" disabled={!draft.trim()}>保存</Button>
+          </footer>
         </form>
       </Dialog>
+      <PaneButton icon={Settings} text="打开设置" className="example-button" aria-haspopup="dialog"
+        onClick={() => setSettingsOpen(true)} />
+      <PreviewSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} showRail={showRail} onRailChange={setShowRail} />
     </div>
   );
 }
 
 export function FloatingDemo() {
   const [open, setOpen] = useState(true);
+  const [reply, setReply] = useState<'empty' | 'unread' | 'read'>('empty');
   const id = useId();
   return (
     <div className="component-demo example-float">
-      <FloatingPanelTrigger paneId={id} expanded={open} onClick={() => setOpen(!open)} />
-      <FloatingPanel id={id} open={open} aria-label="文档助手" header={<PaneHeader>文档助手</PaneHeader>}>
-        可以在阅读文档时，把问题记在这里。
+      {!open && <button type="button" className="example-button" disabled={reply === 'unread'}
+        onClick={() => setReply('unread')}>模拟收到回复</button>}
+      <FloatingPanelTrigger paneId={id} expanded={open} unread={reply === 'unread'} onClick={() => {
+        if (!open && reply === 'unread') setReply('read');
+        setOpen(!open);
+      }} />
+      <FloatingPanel movable id={id} open={open} aria-label="文档助手" header={<PaneHeader>文档助手</PaneHeader>}>
+        {reply === 'empty' ? '可以在阅读文档时，把问题记在这里。' : '已找到你要的组件示例。'}
       </FloatingPanel>
     </div>
   );

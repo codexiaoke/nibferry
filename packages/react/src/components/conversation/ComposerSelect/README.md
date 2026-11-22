@@ -18,6 +18,6 @@ import { ComposerSelect } from 'nibferry';
 
 `value` 对应选项的唯一值。`label` 标识控件，每个选项的 `label` 和可选 `detail` 决定按钮与菜单内的显示内容。`onValueChange` 返回所选值，由应用更新状态。可用 `disabled` 禁用整个控件或某个选项。空选项列表禁用按钮。
 
-`className` 设置按钮样式，`menuClassName` 设置浮层样式。Enter 或空格打开，方向键浏览，Enter 确认，Esc 取消。
+`className` 设置按钮样式，菜单默认与按钮等宽，可用 `menuClassName` 调整浮层样式。Enter 或空格打开，方向键浏览，Enter 确认，Esc 取消。
 
 在 Nibferry 的 `Dialog` 内，选项面板挂载到最近的弹框。也可用 `container` 指定局部主题容器。
