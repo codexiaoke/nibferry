@@ -137,6 +137,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
   const floatingToggle = useRef<HTMLButtonElement>(null);
   const floatingPanel = useRef<HTMLElement>(null);
   const [floatingOpen, setFloatingOpen] = useState(true);
+  const [unreadReply, setUnreadReply] = useState(false);
   const focusAfterToggle = useRef(false);
   const leftToggle = useRef<HTMLButtonElement>(null);
   const [projects, setProjects] = useState(initialProjects);
@@ -234,6 +235,11 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
   const leftOpen = compact ? compactPane === 'left' : !desktopCollapsed;
   const rightOpen = compact ? compactPane === 'right' : rightMode !== 'closed';
   const fullscreen = !compact && rightMode === 'fullscreen';
+  const chatVisible = fullscreen ? floatingOpen : !compact || compactPane === 'main';
+
+  useLayoutEffect(() => {
+    if (chatVisible) setUnreadReply(false);
+  }, [chatVisible]);
 
   useLayoutEffect(() => {
     if (fullscreen && focusAfterToggle.current) {
@@ -401,9 +407,11 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           <PreviewConversationList {...projectListProps} />
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
-          <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={fullscreen ? floatingOpen : !compact || compactPane === 'main'} conversationId={conversationId}>
+          <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={chatVisible} conversationId={conversationId}>
             {visitedChats.map(id => <PreviewChat key={id} seeded={id === initialProjects[0].conversations[0].id}
-              hidden={id !== conversationId} onOpenSource={openSource} />)}
+              hidden={id !== conversationId} onOpenSource={openSource} onReplyComplete={() => {
+                if (id === conversationId && !chatVisible) setUnreadReply(true);
+              }} />)}
           </ChatOutlet>
           <SummaryCard id="preview-summary" className="workspace-preview-summary" aria-label="会话摘要" hidden={!summaryOpen}>
             <SummaryGroup label={project.name}>
@@ -451,7 +459,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           ))}
         </RightPane>
         <div className="preview-floating-area" hidden={!fullscreen}>
-          <FloatingPanel ref={floatingPanel} id="preview-floating-chat" aria-label={conversation.title}
+          <FloatingPanel movable ref={floatingPanel} id="preview-floating-chat" aria-label={conversation.title}
             open={fullscreen && floatingOpen} header={<PaneHeader>
               <FloatingPanelTrigger paneId="preview-floating-chat" expanded icon={Minus} onClick={toggleFloating} />
               <HugeiconsIcon icon={Folder} size={16} aria-hidden="true" />
@@ -459,7 +467,7 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
             </PaneHeader>}>
             <div ref={floatingBody} className="preview-floating-chat-body" />
           </FloatingPanel>
-          <FloatingPanelTrigger ref={floatingToggle} paneId="preview-floating-chat" expanded={floatingOpen}
+          <FloatingPanelTrigger ref={floatingToggle} paneId="preview-floating-chat" expanded={floatingOpen} unread={unreadReply}
             hidden={floatingOpen} aria-label="恢复浮动对话" onClick={toggleFloating} />
         </div>
       </WorkspaceLayout>

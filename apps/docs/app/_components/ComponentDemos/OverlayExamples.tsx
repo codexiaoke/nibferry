@@ -71,12 +71,18 @@ export function DialogDemo() {
 
 export function FloatingDemo() {
   const [open, setOpen] = useState(true);
+  const [reply, setReply] = useState<'empty' | 'unread' | 'read'>('empty');
   const id = useId();
   return (
     <div className="component-demo example-float">
-      <FloatingPanelTrigger paneId={id} expanded={open} onClick={() => setOpen(!open)} />
-      <FloatingPanel id={id} open={open} aria-label="文档助手" header={<PaneHeader>文档助手</PaneHeader>}>
-        可以在阅读文档时，把问题记在这里。
+      {!open && <button type="button" className="example-button" disabled={reply === 'unread'}
+        onClick={() => setReply('unread')}>模拟收到回复</button>}
+      <FloatingPanelTrigger paneId={id} expanded={open} unread={reply === 'unread'} onClick={() => {
+        if (!open && reply === 'unread') setReply('read');
+        setOpen(!open);
+      }} />
+      <FloatingPanel movable id={id} open={open} aria-label="文档助手" header={<PaneHeader>文档助手</PaneHeader>}>
+        {reply === 'empty' ? '可以在阅读文档时，把问题记在这里。' : '已找到你要的组件示例。'}
       </FloatingPanel>
     </div>
   );

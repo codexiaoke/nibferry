@@ -2382,6 +2382,65 @@ test('右栏全屏保留左侧导航，还原和重新展开均保留栏宽与�
   await expect(right).toHaveCSS('width', '352px');
 });
 
+test('全屏对话的标题栏可拖动，受工作区边界约束并在收起后保留位置', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  const panel = page.locator('#preview-floating-chat');
+  const header = panel.getByRole('group', { name: '移动浮窗' });
+  const handle = header.locator(':scope > svg');
+  await handle.hover();
+  const grip = (await handle.boundingBox())!;
+  const start = (await panel.boundingBox())!;
+  const x = grip.x + grip.width / 2;
+  const y = grip.y + grip.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 30, y - 32, { steps: 4 });
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.x - start.x)).toBe(30);
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.y - start.y)).toBe(-32);
+  await page.mouse.move(1, 1);
+  await page.mouse.up();
+  const bounds = (await page.locator('.preview-floating-area').boundingBox())!;
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.x - bounds.x)).toBe(0);
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.y - bounds.y)).toBe(0);
+  await header.press('ArrowRight');
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.x - bounds.x)).toBe(8);
+  await panel.getByRole('button', { name: '收起浮窗' }).click();
+  await expect(panel).toBeHidden();
+  await page.getByRole('button', { name: '恢复浮动对话' }).click();
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.x - bounds.x)).toBe(8);
+});
+
+test('收起浮窗时只为新完成的回复显示红点，查看后清除', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  await openPreviewRightPane(page);
+  await page.getByRole('button', { name: '全屏显示右侧栏' }).click();
+  const panel = page.locator('#preview-floating-chat');
+  const collapse = panel.getByRole('button', { name: '收起浮窗' });
+  const restore = page.getByRole('button', { name: '恢复浮动对话' });
+  await collapse.click();
+  await expect(restore).toHaveCSS('height', '44px');
+  await expect(restore).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(restore).not.toHaveAttribute('data-nf-unread');
+  await restore.click();
+  const input = panel.getByRole('textbox', { name: '消息', exact: true });
+  await input.fill('请画布局草图');
+  await input.press('Enter');
+  await expect(panel.getByRole('status', { name: '正在生成' })).toBeVisible();
+  await collapse.click();
+  await expect(restore).not.toHaveAttribute('data-nf-unread');
+  await expect(restore).toHaveAccessibleDescription('有新的 Agent 回复', { timeout: 10000 });
+  expect(await restore.evaluate(el => getComputedStyle(el, '::after').backgroundColor)).toBe('rgb(220, 53, 69)');
+  await restore.press('Enter');
+  await expect(panel).toBeVisible();
+  await collapse.click();
+  await expect(restore).not.toHaveAttribute('data-nf-unread');
+  await expect(restore).not.toHaveAccessibleDescription('有新的 Agent 回复');
+});
+
 test('全屏浮窗复用同一份对话，收起和恢复时文档可操作且焦点正确', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('./playground/');

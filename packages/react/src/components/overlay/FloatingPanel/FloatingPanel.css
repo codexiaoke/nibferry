@@ -12,8 +12,23 @@
   box-shadow: var(--nf-floating-shadow, none);
 }
 :where([data-nf-floating-panel]:not([hidden])) { display: flex; flex-direction: column; }
+:where([data-nf-floating-header]) {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: var(--nf-space-sm);
+  padding-inline-end: var(--nf-space-md);
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+:where([data-nf-floating-header]:active) { cursor: grabbing; }
+:where([data-nf-floating-header]:focus-visible) { outline: 2px solid var(--nf-accent); outline-offset: -2px; }
+:where([data-nf-floating-title]) { flex: 1; min-inline-size: 0; }
+:where([data-nf-floating-header] > svg) { flex: none; color: var(--nf-muted); }
 :where([data-nf-floating-body]) { flex: 1; min-block-size: 0; overflow: auto; }
-:where([data-nf-floating-trigger]) { border: 1px solid var(--nf-line); border-radius: 50%; background: var(--nf-canvas); }
 @media (prefers-reduced-motion: no-preference) {
   :where([data-nf-floating-panel]:not([hidden])) {
     animation: nf-floating-enter calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1)) var(--nf-ease);

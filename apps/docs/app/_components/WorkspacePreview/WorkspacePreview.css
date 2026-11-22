@@ -49,12 +49,12 @@
   position: absolute;
   inset-block-end: var(--nf-space-md);
   inset-inline-end: var(--nf-space-md);
-  width: 40px;
-  height: 40px;
 }
 .preview-floating-area [data-nf-pane-header] {
   min-block-size: 44px;
   padding-inline: var(--nf-space-sm);
+}
+.preview-floating-area [data-nf-floating-header] {
   border-block-end: 1px solid var(--nf-line);
 }
 .preview-floating-area [data-nf-pane-header-content] {
