@@ -1,5 +1,19 @@
 # nibferry
 
+## 0.3.0
+
+### Minor Changes
+
+- 56ebd1b: Add reusable form, selection, identity, and feedback components. Share selection, avatar, and empty-state rendering with the existing workspace controls.
+
+  Add Textarea, Slider, Disclosure, Tabs, and Progress. The composer shares the multiline input and the model selector uses the stepped slider.
+- 014aa00: Add an optional movable title bar to FloatingPanel with bounded pointer dragging and keyboard movement.
+
+  Give the collapsed FloatingPanelTrigger a high-contrast launcher and support an unread reply indicator.
+- 17b3096: Add a pinned NavigationRail footer and a composable account menu with an avatar trigger for icon rails and a full-width account row for expanded sidebars.
+- 17b3096: Add a two-column SettingsDialog with configurable navigation and section content.
+- 56ebd1b: Add anchored popovers, searchable selection, confirmation dialogs, loading indicators with text, circle, and block skeletons, attachments, numeric inputs, tables and pagination. Coordinate tab and menu highlights, selection feedback, overlay transitions, and toast dismissal with the motion theme.
+
 ## 0.2.0
 
 ### Minor Changes
