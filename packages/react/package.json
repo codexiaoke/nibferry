@@ -14,7 +14,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills/nibferry-ui"
   ],
   "types": "./dist/index.d.ts",
   "exports": {

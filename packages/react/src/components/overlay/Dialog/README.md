@@ -6,16 +6,16 @@
 
 ```tsx
 import { useState } from 'react';
-import { Dialog } from 'nibferry';
+import { Button, Dialog, Field, Input } from 'nibferry';
 
 function Editor() {
   const [open, setOpen] = useState(false);
   return <>
-    <button onClick={() => setOpen(true)}>编辑名称</button>
+    <Button onClick={() => setOpen(true)}>编辑名称</Button>
     <Dialog open={open} onOpenChange={setOpen} aria-labelledby="editor-title">
       <h2 id="editor-title">编辑名称</h2>
-      <input aria-label="名称" autoFocus />
-      <button onClick={() => setOpen(false)}>完成</button>
+      <Field label="名称"><Input autoFocus /></Field>
+      <Button onClick={() => setOpen(false)}>完成</Button>
     </Dialog>
   </>;
 }

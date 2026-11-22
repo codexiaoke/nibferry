@@ -5,14 +5,14 @@
 在指针位置打开右键菜单。触发区域保留自己的左键操作和布局。接入方用公开的菜单部件配置命令和回调。
 
 ```tsx
-import { ContextMenu, MenuContent, MenuItem } from 'nibferry';
+import { Button, ContextMenu, MenuContent, MenuItem } from 'nibferry';
 
 <ContextMenu content={
   <MenuContent aria-label="文档操作">
     <MenuItem onSelect={rename}>重命名</MenuItem>
   </MenuContent>
 }>
-  <button type="button" onClick={openDocument}>文档</button>
+  <Button onClick={openDocument}>文档</Button>
 </ContextMenu>
 ```
 

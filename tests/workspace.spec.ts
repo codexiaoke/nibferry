@@ -3482,6 +3482,68 @@ test('手机从组件分类进入部件页面，Markdown 与正文都链接到�
   expect(await response.text()).toMatch(/\[PaneResizeHandle\]\([^)]*\/docs\/components\/workspace\/workspace-layout\/#PaneResizeHandle\)/);
 });
 
+test('Agent 指南从首页可达，侧边助手发送问题后显示答案和来源', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('link', { name: 'Agent 组件使用指南' }).click();
+  const assistant = page.getByRole('region', { name: '侧边助手示例' });
+  const draft = assistant.getByRole('textbox', { name: '向文档提问' });
+  await draft.fill('样式在哪里加载？');
+  await draft.press('Enter');
+  const turn = assistant.getByRole('article').last();
+  await expect(turn).toContainText('nibferry/styles.css');
+  await expect(turn.getByRole('link', { name: '接入项目' })).toHaveAttribute('href', /\/docs\/installation\/$/);
+  await expect(draft).toHaveValue('');
+  await draft.fill('未发送的追问');
+  await turn.getByRole('link', { name: '接入项目' }).press('Enter');
+  await expect(assistant.getByRole('heading', { name: '接入项目' })).toBeFocused();
+  await assistant.getByRole('button', { name: '继续提问' }).press('Enter');
+  await expect(draft).toHaveValue('未发送的追问');
+});
+
+test('Agent 指南工作台用键盘切换会话并保留各自草稿', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./docs/agent-guide/');
+  const workspace = page.getByRole('region', { name: '对话工作台示例' });
+  const draft = workspace.getByRole('textbox', { name: '向文档提问' });
+  const switcher = workspace.getByRole('button', { name: '切换会话' });
+  await draft.fill('还没写完的问题');
+  await switcher.press('Enter');
+  await expect(workspace.getByRole('button', { name: '项目接入' })).toBeFocused();
+  await workspace.getByRole('button', { name: '主题样式' }).press('Enter');
+  await expect(switcher).toBeFocused();
+  await expect(draft).toHaveValue('');
+  await switcher.press('Enter');
+  await workspace.getByRole('button', { name: '项目接入' }).press('Enter');
+  await expect(draft).toHaveValue('还没写完的问题');
+});
+
+test('Agent 指南审批示例在原卡呈现决定并保留焦点', async ({ page }) => {
+  for (const action of ['通过', '退回']) {
+    await page.goto('./docs/agent-guide/');
+    const card = page.getByRole('region', { name: '手册交接草案' });
+    await card.getByRole('button', { name: action }).press('Enter');
+    await expect(card.getByRole('status')).toHaveText('已' + action);
+    await expect(card.getByRole('status')).toBeFocused();
+    await expect(card.getByRole('button')).toHaveCount(0);
+  }
+});
+
+test('Agent 指南的 Markdown 和可复制源码与随包示例一致', async ({ page, request }) => {
+  const { readFile } = await import('node:fs/promises');
+  await page.goto('./docs/agent-guide/');
+  const response = await request.get('./markdown/agent-guide.txt');
+  expect(response.ok()).toBe(true);
+  const markdown = await response.text();
+  for (const details of await page.locator('.docs-prose details').all()) {
+    await details.locator('summary').click();
+  }
+  for (const name of ['DocumentAssistant.tsx', 'HandbookPage.tsx', 'ChatWorkspace.tsx', 'ChatWorkspace.css', 'DraftApproval.tsx']) {
+    const code = (await readFile(resolve('packages/react/skills/nibferry-ui/assets', name), 'utf8')).trimEnd();
+    expect(markdown).toContain(code);
+    expect(await page.locator('.docs-prose pre code').allTextContents()).toContain(code);
+  }
+});
+
 test('应用入口统一加载样式，组件示例只导入所用部件', async ({ page }) => {
   await page.goto('./docs/installation/');
   const setup = page.locator('.docs-prose pre').filter({ hasText: 'nibferry/styles.css' });

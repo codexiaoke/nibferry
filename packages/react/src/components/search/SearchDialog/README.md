@@ -6,12 +6,12 @@
 
 ```tsx
 import { useState } from 'react';
-import { SearchDialog } from 'nibferry';
+import { Button, SearchDialog } from 'nibferry';
 
 function ChatSearch({ newChat }: { newChat: () => void }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button aria-haspopup="dialog" onClick={() => setOpen(true)}>搜索</button>
+    <Button aria-haspopup="dialog" onClick={() => setOpen(true)}>搜索</Button>
     <SearchDialog open={open} onOpenChange={setOpen} label="搜索工作区"
       groups={[{ id: 'actions', label: '快捷操作', filterLabel: '操作', items: [
         { id: 'new-chat', label: '新聊天', shortcutKey: 'N', onSelect: newChat },

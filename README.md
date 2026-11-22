@@ -16,6 +16,8 @@ pnpm install nibferry
 
 在应用入口引入一次 `nibferry/styles.css`，然后从 `nibferry` 导入需要的组件。
 
+使用编码 Agent 时，可以直接说「读取 `node_modules/nibferry/skills/nibferry-ui/SKILL.md`，用 Nibferry 实现我的需求」。[Agent 组件使用指南](apps/docs/content/agent-guide.mdx)提供侧边助手、独立对话工作台和回复内审批的交互示例与源码。
+
 ## 本地开发
 
 需要 Node.js 22.12 或更高版本和 pnpm 10。

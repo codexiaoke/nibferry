@@ -894,6 +894,13 @@ body:has(.component-demo) {
 }
 .example-expand:hover { color: var(--site-ink); }
 .component-demo { color: var(--nf-ink); font-size: 14px; line-height: 1.5; }
+.agent-guide-stage { padding: 0; overflow: clip; }
+.agent-guide-workspace {
+  width: 100%;
+  min-width: 0;
+  height: 22rem;
+  background: var(--nf-canvas);
+}
 .example-column, .example-thread { width: min(100%, 34rem); min-width: 0; }
 .example-thread { height: 145px; }
 .example-column > [data-nf-turn] { margin-bottom: 12px; }

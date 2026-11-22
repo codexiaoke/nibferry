@@ -36,11 +36,11 @@ import { SearchDialog } from 'nibferry';
 需要自定义内容时，使用同一套基础组件 `Dialog`。它处理模态焦点、遮罩、Esc 和入场动效。接入方通过 `open` 与 `onOpenChange` 控制开合，并通过 `aria-label` 或 `aria-labelledby` 提供弹框名称。
 
 ```tsx
-import { Dialog } from 'nibferry';
+import { Button, Dialog, Field, Input } from 'nibferry';
 
 <Dialog open={editing} onOpenChange={setEditing} aria-label="编辑项目">
-  <label>项目名称<input autoFocus value={name} onChange={e => setName(e.target.value)} /></label>
-  <button onClick={saveProject}>保存</button>
+  <Field label="项目名称"><Input autoFocus value={name} onChange={e => setName(e.target.value)} /></Field>
+  <Button variant="primary" onClick={saveProject}>保存</Button>
 </Dialog>
 ```
 

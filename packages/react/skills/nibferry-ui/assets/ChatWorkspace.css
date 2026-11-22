@@ -1,0 +1,13 @@
+.chat-history {
+  background: var(--nf-subtle);
+  border-inline-end: 1px solid var(--nf-line);
+}
+
+.chat-heading {
+  padding: var(--nf-space-sm) var(--nf-space-md);
+  border-block-end: 1px solid var(--nf-line);
+}
+
+@container (min-width: 768px) {
+  .chat-heading .chat-history-button { display: none; }
+}
