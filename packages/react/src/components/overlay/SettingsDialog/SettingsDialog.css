@@ -1,0 +1,77 @@
+[data-nf-settings-dialog] {
+  inline-size: 80dvw;
+  block-size: 80dvh;
+  padding: 0;
+  overflow: hidden;
+  container-type: inline-size;
+}
+[data-nf-settings-dialog][open] { display: grid; }
+[data-nf-settings-dialog] {
+  grid-template-columns: min(28%, 188px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+[data-nf-settings-sidebar], [data-nf-settings-page] {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+[data-nf-settings-sidebar] {
+  background: var(--nf-subtle);
+  border-inline-end: 1px solid var(--nf-line);
+}
+[data-nf-settings-sidebar] > h2 {
+  margin: 0;
+  padding: 22px var(--nf-space-lg) var(--nf-space-md);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+}
+[data-nf-settings-sidebar] nav { display: grid; gap: 3px; padding: 4px 10px; }
+[data-nf-settings-nav-item] {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-inline-size: 0;
+  min-block-size: 37px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--nf-secondary);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: start;
+  cursor: pointer;
+}
+[data-nf-settings-nav-item] svg { flex: none; }
+[data-nf-settings-nav-item] span { overflow-wrap: anywhere; }
+[data-nf-settings-nav-item]:hover { background: color-mix(in srgb, var(--nf-ink) 4%, transparent); }
+[data-nf-settings-nav-item][aria-current] {
+  color: var(--nf-ink);
+  background: color-mix(in srgb, var(--nf-ink) 8%, transparent);
+}
+[data-nf-settings-nav-item]:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 1px; }
+[data-nf-settings-page] > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nf-space-sm);
+  padding: 20px var(--nf-space-lg) var(--nf-space-md);
+  border-block-end: 1px solid var(--nf-line);
+}
+[data-nf-settings-page] > header h3 { margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; }
+[data-nf-settings-page] > [data-nf-scroll-area],
+[data-nf-settings-sidebar] > [data-nf-scroll-area] { flex: 1; }
+[data-nf-settings-body] { padding: var(--nf-space-lg); }
+@container (max-width: 500px) {
+  [data-nf-settings-sidebar] > h2 { text-align: center; padding: 16px 4px 12px; font-size: 16px; }
+  [data-nf-settings-sidebar] nav { padding-inline: 6px; }
+  [data-nf-settings-nav-item] { flex-direction: column; justify-content: center; gap: 2px; padding: 6px 3px; font-size: 12px; }
+  [data-nf-settings-page] > header, [data-nf-settings-body] { padding: var(--nf-space-md); }
+}
+@media (pointer: coarse) {
+  [data-nf-settings-nav-item] { min-block-size: 44px; }
+}

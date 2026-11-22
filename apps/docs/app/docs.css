@@ -903,7 +903,10 @@ body:has(.component-demo) {
   border: 1px solid var(--nf-line);
   border-radius: 10px;
 }
-.example-sidebar { display: flex; width: min(100%, 20rem); }
+.example-sidebar { display: flex; width: min(100%, 20rem); min-height: 12rem; }
+.example-sidebar-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.preview-sidebar-account { padding: var(--nf-space-sm); }
+.component-demo > button:has(+ .example-sidebar) { margin-bottom: var(--nf-space-sm); }
 .example-sidebar [data-nf-sidebar-menu] { flex: 1; }
 .example-sidebar [aria-pressed='true'] { background: var(--nf-subtle); }
 .example-list { width: min(100%, 20rem); padding: 6px; }

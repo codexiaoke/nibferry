@@ -25,6 +25,12 @@
   box-shadow: inset -1px 0 var(--site-line);
 }
 
+.preview-project-sidebar {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  block-size: 100%;
+}
+
 .workspace-preview > [data-nf-workspace] {
   position: relative;
   overflow: clip;

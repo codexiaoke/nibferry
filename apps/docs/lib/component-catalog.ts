@@ -51,6 +51,7 @@ const categories: {
     { title: '图标导航栏', parts: {
       NavigationRail: '图标导航栏',
       NavigationRailItem: '图标导航项',
+      NavigationRailAccount: '导航栏账户菜单',
       SidebarMenu: '侧栏菜单',
       CountBadge: '计数徽标',
     } },
@@ -99,6 +100,7 @@ const categories: {
     } },
     { title: '模态弹框', parts: {
       Dialog: '模态弹框',
+      SettingsDialog: '设置弹框',
     } },
     { title: '悬浮面板', parts: {
       FloatingPanel: '悬浮面板',

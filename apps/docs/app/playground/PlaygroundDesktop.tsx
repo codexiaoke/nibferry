@@ -7,10 +7,12 @@ import type { SearchEntry } from '../../lib/docs';
 import MacWindow from '../_components/MacWindow/MacWindow';
 import MacWindowControls from '../_components/MacWindowControls/MacWindowControls';
 import WorkspacePreview from '../_components/WorkspacePreview/WorkspacePreview';
+import PreviewSettingsDialog from '../_components/PreviewSettingsDialog/PreviewSettingsDialog';
 
 export default function PlaygroundDesktop({ searchEntries }: { searchEntries: SearchEntry[] }) {
   const desktop = useRef<HTMLDivElement>(null);
   const [showGlobalRail, setShowGlobalRail] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [canSwitch, setCanSwitch] = useState(false);
 
   useLayoutEffect(() => {
@@ -26,7 +28,9 @@ export default function PlaygroundDesktop({ searchEntries }: { searchEntries: Se
       onClick={() => setShowGlobalRail(shown => !shown)} />}
     <MacWindow>
       <WorkspacePreview globalNavigation={canSwitch && showGlobalRail} searchEntries={searchEntries}
+        onOpenSettings={() => setSettingsOpen(true)}
         toolbarStart={<MacWindowControls />} />
     </MacWindow>
+    <PreviewSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} showRail={showGlobalRail} onRailChange={setShowGlobalRail} />
   </div>;
 }

@@ -36,12 +36,14 @@ export { ComposerActionMenu, type ComposerActionMenuProps, type ComposerMenuMatc
 export { Inline, type InlineProps } from './components/layout/Inline/Inline.js';
 export type { LayoutGap } from './components/layout/spacing.js';
 export { Dialog, type DialogProps } from './components/overlay/Dialog/Dialog.js';
+export { SettingsDialog, type SettingsDialogProps, type SettingsDialogSection } from './components/overlay/SettingsDialog/SettingsDialog.js';
 export { FloatingPanel, type FloatingPanelProps } from './components/overlay/FloatingPanel/FloatingPanel.js';
 export { FloatingPanelTrigger, type FloatingPanelTriggerProps } from './components/overlay/FloatingPanelTrigger/FloatingPanelTrigger.js';
 export { SearchDialog, type SearchDialogProps, type SearchDialogGroup, type SearchDialogItem } from './components/search/SearchDialog/SearchDialog.js';
 export { SidebarMenu, type SidebarMenuProps } from './components/navigation/SidebarMenu/SidebarMenu.js';
 export { CountBadge, type CountBadgeProps } from './components/feedback/CountBadge/CountBadge.js';
 export { NavigationRail, type NavigationRailProps } from './components/navigation/NavigationRail/NavigationRail.js';
+export { NavigationRailAccount, type NavigationRailAccountProps } from './components/navigation/NavigationRailAccount/NavigationRailAccount.js';
 export { NavigationRailItem, type NavigationRailItemProps } from './components/navigation/NavigationRailItem/NavigationRailItem.js';
 export { ConversationList, type ConversationListProps } from './components/navigation/ConversationList/ConversationList.js';
 export { ProjectInfo, type ProjectInfoProps } from './components/navigation/ProjectInfo/ProjectInfo.js';

@@ -7,6 +7,8 @@ import {
 } from 'nibferry';
 import File from '@hugeicons/core-free-icons/File01Icon';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
+import Settings from '@hugeicons/core-free-icons/Settings01Icon';
+import PreviewSettingsDialog from '../PreviewSettingsDialog/PreviewSettingsDialog';
 
 export function ContextMenuDemo() {
   const [pinned, setPinned] = useState(false);
@@ -46,6 +48,8 @@ export function DialogDemo() {
   const [name, setName] = useState('组件指南');
   const [draft, setDraft] = useState(name);
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showRail, setShowRail] = useState(false);
   return (
     <div className="component-demo">
       <div className="example-document">
@@ -65,6 +69,9 @@ export function DialogDemo() {
           </footer>
         </form>
       </Dialog>
+      <PaneButton icon={Settings} text="打开设置" className="example-button" aria-haspopup="dialog"
+        onClick={() => setSettingsOpen(true)} />
+      <PreviewSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} showRail={showRail} onRailChange={setShowRail} />
     </div>
   );
 }

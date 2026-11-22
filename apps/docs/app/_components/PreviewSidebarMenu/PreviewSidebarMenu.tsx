@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type ComponentProps, type MouseEvent } from 'react';
+import { useRef, useState, type ComponentProps, type MouseEvent, type ReactNode } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import Search from '@hugeicons/core-free-icons/Search01Icon';
 import Compose from '@hugeicons/core-free-icons/PencilEdit02Icon';
@@ -36,6 +36,7 @@ export interface PreviewChat { id: string; title: string; projectId: string; pro
 
 interface Props {
   collapsedProjects?: ComponentProps<typeof PreviewConversationList>;
+  footer?: ReactNode;
   chats: PreviewChat[];
   searching: boolean;
   onSearch: () => void;
@@ -43,7 +44,7 @@ interface Props {
   onOpenChat: (id: string) => void;
 }
 
-export default function PreviewSidebarMenu({ collapsedProjects, chats, searching, onSearch, onNewChat, onOpenChat }: Props) {
+export default function PreviewSidebarMenu({ collapsedProjects, footer, chats, searching, onSearch, onNewChat, onOpenChat }: Props) {
   const [projectsOpen, setProjectsOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const searchProps = {
@@ -69,7 +70,7 @@ export default function PreviewSidebarMenu({ collapsedProjects, chats, searching
   });
 
   if (collapsedProjects) {
-    return <NavigationRail label="收起的工作区菜单" className="workspace-preview-rail">
+    return <NavigationRail label="收起的工作区菜单" className="workspace-preview-rail" footer={footer}>
       <NavigationRailItem {...searchProps} label="搜索项目和会话" />
       {menus}
       <Popover.Root open={projectsOpen} onOpenChange={setProjectsOpen}>

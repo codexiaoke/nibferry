@@ -33,6 +33,7 @@ import {
   RightPane,
   RightPaneFullscreenToggle,
   RightPaneToggle,
+  ScrollArea,
   SummaryCard,
   SummaryGroup,
   SummaryItem,
@@ -44,6 +45,7 @@ import {
   type WorkspacePane,
 } from 'nibferry';
 import PreviewConversationHeader from '../PreviewConversationHeader/PreviewConversationHeader';
+import PreviewAccountMenu from '../PreviewAccountMenu/PreviewAccountMenu';
 import PreviewChat from '../PreviewChat/PreviewChat';
 import PreviewConversationList, { initialProjects } from '../PreviewConversationList/PreviewConversationList';
 import PreviewSidebarMenu from '../PreviewSidebarMenu/PreviewSidebarMenu';
@@ -110,6 +112,7 @@ class ChatOutlet extends Component<ChatOutletProps, ChatOutletState, boolean> {
 }
 
 interface WorkspacePreviewProps {
+  onOpenSettings: () => void;
   toolbarStart?: ReactNode;
   searchEntries: SearchEntry[];
   globalNavigation: boolean;
@@ -126,7 +129,7 @@ function usePreviewPaneWidth(globalNavigation: boolean) {
   return [width, changeWidth] as const;
 }
 
-export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation }: WorkspacePreviewProps) {
+export default function WorkspacePreview({ toolbarStart, searchEntries, globalNavigation, onOpenSettings }: WorkspacePreviewProps) {
   const workspace = useRef<HTMLDivElement>(null);
   const titlebar = useRef<HTMLDivElement>(null);
   const leftPane = useRef<HTMLElement>(null);
@@ -357,7 +360,8 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           )}
         </PaneHeader>
       </div>
-      {globalNavigation && <NavigationRail label="主导航" className="workspace-preview-rail">
+      {globalNavigation && <NavigationRail label="主导航" className="workspace-preview-rail"
+        footer={<PreviewAccountMenu onOpenPage={openSource} onOpenSettings={onOpenSettings} />}>
         <NavigationRailItem label="首页" icon={Home} className="workspace-preview-home" current={!currentPath}
           onClick={() => {
             setDesktopCollapsed(false);
@@ -400,11 +404,19 @@ export default function WorkspacePreview({ toolbarStart, searchEntries, globalNa
           width={leftWidth ?? 'var(--nf-layout-left-pane-width)'}
           onWidthChange={setLeftWidth}
           collapsed={compact ? undefined : desktopCollapsed}
-          collapsedContent={globalNavigation ? undefined : <PreviewSidebarMenu {...menuProps} collapsedProjects={projectListProps} />}
+          collapsedContent={globalNavigation ? undefined : <PreviewSidebarMenu {...menuProps} collapsedProjects={projectListProps}
+            footer={desktopCollapsed ? <PreviewAccountMenu onOpenPage={openSource} onOpenSettings={onOpenSettings} /> : undefined} />}
           aria-label="左侧"
         >
-          {(!compact || leftOpen) && <PreviewSidebarMenu {...menuProps} />}
-          <PreviewConversationList {...projectListProps} />
+          <div className="preview-project-sidebar">
+            <ScrollArea viewportProps={{ tabIndex: -1 }}>
+              {(!compact || leftOpen) && <PreviewSidebarMenu {...menuProps} />}
+              <PreviewConversationList {...projectListProps} />
+            </ScrollArea>
+            {!globalNavigation && leftOpen && <div className="preview-sidebar-account">
+              <PreviewAccountMenu variant="sidebar" onOpenPage={openSource} onOpenSettings={onOpenSettings} />
+            </div>}
+          </div>
         </LeftPane>
         <MainPane ref={mainPane} role="main" id="content" hidden={fullscreen}>
           <ChatOutlet target={fullscreen ? floatingBody : mainPane} visible={chatVisible} conversationId={conversationId}>

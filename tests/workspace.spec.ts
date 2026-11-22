@@ -2331,6 +2331,160 @@ test('预览按钮切换常驻导航，保留项目、栏宽和已打开的文�
   await expect(left.locator('[aria-current="page"]')).toHaveText('设计摘要面板');
 });
 
+test('常驻导航底部的头像在右侧打开分组账户菜单', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  const switcher = page.getByRole('button', { name: '常驻导航栏' });
+  const rail = page.getByRole('navigation', { name: '主导航' });
+  const account = rail.getByRole('button', { name: 'xiaoke 的账户菜单' });
+  await expect(account).toHaveCount(0);
+  await switcher.click();
+  await expect(page.getByRole('button', { name: 'xiaoke 的账户菜单' })).toHaveCount(1);
+  await expect(rail.locator('[data-nf-rail-footer] button')).toHaveCount(1);
+  await expect(account).toHaveText('XI');
+  const railBox = (await rail.boundingBox())!;
+  const buttonBox = (await account.boundingBox())!;
+  expect(railBox.y + railBox.height - buttonBox.y - buttonBox.height).toBeCloseTo(10, 0);
+
+  await account.press('Enter');
+  const menu = page.getByRole('menu', { name: 'xiaoke 的账户菜单' });
+  await expect(menu.getByText('xiaoke', { exact: true })).toBeVisible();
+  await expect(menu.getByText('Pro')).toBeVisible();
+  await expect(menu.getByRole('menuitem')).toHaveText(['显示智能伙伴⌥Space', '个性化', '个人资料', '设置⌘,', '帮助', '退出登录']);
+  await expect(menu.getByRole('menuitem', { name: '显示智能伙伴' })).toBeFocused();
+  const menuBox = (await menu.boundingBox())!;
+  expect(menuBox.x).toBeGreaterThan(buttonBox.x + buttonBox.width);
+  expect(menuBox.y + menuBox.height).toBeCloseTo(buttonBox.y + buttonBox.height, 0);
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(account).toBeFocused();
+
+  await account.click();
+  await menu.getByRole('menuitem', { name: '帮助' }).press('ArrowRight');
+  await page.getByRole('menuitem', { name: '接入项目' }).press('Enter');
+  await expect(page.getByRole('tab', { name: '接入项目', selected: true })).toBeVisible();
+  await expect(menu).toBeHidden();
+  await switcher.click();
+  await expect(account).toHaveCount(0);
+});
+
+test('从账户菜单打开设置，切换分类和桌面布局后焦点回到当前账户入口', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  const account = page.getByRole('button', { name: 'xiaoke 的账户菜单' });
+  const dialog = page.getByRole('dialog', { name: '设置', exact: true });
+  await account.press('Enter');
+  await page.getByRole('menuitem', { name: '设置', exact: true }).press('Enter');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveCSS('width', '1024px');
+  await expect(dialog).toHaveCSS('height', '640px');
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  const navigation = dialog.getByRole('navigation', { name: '设置' });
+  await expect(navigation.getByRole('button', { name: '通用' })).toBeFocused();
+  const body = dialog.getByRole('region', { name: '通用' });
+  const navBox = (await navigation.boundingBox())!;
+  expect((await body.boundingBox())!.x).toBeGreaterThanOrEqual(navBox.x + navBox.width);
+  await body.getByRole('radio', { name: '常驻导航栏' }).check();
+  await navigation.getByRole('button', { name: '账户' }).press('Enter');
+  await expect(dialog.getByRole('region', { name: '账户' })).toContainText('xiaoke');
+  await navigation.getByRole('button', { name: '关于' }).click();
+  await expect(dialog.getByRole('region', { name: '关于' })).toContainText('Nibferry');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole('button', { name: '常驻导航栏' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(account).toBeFocused();
+  await account.click();
+  await page.getByRole('menuitem', { name: '设置', exact: true }).click();
+  await navigation.getByRole('button', { name: '通用' }).click();
+  await expect(dialog.getByRole('radio', { name: '常驻导航栏' })).toBeChecked();
+  await dialog.getByRole('button', { name: '关闭设置' }).click();
+  await expect(account).toBeFocused();
+});
+
+test('窄屏设置保留左侧分类，右侧内容与关闭按钮可见', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto('./playground/');
+  await page.getByRole('button', { name: /左侧栏/ }).click();
+  await page.getByRole('button', { name: 'xiaoke 的账户菜单' }).click();
+  await page.getByRole('menuitem', { name: '设置', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '设置', exact: true });
+  const about = dialog.getByRole('button', { name: '关于' });
+  await expect(dialog).toHaveCSS('width', '288px');
+  await expect(dialog).toHaveCSS('height', '512px');
+  await about.click();
+  const navBox = (await about.boundingBox())!;
+  const heading = dialog.getByRole('heading', { name: '关于' });
+  expect((await heading.boundingBox())!.x).toBeGreaterThan(navBox.x + navBox.width);
+  await expect(dialog.getByText('版本', { exact: true })).toBeInViewport();
+  await expect(dialog.getByRole('button', { name: '关闭设置' })).toBeInViewport();
+  expect(await dialog.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  await page.mouse.click(2, 2);
+  await expect(dialog).toBeHidden();
+});
+
+test('普通侧栏固定账户行，收起后从底部头像打开同一菜单', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 500 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./playground/');
+  const sidebar = page.getByRole('complementary', { name: '左侧', exact: true });
+  const account = page.getByRole('button', { name: 'xiaoke 的账户菜单' });
+  const menu = page.getByRole('menu', { name: 'xiaoke 的账户菜单' });
+  await expect(account).toHaveCount(1);
+  await expect(account).toHaveText('XIxiaoke');
+  const row = (await account.boundingBox())!;
+  const pane = (await sidebar.boundingBox())!;
+  expect(pane.y + pane.height - row.y - row.height).toBeCloseTo(8, 0);
+  // The last project is below the fold on this viewport.
+  await sidebar.getByRole('button', { name: 'StudyPilo', exact: true }).focus();
+  await expect.poll(() => sidebar.locator('[data-nf-scroll-viewport]').evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  expect(await account.boundingBox()).toEqual(row);
+  await account.press('Enter');
+  await expect(menu).toHaveAttribute('data-side', 'top');
+  await expect(menu.getByRole('menuitem', { name: '显示智能伙伴' })).toBeFocused();
+  expect((await menu.boundingBox())!.x).toBeCloseTo(row.x, 0);
+  await page.keyboard.press('Escape');
+  await expect(account).toBeFocused();
+
+  await page.getByRole('button', { name: '收起左侧栏' }).click();
+  await expect(account).toHaveCount(1);
+  await expect(account).toHaveText('XI');
+  const rail = page.getByRole('navigation', { name: '收起的工作区菜单' });
+  await expect(rail.getByRole('button', { name: 'xiaoke 的账户菜单' })).toBeInViewport();
+  await account.click();
+  await expect(menu).toHaveAttribute('data-side', 'right');
+  await expect(menu.getByRole('menuitem', { name: '设置' })).toBeVisible();
+});
+
+test('窄屏账户菜单随项目侧栏开关，并可从帮助前往右侧文档', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./playground/');
+  const toggle = page.getByRole('button', { name: /左侧栏/ });
+  const account = page.getByRole('button', { name: 'xiaoke 的账户菜单' });
+  await expect(account).toHaveCount(0);
+  await toggle.click();
+  await expect(account).toHaveText('XIxiaoke');
+  await account.click();
+  await page.getByRole('menuitem', { name: '帮助' }).press('ArrowRight');
+  await page.getByRole('menuitem', { name: '接入项目' }).press('Enter');
+  await expect(page.getByRole('tab', { name: '接入项目', selected: true })).toBeVisible();
+  await expect(account).toHaveCount(0);
+  await expect(page.getByRole('menu')).toHaveCount(0);
+});
+
+test('常驻导航高度不足时滚动入口列表，底部头像仍在原位', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 400 });
+  await page.goto('./playground/');
+  await page.getByRole('button', { name: '常驻导航栏' }).click();
+  const rail = page.getByRole('navigation', { name: '主导航' });
+  const account = rail.getByRole('button', { name: 'xiaoke 的账户菜单' });
+  const position = await account.boundingBox();
+  await rail.getByRole('button', { name: '布局组件指南' }).focus();
+  await expect.poll(() => rail.locator('[data-nf-rail-links]').evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await expect(account).toBeInViewport();
+  expect(await account.boundingBox()).toEqual(position);
+});
+
 test('常驻导航在窄窗口让出空间，回到桌面宽度后恢复', async ({ page }) => {
   await page.goto('./playground/');
   const switcher = page.getByRole('button', { name: '常驻导航栏' });
@@ -2932,6 +3086,8 @@ test('键盘调宽遵循两端边界，窄屏和单栏展开时让出焦点', as
   const projectButtons = page.getByRole('navigation', { name: '项目' }).getByRole('button');
   await expect(projectButtons.first()).toBeFocused();
   await projectButtons.last().press('Tab');
+  await expect(page.getByRole('button', { name: 'xiaoke 的账户菜单' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(left).toBeFocused();
   await expect(left).toHaveCSS('width', '2px', { pseudo: 'before' });
   await left.press('ArrowRight');
