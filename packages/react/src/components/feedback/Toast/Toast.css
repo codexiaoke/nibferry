@@ -1,0 +1,13 @@
+[data-nf-toast] { width: fit-content; max-width: 100%; }
+[data-nf-toast] > span {
+  display: block;
+  box-sizing: border-box; width: fit-content; max-width: 100%; padding: 7px 12px; border-radius: 9px;
+  background: var(--nf-primary); color: var(--nf-on-primary); font-size: 13px; line-height: 1.5;
+  box-shadow: 0 3px 12px var(--nf-shadow); overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-toast] > [data-state='open'] { animation: nf-toast-in calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+  [data-nf-toast] > [data-state='closed'] { animation: nf-toast-out calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease); }
+}
+@keyframes nf-toast-in { from { opacity: 0; transform: translateY(3px); } }
+@keyframes nf-toast-out { to { opacity: 0; transform: translateY(2px); } }

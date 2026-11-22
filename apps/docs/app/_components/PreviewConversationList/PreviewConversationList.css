@@ -14,17 +14,4 @@
   box-shadow: 0 6px 18px rgb(0 0 0 / 10%);
 }
 .preview-project-editor::backdrop { background: rgb(0 0 0 / 14%); }
-.preview-project-editor label { display: grid; gap: 6px; }
-.preview-project-editor :is(input, button) {
-  appearance: none;
-  padding: 6px 9px;
-  border: 1px solid var(--site-line);
-  border-radius: 7px;
-  background: var(--site-bg);
-  color: inherit;
-  font: inherit;
-}
-.preview-project-editor :focus-visible { outline: 2px solid var(--nf-accent); }
 .preview-project-editor footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
-.preview-project-editor button { cursor: pointer; }
-.preview-project-editor [type="submit"] { background: var(--site-ink); color: var(--site-bg); }

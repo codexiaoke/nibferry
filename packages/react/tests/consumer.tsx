@@ -1,3 +1,4 @@
+import Gallery from '../../../apps/docs/local-preview/Gallery';
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Folder from '@hugeicons/core-free-icons/Folder01Icon';
@@ -65,7 +66,7 @@ function HeaderSlots() {
       onToggle={() => setExpanded(value => !value)}>项目内容</ConversationGroup></>;
 }
 
-const fixtures = { stream: GroupedStream, dialog: DialogSelectors, menus: SymbolMenus, attachment: AttachmentComposer,
+const fixtures = { foundation: Gallery, stream: GroupedStream, dialog: DialogSelectors, menus: SymbolMenus, attachment: AttachmentComposer,
   search: RemoteSearch, headings: HeaderSlots };
 const Fixture = fixtures[document.body.dataset.fixture as keyof typeof fixtures];
 createRoot(document.getElementById('root')!).render(<Fixture />);

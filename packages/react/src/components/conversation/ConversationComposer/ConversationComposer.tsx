@@ -2,6 +2,7 @@
 
 import { createContext, useState, type ComponentPropsWithRef, type KeyboardEvent, type ReactNode } from 'react';
 import type { ComposerMenuMatch } from '../ComposerActionMenu/ComposerActionMenu.js';
+import { Textarea } from '../../input/Textarea/Textarea.js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Up from '@hugeicons/core-free-icons/ArrowUp02Icon';
 import Stop from '@hugeicons/core-free-icons/StopIcon';
@@ -51,7 +52,7 @@ export function ConversationComposer({ value, onValueChange, onSend, canSend, ru
     for (const menu of menus) menu.edit(field, owner === menu && field.selectionStart === end ? token : null, inserted);
   }
   return <div data-nf-composer="" hidden={hidden}>
-    <textarea aria-label="消息" rows={1} {...props} value={value} disabled={disabled}
+    <Textarea aria-label="消息" rows={1} {...props} value={value} disabled={disabled}
       onChange={event => {
         onValueChange(event.target.value);
         const input = event.nativeEvent as InputEvent;

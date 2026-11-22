@@ -1,0 +1,19 @@
+:is([data-nf-input], [data-nf-textarea]) {
+  appearance: none;
+  box-sizing: border-box;
+  min-inline-size: 0;
+  inline-size: 100%;
+  min-block-size: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--nf-line);
+  border-radius: 9px;
+  background: var(--nf-canvas);
+  color: var(--nf-ink);
+  font: inherit;
+  font-size: 14px;
+}
+:is([data-nf-input], [data-nf-textarea])::placeholder { color: var(--nf-muted); }
+:is([data-nf-input], [data-nf-textarea]):focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 1px; }
+:is([data-nf-input], [data-nf-textarea])[aria-invalid='true'] { border-color: var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))); }
+:is([data-nf-input], [data-nf-textarea]):disabled { background: var(--nf-subtle); color: var(--nf-muted); }
+[data-nf-textarea] { resize: vertical; line-height: 1.5; }

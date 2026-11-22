@@ -1,0 +1,8 @@
+[data-nf-attachment]:not([hidden]) { display: flex; align-items: center; gap: 8px; min-inline-size: 0;
+  border: 1px solid var(--nf-line); border-radius: 9px; padding: 3px 6px; }
+[data-nf-attachment-file] { display: inline-flex; align-items: center; justify-content: start; gap: 8px;
+  min-inline-size: 0; min-block-size: 30px; flex: 1; padding: 3px 5px; color: var(--nf-ink); }
+[data-nf-attachment-file] svg { flex: none; }
+[data-nf-attachment-name] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-nf-attachment] small { color: var(--nf-muted); }
+[data-nf-attachment] > button:last-child:not([data-nf-attachment-file]) { inline-size: 28px; min-block-size: 28px; flex: none; padding: 0; }

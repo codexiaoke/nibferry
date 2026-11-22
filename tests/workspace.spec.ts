@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { themeVariables } from '../packages/react/src/theme/tokens';
+import { componentPages } from '../apps/docs/lib/component-catalog';
 
 async function expectNoHorizontalOverflow(page: Page) {
   const { scrollWidth, clientWidth } = await page.locator('html').evaluate((el) => ({
@@ -39,6 +40,280 @@ test.describe('公开组件接入', () => {
     await page.addStyleTag({ path: resolve('packages/react/dist/styles.css') });
     await page.addScriptTag({ content: script });
   }
+
+  async function mountGallery(page: Page) {
+    await mount(page, 'foundation');
+    await page.addStyleTag({ path: resolve('apps/docs/local-preview/preview.css') });
+  }
+
+  test('字段关联错误说明，按钮保存后更新头像并短暂提示', async ({ page }) => {
+    await mountGallery(page);
+    const name = page.getByRole('textbox', { name: '工作区名称' });
+    await expect(page.getByRole('button', { name: '还原' })).toBeDisabled();
+    await name.fill(' ');
+    await name.press('Enter');
+    await expect(name).toHaveAttribute('aria-invalid', 'true');
+    await expect(name).toHaveAccessibleDescription(/请输入工作区名称/);
+    await name.fill('研发项目');
+    await name.press('Enter');
+    await expect(page.getByRole('img', { name: '研发项目' })).toHaveText('研发');
+    const message = page.getByRole('status').filter({ hasText: '工作区名称已保存' });
+    await expect(message).toBeVisible();
+    await expect(message).toHaveCount(0);
+  });
+
+  test('卡片和普通单选支持方向键，开关控制复选框，选择器回显选项', async ({ page }) => {
+    await mountGallery(page);
+    await page.locator('[data-nf-radio-option]').filter({ hasText: '常驻导航栏' }).click();
+    const rail = page.getByRole('radio', { name: '常驻导航栏' });
+    await expect(rail).toBeChecked();
+    await rail.press('ArrowLeft');
+    await expect(page.getByRole('radio', { name: '项目侧栏' })).toBeChecked();
+    await page.getByRole('radio', { name: '标准' }).press('ArrowDown');
+    await expect(page.getByRole('radio', { name: '紧凑' })).toBeChecked();
+    const mentions = page.getByRole('checkbox', { name: '仅在提到我时通知' });
+    await mentions.press('Space');
+    await expect(mentions).toBeChecked();
+    await page.getByRole('switch', { name: '桌面通知' }).press('Space');
+    await expect(mentions).toBeDisabled();
+    await page.getByRole('button', { name: '回复语言，简体中文' }).press('Enter');
+    await page.getByRole('menuitemradio', { name: 'English' }).click();
+    await expect(page.getByRole('button', { name: '回复语言，English' })).toBeFocused();
+  });
+
+  test('选择器的菜单在打开和调整窗口大小时与触发按钮等宽', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await mountGallery(page);
+    const trigger = page.getByRole('button', { name: '回复语言，简体中文' });
+    await trigger.click();
+    const menu = page.getByRole('menu', { name: '回复语言' });
+    for (const width of [1280, 375]) {
+      await page.setViewportSize({ width, height: 800 });
+      await expect.poll(async () => {
+        const button = await trigger.boundingBox();
+        const panel = await menu.boundingBox();
+        return button && panel && Math.max(Math.abs(panel.x - button.x), Math.abs(panel.width - button.width));
+      }).toBeLessThan(1);
+    }
+  });
+
+  test('内容标签支持键盘切换并保留多行草稿', async ({ page }) => {
+    await mountGallery(page);
+    const edit = page.getByRole('tab', { name: '编辑' });
+    const preview = page.getByRole('tab', { name: '预览' });
+    const input = page.getByRole('textbox', { name: '文档正文' });
+    const draft = '修改标题\n保留来源';
+    await input.fill(draft);
+    await edit.press('ArrowRight');
+    await expect(preview).toBeFocused();
+    await expect(preview).toHaveAttribute('aria-selected', 'true');
+    const panel = page.getByRole('tabpanel', { name: '预览' });
+    await expect(preview).toHaveAttribute('aria-controls', (await panel.getAttribute('id'))!);
+    await expect(panel).toHaveText(draft);
+    await expect(input).toHaveCount(0);
+    await preview.press('Home');
+    await expect(edit).toBeFocused();
+    await expect(input).toHaveValue(draft);
+  });
+
+  test('折叠面板隐藏交互区并在重开时保留备注', async ({ page }) => {
+    await mountGallery(page);
+    const toggle = page.getByRole('button', { name: '修订备注' });
+    const note = page.getByRole('textbox', { name: '修订备注内容' });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(note).toHaveCount(0);
+    await toggle.press('Enter');
+    await note.fill('已核对来源。');
+    await toggle.press('Space');
+    await expect(note).toHaveCount(0);
+    await expect(toggle).toBeFocused();
+    await toggle.press('Enter');
+    await expect(note).toHaveValue('已核对来源。');
+  });
+
+  test('滑杆通过键盘改变进度，未知进度遵守减少动效设置', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountGallery(page);
+    const slider = page.getByRole('slider', { name: '已处理文件' });
+    const progress = page.getByRole('progressbar', { name: '导入进度' });
+    await slider.press('ArrowRight');
+    await expect(slider).toHaveValue('3');
+    await expect(progress).toHaveAttribute('aria-valuenow', '3');
+    await expect(progress).toHaveAttribute('aria-valuemax', '5');
+    await slider.press('Home');
+    await expect(progress).toHaveAttribute('aria-valuenow', '0');
+    await slider.press('End');
+    await expect(progress).toHaveAttribute('aria-valuenow', '5');
+    const unknown = page.getByRole('switch', { name: '进度未知' });
+    await unknown.check();
+    await expect(slider).toBeDisabled();
+    await expect(progress).not.toHaveAttribute('aria-valuenow', /./);
+    await expect(progress.locator('span')).toHaveCSS('animation-name', 'none');
+    await unknown.uncheck();
+    await expect(slider).toBeEnabled();
+    await expect(progress).toHaveAttribute('aria-valuenow', '5');
+  });
+
+  test('窄屏深色下的提示、失败重试、状态标签和空态操作', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 });
+    await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+    await mountGallery(page);
+    await page.getByRole('switch', { name: '深色外观' }).check();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    const help = page.getByRole('button', { name: '同步说明' });
+    await help.hover();
+    await expect(page.getByRole('tooltip')).toBeVisible();
+    await help.press('Escape');
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+    await expect(page.getByRole('alert')).toContainText('上次同步失败');
+    await page.getByRole('button', { name: '重试' }).click();
+    await expect(page.locator('[data-nf-tag="accent"]')).toHaveText('已同步');
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await page.getByRole('button', { name: '添加示例来源' }).click();
+    await expect(page.getByText('设计规范', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '移除来源' }).click();
+    await expect(page.getByText('还没有来源')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test('搜索选择器等宽、可筛选并用键盘确认，详情浮层返回触发按钮', async ({ page }) => {
+    await mountGallery(page);
+    const trigger = page.getByRole('button', { name: '回复模型，工作区默认' });
+    await trigger.press('ArrowDown');
+    const input = page.getByRole('combobox', { name: '回复模型' });
+    await expect(input).toBeFocused();
+    await expect.poll(async () => {
+      const button = await trigger.boundingBox();
+      const popup = await page.getByRole('dialog', { name: '回复模型' }).boundingBox();
+      return button && popup && Math.abs(button.width - popup.width);
+    }).toBeLessThan(1);
+    await input.fill('找不到');
+    await expect(page.getByText('没有匹配的选项')).toBeVisible();
+    await input.fill('openai');
+    await expect(page.getByRole('option')).toHaveCount(2);
+    await input.press('ArrowDown');
+    await input.press('Enter');
+    await expect(page.getByRole('button', { name: '回复模型，GPT-6.2 Sol' })).toBeFocused();
+    const details = page.getByRole('button', { name: '模型详情' });
+    await details.click();
+    await expect(page.getByRole('dialog', { name: '模型详情' })).toContainText('OpenAI');
+    await page.keyboard.press('Escape');
+    await expect(details).toBeFocused();
+  });
+
+  test('移除附件先确认，取消恢复焦点，确认后可继续操作下一项', async ({ page }) => {
+    await mountGallery(page);
+    const remove = page.getByRole('button', { name: '移除 交接清单.md', exact: true });
+    await remove.click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog).toHaveAccessibleDescription(/交接清单/);
+    await expect(dialog.getByRole('button', { name: '取消' })).toBeFocused();
+    await page.mouse.click(2, 2);
+    await expect(dialog).toHaveAttribute('open', '');
+    await page.keyboard.press('Escape');
+    await expect(remove).toBeFocused();
+    await remove.click();
+    await dialog.getByRole('button', { name: '移除附件' }).click();
+    await expect(remove).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '移除 工作区草图.pdf' })).toBeFocused();
+    await page.getByRole('button', { name: '恢复示例附件' }).click();
+    await expect(remove).toBeVisible();
+  });
+
+  test('资料表格支持数字步进、分页、加载占位和局部横向滚动', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 790 });
+    await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+    await mountGallery(page);
+    const table = page.getByRole('table', { name: '工作区资料' });
+    const size = page.getByRole('spinbutton', { name: '每页条数' });
+    const next = page.getByRole('button', { name: '下一页' });
+    await expect(table.getByRole('row')).toHaveCount(3);
+    await next.click();
+    await expect(table).toContainText('交互规范.md');
+    await size.fill('4');
+    await page.getByRole('button', { name: '增加', exact: true }).click();
+    await expect(size).toHaveValue('5');
+    await expect(next).toBeDisabled();
+    await expect(table.getByRole('row')).toHaveCount(6);
+    await page.getByRole('button', { name: '减少', exact: true }).click();
+    await expect(size).toHaveValue('4');
+    await page.getByRole('button', { name: '刷新资料' }).click();
+    await expect(table).toHaveAttribute('aria-busy', 'true');
+    await expect(table.locator('[data-nf-skeleton]')).toHaveCount(8);
+    await expect(page.locator('[data-nf-spinner]')).toHaveCSS('animation-name', 'none');
+    expect(await table.locator('[data-nf-skeleton] > span').first().evaluate(el =>
+      getComputedStyle(el, '::after').animationName)).toBe('none');
+    await expect(table).toHaveAttribute('aria-busy', 'false');
+    await table.evaluate(el => el.style.minWidth = '680px');
+    const viewport = page.locator('[data-nf-table-scroll] [data-nf-scroll-viewport]');
+    expect(await viewport.evaluate(el => { el.scrollLeft = 80; return el.scrollLeft; })).toBeGreaterThan(0);
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test('标签指示连续切换会从中途折返，减少动效时立即到位', async ({ page }) => {
+    await mountGallery(page);
+    const list = page.getByRole('tablist', { name: '文档视图' });
+    await list.evaluate(el => el.style.setProperty('--nf-motion-feedback', '500ms'));
+    const position = () => list.evaluate(el => new DOMMatrix(getComputedStyle(el, '::before').transform).m41);
+    const start = await position();
+    const edit = list.getByRole('tab', { name: '编辑' });
+    const preview = list.getByRole('tab', { name: '预览' });
+    await edit.press('ArrowRight');
+    const target = await preview.evaluate(el => el.parentElement!.offsetLeft);
+    await expect.poll(position, { intervals: [12, 16] }).toBeGreaterThan(start + 1);
+    const reverse = await list.evaluate(el => {
+      const x = () => new DOMMatrix(getComputedStyle(el, '::before').transform).m41;
+      const before = x();
+      el.querySelector<HTMLButtonElement>('button')!.click();
+      return [before, x()];
+    });
+    expect(reverse[0]).toBeLessThan(target);
+    expect(Math.abs(reverse[1] - reverse[0])).toBeLessThan(1);
+    await expect.poll(position).toBeCloseTo(start, 1);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await edit.press('ArrowRight');
+    expect(await position()).toBeCloseTo(target, 1);
+  });
+
+  test('复选与单选反馈使用主题节奏，减少动效后直接切换', async ({ page }) => {
+    await mountGallery(page);
+    const checkbox = page.getByRole('checkbox', { name: '仅在提到我时通知' });
+    const tick = checkbox.locator('+ svg');
+    const radio = page.getByRole('radio', { name: '紧凑' });
+    await expect(tick).toHaveCSS('transition-duration', '0.12s');
+    await radio.check();
+    await expect(radio).toHaveCSS('border-top-width', '5px');
+    await checkbox.check();
+    await expect(tick).toHaveCSS('opacity', '1');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await checkbox.uncheck();
+    await expect(tick).toHaveCSS('transition-duration', '0s');
+    await expect(tick).toHaveCSS('opacity', '0');
+    await expect(radio).toHaveCSS('transition-duration', '0s');
+  });
+
+  test('浮层和提示可以淡出，确认框退场时立即归还操作焦点', async ({ page }) => {
+    await mountGallery(page);
+    await page.locator('html').evaluate(el => el.style.setProperty('--nf-motion-feedback', '400ms'));
+    const details = page.getByRole('button', { name: '模型详情' });
+    await details.click();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-nf-popover][data-state="closed"]')).toHaveCSS('animation-name', 'nf-menu-out');
+    await expect(details).toBeFocused();
+    const remove = page.getByRole('button', { name: '移除 交接清单.md' });
+    await remove.click();
+    const dialog = page.locator('[data-nf-alert-dialog]');
+    await dialog.evaluate(el => Promise.allSettled(el.getAnimations().map(a => a.finished)).then(() => undefined));
+    await page.keyboard.press('Escape');
+    await expect(remove).toBeFocused();
+    expect(await dialog.evaluate(el => !el.matches(':modal') && el.inert)).toBe(true);
+    await expect(dialog).toBeHidden();
+    const name = page.getByRole('textbox', { name: '工作区名称' });
+    await name.fill('保存动画'); await name.press('Enter');
+    const outgoing = page.locator('[data-nf-toast] > [data-state="closed"]');
+    await expect(outgoing).toHaveCSS('animation-name', 'nf-toast-out');
+    await expect(outgoing).toHaveCount(0);
+  });
 
   test('同组追加时保留第一项的输入与 DOM', async ({ page }) => {
     await mount(page, 'stream');
@@ -544,7 +819,7 @@ test('模型提示与强度面板锚定在底栏按钮上方，拖动、重置�
   expect(Math.abs(bounds.x + bounds.width - button.x - button.width)).toBeLessThan(2);
   expect(button.y - bounds.y - bounds.height).toBeCloseTo(4, 0);
   const slider = panel.getByRole('slider');
-  await expect(panel.locator('.nf-model-fill')).toHaveCSS('transition-duration', '0s');
+  await expect(panel.locator('[data-nf-slider-fill]')).toHaveCSS('transition-duration', '0s');
   const bar = (await slider.boundingBox())!;
   const y = bar.y + bar.height / 2;
   await page.mouse.move(bar.x + 14 + (bar.width - 28) * 3 / 5, y);
@@ -569,9 +844,10 @@ test('推理强度滑块连续跟随指针，填充同步，松手和点击刻�
   const panel = page.getByRole('dialog', { name: '选择推理强度' });
   const slider = panel.getByRole('slider');
   await slider.hover();
-  const thumb = panel.locator('.nf-model-thumb');
-  const rail = panel.locator('.nf-model-stops');
-  const fill = panel.locator('.nf-model-fill');
+  await panel.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)).then(() => undefined));
+  const thumb = panel.locator('[data-nf-slider-thumb]');
+  const rail = panel.locator('[data-nf-slider-stops]');
+  const fill = panel.locator('[data-nf-slider-fill]');
   const { x, y, width, height } = (await rail.boundingBox())!;
   const center = () => thumb.evaluate(el => {
     const rect = el.getBoundingClientRect();
@@ -1603,6 +1879,20 @@ test('工作区菜单紧接项目列表，快捷入口支持键盘选择会话�
   await expect(projects.locator('[aria-current="page"]')).toHaveText('分析 EU-OS 桌面端项目');
   await shortcuts.getByRole('button', { name: '新聊天' }).click();
   await expect(projects.getByRole('group', { name: 'EU OS', exact: true }).locator('[aria-current="page"]')).toHaveText('新聊天');
+});
+
+test('搜索弹框退出中重开时从空查询开始并聚焦输入', async ({ page }) => {
+  await page.goto('./docs/components/overlay/search-dialog/');
+  await page.locator('html').evaluate(el => el.style.setProperty('--nf-motion-feedback', '900ms'));
+  const trigger = page.getByRole('button', { name: '搜索文档示例' });
+  await trigger.click();
+  const input = page.getByRole('combobox', { name: '选择示例文档' });
+  await input.fill('工作区');
+  await input.press('Escape');
+  await expect(trigger).toBeFocused();
+  await trigger.press('Enter');
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue('');
 });
 
 test('左栏搜索弹框按项目和标题匹配会话，支持方向键、Enter 和 Esc', async ({ page }) => {
@@ -2849,9 +3139,9 @@ test('从首页筛选公开组件并跳到部件说明', async ({ page }) => {
   const catalog = page.locator('.component-catalog');
   const exports = await import('../packages/react/dist/index.js');
   const links = catalog.locator('.catalog-links a');
-  await expect(links).toHaveCount(16);
+  await expect(links).toHaveCount(componentPages.length);
   const urls = await links.evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
-  expect(new Set(urls).size).toBe(16);
+  expect(new Set(urls).size).toBe(componentPages.length);
   const documents = await Promise.all(urls.map(async url => (await page.request.get(url)).text()));
   const names = await page.evaluate(pages => pages.flatMap(html => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -2896,6 +3186,50 @@ test('图标导航项旧地址定位到导航栏的部件说明，侧栏只列�
   const demo = page.locator('.docs-prose .component-demo');
   await demo.getByRole('button', { name: '文档', exact: true }).press('Enter');
   await expect(demo.getByRole('button', { name: '接入指南' })).toBeVisible();
+});
+
+test('骨架屏按实际行高和头像占位，键盘切换内容时列表保持尺寸', async ({ page }) => {
+  await page.goto('./docs/components/foundation/skeleton/');
+  const list = page.getByRole('list', { name: '最近文件' });
+  const toggle = page.getByRole('switch', { name: '显示骨架' });
+  for (const width of [1280, 375]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(list).toHaveAttribute('aria-busy', 'true');
+    const row = list.getByRole('listitem').first();
+    const title = row.locator('strong');
+    const tile = row.locator('.example-file-tile');
+    const circle = row.locator('[data-nf-skeleton="circle"]');
+    const sizes = () => Promise.all([list, row, title, tile].map(el =>
+      el.evaluate(node => [node.clientWidth, node.clientHeight])));
+    const before = await sizes();
+    const diameter = await circle.evaluate(el => [el.clientWidth, el.clientHeight]);
+    expect(diameter[0]).toBe(diameter[1]);
+    await expect(list.locator('[data-nf-skeleton][aria-hidden="true"]')).toHaveCount(8);
+    await toggle.press('Space');
+    await expect(list).toHaveAttribute('aria-busy', 'false');
+    await expect(row).toContainText('工作区交接清单.md');
+    const avatar = row.getByRole('img', { name: '林溪' });
+    expect(await avatar.evaluate(el => [el.clientWidth, el.clientHeight])).toEqual(diameter);
+    expect(await sizes()).toEqual(before);
+    await expect(toggle).toBeFocused();
+    await toggle.press('Space');
+  }
+});
+
+test('骨架的扫光遵守系统与主题的动效设置', async ({ page }) => {
+  await page.goto('./docs/components/foundation/skeleton/');
+  const fill = page.locator('[data-nf-skeleton="text"] > span').first();
+  const motion = () => fill.evaluate(el => {
+    const style = getComputedStyle(el, '::after');
+    return [style.animationName, style.opacity];
+  });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  expect((await motion())[0]).toBe('nf-skeleton-sweep');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect((await motion())[0]).toBe('none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.locator('.example-skeleton').evaluate(el => el.style.setProperty('--nf-motion-scale', '0'));
+  expect((await motion())[1]).toBe('0');
 });
 
 test('手机从组件分类进入部件页面，Markdown 与正文都链接到关联组件', async ({ page, request }) => {
@@ -2960,7 +3294,7 @@ test('组件目录的每个条目都有实物预览，筛选后可以直接操�
   await page.goto('./docs/components/');
   const catalog = page.locator('.component-catalog');
   const cards = catalog.locator('.catalog-example');
-  await expect(cards).toHaveCount(16);
+  await expect(cards).toHaveCount(componentPages.length);
   for (const card of await cards.all()) {
     await expect(card.locator('.component-demo')).toBeVisible();
     await expect(card.locator('.component-demo > :first-child')).toBeVisible();

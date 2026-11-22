@@ -135,7 +135,7 @@
   border-radius: 18px;
   box-shadow: 0 3px 14px var(--nf-shadow);
 }
-:where([data-nf-composer] textarea) {
+[data-nf-composer] textarea {
   appearance: none;
   grid-column: 1 / -1;
   box-sizing: border-box;
@@ -151,7 +151,7 @@
   font: inherit;
   line-height: 1.5;
 }
-:where([data-nf-composer] textarea):focus { outline: none; }
+[data-nf-composer] textarea:focus { outline: none; }
 :where([data-nf-composer-toolbar], [data-nf-composer-tools]) {
   display: flex;
   flex-wrap: wrap;

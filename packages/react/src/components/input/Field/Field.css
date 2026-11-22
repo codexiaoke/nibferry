@@ -1,0 +1,4 @@
+[data-nf-field] { display: grid; min-inline-size: 0; gap: 6px; text-align: start; }
+[data-nf-field] > label { color: var(--nf-ink); font-size: 14px; font-weight: 500; }
+[data-nf-field] > small { color: var(--nf-secondary); font-size: 12px; line-height: 1.5; }
+[data-nf-field] > [data-nf-field-error] { color: var(--nf-danger, color-mix(in srgb, #ef594a 65%, var(--nf-ink))); }

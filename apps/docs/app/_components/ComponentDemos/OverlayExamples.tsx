@@ -2,7 +2,7 @@
 
 import { useId, useState } from 'react';
 import {
-  ContextMenu, Dialog, FloatingPanel, FloatingPanelTrigger, MenuContent, MenuItem,
+  Button, Field, Input, ContextMenu, Dialog, FloatingPanel, FloatingPanelTrigger, MenuContent, MenuItem,
   PaneButton, PaneHeader, SearchDialog,
 } from 'nibferry';
 import File from '@hugeicons/core-free-icons/File01Icon';
@@ -58,11 +58,11 @@ export function DialogDemo() {
           event.preventDefault();
           if (draft.trim()) { setName(draft.trim()); setOpen(false); }
         }}>
-          <label>文档名称<input value={draft} onChange={e => setDraft(e.target.value)} /></label>
-          <div>
-            <button type="button" className="example-button" onClick={() => setOpen(false)}>取消</button>
-            <button type="submit" className="example-button" disabled={!draft.trim()}>保存</button>
-          </div>
+          <Field label="文档名称"><Input value={draft} onChange={e => setDraft(e.target.value)} /></Field>
+          <footer>
+            <Button onClick={() => setOpen(false)}>取消</Button>
+            <Button type="submit" variant="primary" disabled={!draft.trim()}>保存</Button>
+          </footer>
         </form>
       </Dialog>
     </div>

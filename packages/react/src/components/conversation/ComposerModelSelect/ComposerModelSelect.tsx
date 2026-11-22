@@ -1,11 +1,12 @@
 'use client';
 
-import { useContext, useEffect, useId, useRef, useState, type KeyboardEvent, type RefObject } from 'react';
+import { useContext, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Arrow from '@hugeicons/core-free-icons/ArrowRight01Icon';
 import Reset from '@hugeicons/core-free-icons/RefreshIcon';
 import Tick from '@hugeicons/core-free-icons/Tick02Icon';
+import { Slider } from '../../selection/Slider/Slider.js';
 import { ScrollArea } from '../../layout/ScrollArea/ScrollArea.js';
 import type { ComposerSelectOption } from '../ComposerSelect/ComposerSelect.js';
 import { DialogContainer } from '../../overlay/Dialog/Dialog.js';
@@ -44,40 +45,6 @@ function moveOption(event: KeyboardEvent<HTMLDivElement>) {
   if (next === undefined) return;
   event.preventDefault();
   items[Math.min(items.length - 1, Math.max(0, next))]?.focus();
-}
-
-function LevelSlider({ levels, index, onLevelChange, inputRef }: Pick<ComposerModelSelectProps, 'levels' | 'onLevelChange'> & {
-  index: number; inputRef: RefObject<HTMLInputElement | null>;
-}) {
-  const [gesture, setGesture] = useState<{ value: number; dragging: boolean } | null>(null);
-  const stop = Math.max(0, index);
-  const last = levels.length - 1;
-  const position = gesture?.dragging ? gesture.value : stop;
-  return <div className="nf-model-slider" data-dragging={gesture?.dragging || undefined}>
-    <span className="nf-model-track" aria-hidden="true"><span className="nf-model-stops">
-      <span className="nf-model-fill" style={{ width: (last > 0 ? position / last * 100 : 50) + '%' }}>
-        <span className="nf-model-thumb" />
-      </span>
-      {levels.map(option => <i key={option.value} />)}
-    </span></span>
-    <input ref={inputRef} type="range" min={0} max={last} step={gesture ? 'any' : 1}
-      value={gesture?.value ?? stop} aria-label="推理强度" aria-valuenow={stop} aria-valuetext={levels[index]?.label}
-      onPointerDown={event => {
-        if (!event.isPrimary || event.button !== 0) return;
-        event.currentTarget.setPointerCapture(event.pointerId);
-        setGesture({ value: stop, dragging: false });
-      }}
-      onPointerMove={() => {
-        if (gesture && !gesture.dragging) setGesture({ ...gesture, dragging: true });
-      }}
-      onLostPointerCapture={() => setGesture(null)}
-      onChange={event => {
-        const value = event.currentTarget.valueAsNumber;
-        if (gesture) setGesture(current => current && { ...current, value });
-        const nearest = Math.round(value);
-        if (nearest !== index) onLevelChange(levels[nearest].value);
-      }} />
-  </div>;
 }
 
 export function ComposerModelSelect({ models, model, onModelChange, levels, level, onLevelChange,
@@ -162,7 +129,8 @@ export function ComposerModelSelect({ models, model, onModelChange, levels, leve
               <HugeiconsIcon icon={Reset} size={15} aria-hidden="true" />
             </button>}
           </div>
-          <LevelSlider levels={levels} index={index} onLevelChange={onLevelChange} inputRef={range} />
+          <Slider aria-label="推理强度" aria-valuetext={strength} ref={range} min={0} max={levels.length - 1}
+            marks={levels.map((_, i) => i)} value={Math.max(0, index)} onValueChange={i => onLevelChange(levels[i].value)} />
         </div>}
       </Popover.Content>
     </Popover.Portal>

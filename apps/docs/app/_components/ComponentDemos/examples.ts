@@ -4,8 +4,23 @@ import { ProjectListDemo, SidebarDemo, TabsDemo } from './NavigationExamples';
 import { ScrollDemo, SpacingDemo, SummaryDemo, WorkspaceDemo } from './LayoutExamples';
 import { DropdownDemo } from './DropdownDemo';
 import { ModelSelectDemo } from './ModelSelectDemo';
+import { ChoicesDemo, FeedbackDemo, FieldsDemo, IdentityDemo } from './FoundationExamples';
+import { ContentControlsDemo, RangeProgressDemo } from './ContentControlsExamples';
+
+import { SourcePickerDemo, AttachmentsDemo, RecordsDemo } from './ResourceExamples';
+import { SkeletonDemo } from './SkeletonDemo';
 
 const examples: Record<string, React.ComponentType> = {
+  Popover: SourcePickerDemo,
+  AttachmentList: AttachmentsDemo,
+  Table: RecordsDemo,
+  Skeleton: SkeletonDemo,
+  Field: FieldsDemo,
+  RadioGroup: ChoicesDemo,
+  Tabs: ContentControlsDemo,
+  Slider: RangeProgressDemo,
+  Avatar: IdentityDemo,
+  Alert: FeedbackDemo,
   ConversationView: MessagesDemo,
   ConversationComposer: ComposerDemo,
   ComposerModelSelect: ModelSelectDemo,

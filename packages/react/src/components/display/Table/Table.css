@@ -1,0 +1,7 @@
+[data-nf-table-scroll] { contain: inline-size; min-inline-size: 0; border: 1px solid var(--nf-line); border-radius: 10px; overflow: hidden; }
+[data-nf-table] { width: 100%; border-collapse: collapse; color: var(--nf-ink); font: inherit; font-size: 14px; }
+[data-nf-table] :is(th, td) { padding: 8px 12px; text-align: start; border-block-end: 1px solid var(--nf-line); }
+[data-nf-table] thead { background: var(--nf-subtle); color: var(--nf-secondary); }
+[data-nf-table] th { font-weight: 550; }
+[data-nf-table] tbody > tr:last-child > td { border-block-end: 0; }
+[data-nf-table] caption { padding: 8px 12px; text-align: start; }

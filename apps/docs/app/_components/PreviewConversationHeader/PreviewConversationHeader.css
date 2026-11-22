@@ -50,10 +50,6 @@
   inset-block-start: calc(100% + 4px);
   inset-inline-end: 8px;
   z-index: 1;
-  padding: 4px 8px;
-  border: 1px solid var(--site-line);
-  border-radius: 6px;
-  background: var(--site-bg);
   white-space: nowrap;
 }
 

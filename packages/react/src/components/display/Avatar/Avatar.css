@@ -1,0 +1,7 @@
+[data-nf-avatar] {
+  display: inline-grid; place-items: center; flex: none; vertical-align: middle; overflow: hidden;
+  width: var(--nf-avatar-size, 30px); height: var(--nf-avatar-size, 30px); border-radius: 50%;
+  background: var(--nf-avatar-bg, var(--nf-subtle)); color: var(--nf-avatar-ink, var(--nf-ink));
+  font-size: 12px; font-weight: 500; line-height: 1;
+}
+[data-nf-avatar] > img { inline-size: 100%; block-size: 100%; object-fit: cover; }

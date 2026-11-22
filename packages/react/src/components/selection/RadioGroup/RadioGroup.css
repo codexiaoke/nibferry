@@ -1,0 +1,31 @@
+[data-nf-radio-group] { min-inline-size: 0; margin: 0; padding: 0; border: 0; color: var(--nf-ink); font-size: 14px; }
+[data-nf-radio-group] > legend { padding: 0; margin-block-end: var(--nf-space-sm); font-weight: 500; }
+[data-nf-radio-options] { display: grid; gap: 4px; }
+[data-nf-radio-option] { display: grid; grid-template-columns: 16px 1fr; align-items: center; gap: 4px 9px; cursor: pointer; }
+[data-nf-radio-option] input {
+  grid-column: 1; grid-row: 1; appearance: none; margin: 0; inline-size: 15px; block-size: 15px;
+  background: var(--nf-canvas); border: 1px solid var(--nf-muted); border-radius: 50%; cursor: inherit;
+}
+[data-nf-radio-option] input:checked { border: 5px solid var(--nf-ink); }
+[data-nf-radio-option] input:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 2px; }
+[data-nf-radio-option] small { grid-column: 2; font-size: 12px; color: var(--nf-secondary); }
+[data-nf-radio-option]:has(input:disabled) { cursor: default; opacity: .5; }
+[data-nf-radio-group='list'] [data-nf-radio-option] { padding-block: 5px; }
+[data-nf-radio-group='cards'] [data-nf-radio-options] { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(136px, 100%), 1fr)); gap: var(--nf-space-sm); }
+[data-nf-radio-group='cards'] [data-nf-radio-option] {
+  grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-content: start; align-items: center;
+  padding: 12px; border: 1px solid var(--nf-line); border-radius: 12px; background: var(--nf-canvas);
+}
+[data-nf-radio-group='cards'] [data-nf-radio-option]:has(:checked) { border-color: var(--nf-ink); }
+[data-nf-radio-group='cards'] [data-nf-radio-option]:has(:focus-visible) { outline: 2px solid var(--nf-accent); outline-offset: 2px; }
+[data-nf-radio-group='cards'] input { grid-row: 2; grid-column: 2; outline: none; }
+[data-nf-radio-group='cards'] [data-nf-radio-label] { grid-row: 2; grid-column: 1; }
+[data-nf-radio-visual] { grid-column: 1 / -1; grid-row: 1; margin-block-end: 6px; }
+[data-nf-radio-group='cards'] small { grid-column: 1 / -1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-radio-option] input, [data-nf-radio-group='cards'] [data-nf-radio-option] {
+    transition: border-color calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease),
+      border-width calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) var(--nf-ease);
+  }
+}

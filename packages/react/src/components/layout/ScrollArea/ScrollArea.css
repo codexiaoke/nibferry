@@ -50,3 +50,5 @@
 @media (forced-colors: active) {
   [data-nf-scroll-thumb] { background-color: ButtonText; }
 }
+
+[data-nf-scrollbar][data-orientation='horizontal'] { inline-size: auto; block-size: 12px; padding: 4px 3px; }

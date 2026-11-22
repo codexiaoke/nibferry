@@ -1,0 +1,9 @@
+[data-nf-spinner] {
+  box-sizing: border-box; display: inline-block; flex: none; vertical-align: middle;
+  inline-size: var(--nf-spinner-size, 16px); aspect-ratio: 1; border-radius: 50%;
+  border: 2px solid color-mix(in srgb, currentColor 20%, transparent); border-inline-end-color: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-nf-spinner] { animation: nf-spin calc(.85s * var(--nf-motion-scale, 1)) linear infinite; }
+}
+@keyframes nf-spin { to { transform: rotate(1turn); } }

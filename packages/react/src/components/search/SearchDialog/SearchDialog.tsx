@@ -1,5 +1,7 @@
 'use client';
 
+import { EmptyState } from '../../feedback/EmptyState/EmptyState.js';
+
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
@@ -40,9 +42,9 @@ export function SearchDialog({ label, groups, open, onOpenChange, query, onQuery
     item.onSelect();
   }
   return <Dialog {...props} open={open} onOpenChange={onOpenChange}
-    aria-label={label} data-nf-search-dialog="">
-    {open && <SearchPanel label={label} groups={groups} choose={choose} query={query}
-      onQueryChange={onQueryChange} filterItem={filterItem} renderItem={renderItem} />}
+    aria-label={label} data-nf-search-dialog="" unmountOnClose>
+    <SearchPanel label={label} groups={groups} choose={choose} query={query}
+      onQueryChange={onQueryChange} filterItem={filterItem} renderItem={renderItem} />
   </Dialog>;
 }
 
@@ -124,7 +126,7 @@ function SearchPanel({ label, groups, choose, query: controlledQuery, onQueryCha
           </div>)}
         </div>)}
       </div>
-      {!items.length && <div data-nf-search-empty="" role="status">没有找到匹配的结果</div>}
+      {!items.length && <EmptyState data-nf-search-empty="" role="status" title="没有找到匹配的结果" />}
     </div>
     <div role="group" aria-label="搜索分类" data-nf-search-filters="">
       {[{ id: null, label: '全部' }, ...groups.map(group => ({ id: group.id, label: group.filterLabel ?? group.label }))].map(filter =>
