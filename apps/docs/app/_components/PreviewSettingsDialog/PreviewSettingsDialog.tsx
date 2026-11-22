@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { RadioGroup, SettingsDialog } from 'nibferry';
 import General from '@hugeicons/core-free-icons/SlidersHorizontalIcon';
 import User from '@hugeicons/core-free-icons/UserCircleIcon';
@@ -13,9 +13,10 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   showRail: boolean;
   onRailChange: (show: boolean) => void;
+  replyMotion?: ReactNode;
 }
 
-export default function PreviewSettingsDialog({ open, onOpenChange, showRail, onRailChange }: Props) {
+export default function PreviewSettingsDialog({ open, onOpenChange, showRail, onRailChange, replyMotion }: Props) {
   const [section, setSection] = useState('general');
   return <SettingsDialog className="preview-settings" open={open} onOpenChange={onOpenChange}
     value={section} onValueChange={setSection}
@@ -36,6 +37,7 @@ export default function PreviewSettingsDialog({ open, onOpenChange, showRail, on
             {option.value === 'rail' && <i className="preview-settings-mini-rail" />}
             <i className="preview-settings-mini-sidebar" /><i className="preview-settings-mini-page" />
           </span> }))} />
+        {replyMotion && <section aria-label="回复动效"><h3>回复动效</h3>{replyMotion}</section>}
         <dl className="preview-settings-details"><div><dt>界面语言</dt><dd>简体中文</dd></div></dl>
       </> },
       { id: 'account', label: '账户', icon: User, content: <dl className="preview-settings-details">

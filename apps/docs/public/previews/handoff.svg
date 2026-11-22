@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 240" role="img" aria-label="交接流程：起草、核对、交付">
+  <rect width="480" height="240" fill="#f0f3ed"/>
+  <g fill="none" stroke="#809688" stroke-width="3" stroke-linejoin="round">
+    <path d="M101 151h40V93h66m55 0h47v58h40"/>
+    <path d="m197 86 8 7-8 7m141 44 8 7-8 7"/>
+  </g>
+  <g stroke="#6d8576" stroke-width="2" fill="#fbfcf8">
+    <rect x="34" y="130" width="70" height="42" rx="8"/>
+    <rect x="207" y="72" width="70" height="42" rx="8"/>
+    <rect x="348" y="130" width="70" height="42" rx="8"/>
+  </g>
+  <g font-family="system-ui,sans-serif" font-size="18" fill="#32473a" text-anchor="middle">
+    <text x="69" y="158">起草</text><text x="242" y="100">核对</text><text x="383" y="158">交付</text>
+  </g>
+</svg>

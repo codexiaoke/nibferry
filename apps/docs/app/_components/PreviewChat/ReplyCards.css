@@ -1,0 +1,11 @@
+.preview-canvas-nodes {
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: var(--nf-space-lg) var(--nf-space-sm);
+  min-inline-size: 0; border-radius: 8px; background-color: var(--nf-subtle);
+  background-image: radial-gradient(var(--nf-line) 1px, transparent 1px); background-size: 12px 12px;
+}
+.preview-canvas-nodes > svg { flex: none; color: var(--nf-muted); }
+.preview-canvas-nodes [data-nf-button] { min-inline-size: 0; padding-inline: 8px; overflow-wrap: anywhere; }
+.preview-canvas-nodes [aria-pressed='true'] { border-color: var(--nf-accent); color: var(--nf-accent-text); }
+.preview-chat [data-nf-message-card] { margin-block-end: var(--nf-space-md); }
+
+.example-message-cards { display: grid; gap: var(--nf-space-md); }

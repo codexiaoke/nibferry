@@ -11,9 +11,19 @@ import { MessagesDemo, ComposerDemo, ProcessDemo } from '../app/_components/Comp
 
 在输入框发送「查一下 useState 文档」，点「已搜索」可展开 JSON 结果，点回复里的来源链接可在右栏打开文档。发送「给我一张布局草图」可操作回复里的草图，发送「怎样收起侧栏？」可查看纯文字回复。示例使用本地数据，生成时可随时停止。[交互预览](/playground/)
 
+在[Markdown 回复预览](/playground/?example=markdown)中可以复制代码，点击正文引用会在右栏定位到对应章节。同一份文档的不同引用共用一个标签。也可以在聊天中发送「展示 Markdown 排版」。
+
+## 版本、引用与历史消息
+
+[打开聊天交互预览](/playground/?example=chat)。回复下的「更多 → 重新生成」会新增一版回答。编辑已发送的问题也会保留原版。用回复下方的上一版、下一版按钮切换；网络中断后的重试继续当前版本。
+
+选中回复文字后点「引用」，或在更多菜单中引用整条回复。草稿以紧凑的引用卡展示来源和原文。可以直接输入问题，也可以点麦克风听写，确认文字后发送。发送后点引文可回到当时引用的回复版本。宿主保存来源消息和版本 ID，通过 `MessageQuote` 的 `onOpen` 与 `onRemove` 接管定位和删除。
+
+给 `ConversationView` 传入 `onLoadEarlier` 可在滚动到顶部时向前分页，上一页插入后保留原来的阅读位置。
+
 ## 组合一个回合
 
-把应用的回合放进 `ConversationView`，草稿交给 `ConversationComposer`。父容器提供高度。消息区独立滚动；上翻阅读时，新内容到达也会保留当前位置。可用自己的输入区替换整个 `composer`。
+把应用的回合放进 `ConversationView`，草稿交给 `ConversationComposer`。父容器提供高度，消息区独立滚动。上翻阅读时，助手继续输出会保留阅读位置。主动发送消息会回到会话底部，并继续跟随回复。自定义 `composer` 中的发送按钮可以通过 `useConversationScrollToLatest()` 接入相同行为。
 
 ```tsx
 import {
@@ -38,6 +48,20 @@ import {
 </ConversationView>
 ```
 
+## 消息操作与重试
+
+把 `MessageActions` 传给 `UserMessage` 或 `AssistantMessage` 的 `actions`，按需要组合按钮和时间。预览中悬停用户消息可复制或编辑，键盘按 Tab 也能进入操作栏。编辑时会取回原附件，取消后回到先前的草稿。回复下方的更多菜单可重新生成该条回答。
+
+发送失败时，把重试操作放在用户消息下方。回复中断时，保留已到达的正文，在该条回复下方提供重试。宿主通过回合 ID 更新原消息。
+
+```tsx
+<AssistantMessage actions={turn.interrupted
+  ? <Alert tone="danger" title="回复中断" action={<Button onClick={() => retry(turn.id)}>重试</Button>} />
+  : <MessageActions aria-label="回复操作" timestamp={turn.time}>{replyButtons}</MessageActions>}>
+  {turn.text}
+</AssistantMessage>
+```
+
 ## 输入框操作菜单
 
 <ComposerDemo />
@@ -58,6 +82,12 @@ import { ComposerActionMenu, ConversationComposer, MenuItem } from 'nibferry';
 
 ## 输入框底栏
 
+在交互预览中，点「＋」里的「添加文件」，也可以把文件拖到整个聊天区，或在输入框里粘贴截图。附件在文字上方横向排列，点卡片即可在右侧打开。只发送文件时也可按 Enter。
+
+发送后，将附件列表传给 `UserMessage` 的 `attachments`。图片缩为 80px 的缩略图，文档显示文件类型和名称。附件与下方的文字气泡右对齐，只发文件时只显示附件。
+
+接入时，把 `AttachmentList layout="strip"` 传给输入框的 `attachments`，用 `onFilesAdd` 处理拖放与粘贴的文件。文件选择器也可以调用同一个处理函数。接入方根据附件就绪状态设置 `canSend`，可通过 `AttachmentItem.transfer` 显示每个文件的进度、取消和重试。预览在浏览器内模拟上传，文件保留在本地；断网可试验失败后重试。
+
 左侧的 `tools` 可组合「＋」菜单和权限选择。右侧的 `rightTools` 可组合上下文用量、模型选择和语音输入。两侧独立配置，同组控件按传入顺序排列。
 
 ```tsx
@@ -74,7 +104,7 @@ import { ComposerModelSelect, ContextUsage, ConversationComposer } from 'nibferr
   emptyAction={voiceChatButton} running={running} onStop={stop} />
 ```
 
-点击底栏模型名可拖动滑杆调整推理强度，再点面板中的模型名可切换模型。模型选项的 `provider` 用作分组标题，省略该字段的选项显示在顶部。预览中的模型、强度档位和用量使用示例数据。空草稿时，最右侧的波形按钮可发送一条示例语音消息。麦克风可将示例转写插入草稿。接入实际语音服务时，在这两个按钮上绑定应用自己的回调。
+点击底栏模型名可拖动滑杆调整推理强度，再点面板中的模型名可切换模型。模型选项的 `provider` 用作分组标题，省略该字段的选项显示在顶部。预览中的模型、强度档位和用量使用示例数据。点击麦克风就能听写，识别结果会插入草稿的光标位置。录音时可以查看时长、结束或取消。空草稿时，波形按钮菜单提供「录音并发送」和示例语音。浏览器无法识别时，可以选择示例听写来体验草稿编辑。语音服务由接入产品决定。
 
 ## 控制分组
 
@@ -84,7 +114,21 @@ import { ComposerModelSelect, ContextUsage, ConversationComposer } from 'nibferr
 
 `TurnProcess` 运行中展开，结束后默认折叠。`ActionGroup`、带详情的 `ActionRow` 和已结束的 `TurnProcess` 都支持 `defaultExpanded`，也可用 `expanded` 与 `onExpandedChange` 从外部控制。收起时组件仍挂载。
 
+## 流式回复动效
+
+把持续追加的纯文本传给 `StreamingText`，通过 `streaming` 标记生成状态。默认使用像素显影，也可以选择流光笔尖或只看文字。在交互预览的「设置 → 通用 → 回复动效」中可以切换和重播。
+
+```tsx
+<AssistantMessage streaming={running}>
+  <p><StreamingText streaming={running} effect="pen">{text}</StreamingText></p>
+</AssistantMessage>
+```
+
+流式 Markdown 按行追加时，新插入的表格行和代码行轻轻淡入。已结束的消息直接呈现正文。系统减少动效和主题动效开关都适用于这些效果。
+
 ## 在文字中插入组件
+
+打开[审批与画布预览](/playground/?example=cards)，可以在消息中通过或退回草案，再选中一个画布节点修改名称。后续文字生成时，输入内容与选择都会保留。也可以在聊天中发送「展示审批与画布」。
 
 条目的类型、顺序和渲染函数由应用定义。例如收到一条审批记录，可以渲染现有的审批卡；收到画布数据，则插入产品自己的画布。后续文字使用新的条目 ID。流式补全同一段文字时，继续使用该段原来的 ID。
 

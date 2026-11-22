@@ -70,7 +70,11 @@
 .preview-source-link { color: var(--nf-accent-text); padding-inline: 0; display: inline-flex; align-items: center; gap: 4px; }
 .preview-doc-sources { margin: 0; padding-inline-start: var(--nf-space-lg); }
 .preview-doc-sources a { color: var(--nf-accent-text); text-decoration: underline; }
-.preview-stream-dot { display: inline-block; width: 7px; height: 7px; border-radius: 100%; background: currentColor; }
+.preview-stream-status:not([data-waiting]) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.preview-stream-status[data-waiting] { color: var(--nf-muted); font-size: .875rem; }
+.preview-chat [data-nf-message-group] [data-nf-alert] {
+  width: fit-content; padding: 0; gap: var(--nf-space-sm); background: transparent; border: 0;
+}
 @media (prefers-reduced-motion: no-preference) {
   .preview-sketch {
     transition: grid-template-rows calc(var(--nf-motion-reveal) * var(--nf-motion-scale, 1)) var(--nf-ease);
@@ -78,8 +82,20 @@
   @starting-style {
     .preview-sketch { grid-template-rows: 0fr; }
   }
-  .preview-stream-dot {
-    animation: preview-chat-pulse calc(1s * var(--nf-motion-scale, 1)) var(--nf-ease) infinite alternate;
-  }
-  @keyframes preview-chat-pulse { to { opacity: .35; } }
+  .preview-stream-status[data-waiting] { animation: nf-preview-wait calc(var(--nf-motion-feedback) * var(--nf-motion-scale, 1)) ease-out 300ms backwards; }
+  @keyframes nf-preview-wait { from { opacity: 0; } }
 }
+
+.preview-voice-status {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--nf-space-sm);
+  padding: 4px var(--nf-space-sm); border-radius: 8px;
+  background: var(--nf-subtle); color: var(--nf-secondary); font-size: .8125rem;
+}
+.preview-voice-status [role="status"] { display: inline-flex; align-items: center; gap: 6px; }
+.preview-voice-status[data-recording] [role="status"]::before {
+  content: ''; inline-size: 7px; block-size: 7px; border-radius: 50%; background: var(--nf-accent);
+}
+.preview-voice-status time { font-variant-numeric: tabular-nums; }
+.preview-voice-status [data-nf-button] { min-block-size: 28px; padding: 2px 6px; font-size: inherit; }
+.preview-chat [data-reply-id]:focus { outline: none; }
+.preview-chat [data-reply-id]:focus-visible { box-shadow: -3px 0 var(--nf-accent); }
